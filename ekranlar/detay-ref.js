@@ -6,9 +6,7 @@
 (() => {
   const FIYAT = ['', 'Ekonomik', 'Orta', 'Üst Orta', 'Lüks'];
   const nokta = s => String(s || '').replace(':', '.');
-  const nk = '<span class="gm-nokta" aria-hidden="true">·</span>';
   const bulunamadi = () => GM.hataEkran({tur: 'bulunamadi', baslik: 'Mekân bulunamadı', metin: 'Bu mekân yayından kalkmış ya da bağlantı eskimiş olabilir. **Mekânlar** listesinden devam et.', eylem: {metin: 'Mekânlara dön', ikon: 'mekan', yerine: '#/mekanlar'}});
-  const kat = m => [m.kategori, m.mutfak?.[0]].filter(Boolean);
   const bugunMetin = v => (v.acik.acilis ? `Bugün ${nokta(v.acik.acilis)}${GM.saatEki(v.acik.acilis, 'den')} itibaren` : 'Onayla kesinleşir');
   const seckiler = v => [...(v.m.seckiler || []).includes('rota') ? [{ikon: 'rota', ad: 'Dada Route durağı'}] : [], ...(v.d.editorNotu ? [{ikon: 'pen-nib', ad: 'Editör notu'}] : [])];
   const bilinmesi = v => GM.satirlar([
@@ -17,7 +15,8 @@
     {ikon: 'saat', baslik: 'Çalışma saatleri', alt: v.acik.metin || 'Henüz girilmedi', veri: {eylem: 'mk-bilgi', id: 'saat'}}
   ].filter(Boolean));
   const benzer = v => (v.benzer.length ? GM.yatay(v.benzer.map(x => GM.mekanKart(x, {kayitli: GM.mekanKayit.var('favori', x.slug)}))) : '');
-  const hataLink = () => `<div class="gm-sira">${GM.btn({metin: 'Bilgi hatası bildir', ikon: 'flag', tur: 'text', veri: {eylem: 'mk-hata'}})}</div>`;
+  // Kuyruk satırı: doğrulama · güncelleme · Hata bildir tek satırda (yığılma kuralı 2: tek başına "Bilgi hatası bildir" satırı yok).
+  const kuyrukSatir = v => GM.tazelik(v.d.dogrulama, {hata: true});
   const ortak = {
     tur: 'banner', iskelet: 'detay', ust: '#/mekanlar',
     yukle: () => GM.yukleVeri('mekan-detay'),
@@ -35,11 +34,11 @@
       const v = GM.mekanPaket(ctx.param.slug); if (!v) return bulunamadi();
       const {m, d} = v, ol = GM.olanaklar(v);
       return GM.galeriHero({gorseller: v.galeri, sinif: 'is-kare', etiket: `${m.ad} fotoğrafları`}) + GM.refAkis([
-        `${GM.ayirtSatir(seckiler(v))}${GM.metinBlok({baslik: m.ad, rol: 'display', h: 1, metin: d.adres || GM.konumMetin(m, 'uzun')})}${GM.p(`**${FIYAT[m.fiyat] || ''}** · ${kat(m).join(' · ')}`)}${GM.eylemDortlu([
+        `${GM.mekanKimlik(m, d, {rozetHtml: GM.ayirtSatir(seckiler(v))})}${GM.eylemDortlu([
           {ikon: 'favori', ad: 'Favori', basili: GM.mekanKayit.var('favori', m.slug), veri: {eylem: 'mk-kaydet'}},
           {ikon: 'kaydet', ad: 'Kaydet', adBasili: 'Listede', basili: GM.mekanKayit.var('liste', m.slug), veri: {eylem: 'mk-liste'}},
           {ikon: 'ziyaret', ad: 'Gittim', basili: GM.mekanKayit.var('ziyaret', m.slug), veri: {eylem: 'mk-ziyaret'}},
-          {ikon: 'duzenle', ad: 'Not', adBasili: 'Notun var', basili: GM.mekanKayit.var('not', m.slug), veri: {eylem: 'mk-not'}}])}${rotaBag(v)}${d.goruntulenme ? GM.p(`Bu sayfaya **${GM.sayi(d.goruntulenme)} kez** bakıldı`, {meta: true, ton: 'ikincil'}) : ''}`,
+          {ikon: 'duzenle', ad: 'Not', adBasili: 'Notun var', basili: GM.mekanKayit.var('not', m.slug), veri: {eylem: 'mk-not'}}])}${rotaBag(v)}`,
         {ust: 'Dada Gourmet’in görüşü', html: `${(d.aciklama || [m.tanitim]).filter(Boolean).map(x => GM.p(x)).join('')}${d.editorNotu ? GM.alinti({metin: d.editorNotu.metin, kaynak: `Dada Gourmet editörü · ${d.editorNotu.etiket}`}) : ''}`},
         {ust: 'Bilgiler', html: GM.satirlar([
           {ikon: 'pin', baslik: d.adres || GM.konumMetin(m, 'uzun'), alt: 'Yol tarifi al', veri: {eylem: 'mk-yol'}},
@@ -51,7 +50,7 @@
         ol.length ? {ust: 'Olanaklar', html: GM.olanakListe(ol, {sutun: 2})} : null,
         {ust: 'Konum', html: `${GM.harita({ad: `r1-${m.slug}`, yukseklik: 'var(--gm-size-map-h)', merkez: [m.lng, m.lat], zoom: 14.2, etkilesim: false, kontroller: false, pinler: [{id: m.slug, lng: m.lng, lat: m.lat, secili: true, ad: m.ad}], etiket: `${m.ad} haritada`})}${GM.p(GM.konumMetin(m, 'uzun'), {meta: true, ton: 'ikincil'})}`},
         v.yakin.length ? {ust: 'Yakında', baslik: 'Yakındaki mekânlar', html: GM.yatay(v.yakin.slice(0, 6).map(x => GM.mekanKart(x, {kayitli: GM.mekanKayit.var('favori', x.slug), mesafe: `${GM.ondalik(GM.km([m.lng, m.lat], [x.lng, x.lat]), 1)} km`})))} : null,
-        {html: `${GM.tazelik(d.dogrulama)}${hataLink()}`, gri: true}
+        {html: kuyrukSatir(v), gri: true}
       ]);
     },
     altBar: ctx => { const v = GM.mekanPaket(ctx.param.slug); if (!v) return ''; return GM.altEylem({ikonlar: [...(v.d.tel ? [{ikon: 'telefon', ad: 'Ara', veri: {eylem: 'mk-ara'}}] : []), {ikon: 'yon', ad: 'Yol tarifi', veri: {eylem: 'mk-yol'}}], dugmeler: [v.m.rezervasyon ? {metin: 'Masa ayırt', ikon: 'rezervasyon', veri: {eylem: 'mk-rez'}} : {metin: 'Haritada aç', ikon: 'harita', veri: {eylem: 'mk-harita'}}]}); }
@@ -66,7 +65,7 @@
       const ideal = [...(m.vesile || []).map(ad => ({ikon: 'utensils', ad})), ...(m.konsept || []).map(ad => ({ikon: 'yildiz', ad})), ...(d.deneyim || []).filter(x => x.ad === 'Oturma Alanı').map(x => ({ikon: x.ikon, ad: x.deger}))];
       const menu = d.neYenir?.length ? `${GM.satirlar(d.neYenir.map(x => ({ikon: 'neYenir', baslik: x.ad.replace('Örnek tabak: ', ''), alt: d.ornek ? 'Örnek içerik · imza tabak' : 'İmza tabak'})))}${GM.veriYok('Tam menü **henüz girilmedi**; fiyatlar rezervasyonda doğrulanır.')}` : GM.veriYok('Menü **henüz girilmedi**. İşletme eklediğinde burada görünür.');
       return GM.galeriHero({gorseller: v.galeri, sinif: 'is-kisa is-bindir', etiket: `${m.ad} fotoğrafları`}) + GM.refAkis([
-        `${GM.mekanKimlik(m, d, {kompakt: true})}${d.adres ? GM.p(d.adres, {meta: true, ton: 'ikincil'}) : ''}${rotaBag(v)}`,
+        `${GM.mekanKimlik(m, d, {kompakt: true, meta: {mutfak: false, goz: false}})}${rotaBag(v)}`,
         m.rezervasyon ? {ust: 'Masa ayırt', baslik: 'Bir saat seç', html: `${GM.slotBant(m, d, {kisi: 2, not: 'Onayla kesinleşir'})}${GM.p('Saate dokun; alerjen notunu ekleyip **talebini gönder**.', {meta: true, ton: 'ikincil'})}`, gri: true} : {ust: 'Masa', html: GM.veriYok('Bu mekân **rezervasyon almıyor**; doğrudan gidebilirsin.'), gri: true},
         ideal.length ? {baslik: 'Şunun için ideal', html: GM.etiketBulut(ideal)} : null,
         {baslik: 'Menü özeti', html: menu},
@@ -74,7 +73,7 @@
         {baslik: 'Yorumlar', html: `${GM.yorumBolumu({yorumlar: [], bos: 'Bu mekân için henüz onaylanmış bir yorum yok. İlk değerlendiren sen ol.'})}${GM.btn({metin: 'Değerlendir', ikon: 'yildiz', tur: 'secondary', tam: true, veri: {eylem: 'mk-degerlendir'}})}`},
         {baslik: 'Konum', html: GM.adresKart(m, d)},
         v.benzer.length ? {baslik: 'Benzer mekânlar', html: benzer(v)} : null,
-        hataLink()
+        kuyrukSatir(v)
       ], {bindir: true});
     },
     altBar: ctx => { const v = GM.mekanPaket(ctx.param.slug); if (!v) return ''; return v.m.rezervasyon ? GM.rezBar({baslik: 'Masa ayırt · 2 kişi', alt: bugunMetin(v), altIkon: 'saat', eylem: {metin: 'Rezervasyon', ikon: 'rezervasyon', veri: {eylem: 'mk-rez'}}}) : GM.rezBar({baslik: 'Rezervasyon almıyor', alt: GM.konumMetin(v.m), altIkon: 'pin', eylem: {metin: 'Yol tarifi', ikon: 'yon', veri: {eylem: 'mk-yol'}}}); }
@@ -97,7 +96,7 @@
     ciz: ctx => {
       const v = GM.mekanPaket(ctx.param.slug); if (!v) return bulunamadi();
       const {m, d} = v;
-      return GM.vitrinBas({gorsel: v.galeri[0]?.src, logo: v.galeri[1]?.kucuk || null, baslik: m.ad, alt: GM.konumMetin(m), meta: `${GM.fiyat(m.fiyat)}${nk}<span>${GM.esc(kat(m).join(' · '))}</span>`,
+      return GM.vitrinBas({gorsel: v.galeri[0]?.src, logo: v.galeri[1]?.kucuk || null, baslik: m.ad, metaHtml: GM.mekanMeta(m, d, {durum: false, goz: false}),
         sag: GM.ikonBtn({ikon: 'favori', etiket: 'Favorilere ekle', tur: 'kutu', secili: GM.mekanKayit.var('favori', m.slug), veri: {eylem: 'mk-kaydet'}}) + GM.ikonBtn({ikon: 'ziyaret', etiket: 'Ziyaret Ettim', tur: 'kutu', secili: GM.mekanKayit.var('ziyaret', m.slug), veri: {eylem: 'mk-ziyaret'}})})
         + GM.refAkis([
           `${GM.aciklama({metin: (d.aciklama || [m.tanitim]).filter(Boolean).join(' '), satir: 3})}${GM.etiketBulut(v.ozellik.map(ad => ({ikon: 'onay', ad})))}`,
@@ -107,7 +106,7 @@
           {baslik: 'Bilinmesi gerekenler', html: bilinmesi(v)},
           {baslik: 'Konum', html: GM.adresKart(m, d)},
           v.benzer.length ? {baslik: 'Benzer mekânlar', html: benzer(v)} : null,
-          hataLink()
+          kuyrukSatir(v)
         ]);
     },
     altBar: ctx => { const v = GM.mekanPaket(ctx.param.slug); if (!v) return ''; return GM.rezBar({baslik: v.m.rezervasyon ? 'Deneyimini seç' : 'Rezervasyon almıyor', alt: v.m.rezervasyon ? bugunMetin(v) : GM.konumMetin(v.m), altIkon: v.m.rezervasyon ? 'saat' : 'pin', eylem: v.m.rezervasyon ? {metin: 'Rezervasyon', ikon: 'rezervasyon', veri: {eylem: 'mk-rez'}} : {metin: 'Yol tarifi', ikon: 'yon', veri: {eylem: 'mk-yol'}}}); }
@@ -125,7 +124,7 @@
         v.acik.metin?.includes(' · ') ? {ikon: 'saat', baslik: v.acik.acik ? 'Şu an açık' : 'Şu an kapalı', metin: v.acik.metin.replace(/^(Açık|Kapalı) · /, '')} : null
       ].filter(Boolean);
       return GM.galeriHero({gorseller: v.galeri, sinif: 'is-bindir', etiket: `${m.ad} fotoğrafları`}) + GM.refAkis([
-        `${GM.ortaBaslik({baslik: m.ad, alt: `${m.kategori} · ${GM.konumMetin(m, 'uzun')}`, meta: `${GM.esc(m.mutfak?.[0] || '')}${nk}${GM.fiyat(m.fiyat)}`})}${GM.ozetSerit([
+        `${GM.ortaBaslik({baslik: m.ad, metaHtml: GM.mekanMeta(m, d, {puan: false, fiyat: false, durum: false, goz: false})})}${GM.ozetSerit([
           {ikon: 'yildiz', etiket: 'Puan', deger: m.puan == null ? '–' : String(m.puan).replace('.', ','), alt: m.puan == null ? 'Henüz yok' : null},
           {ikon: 'fiyat', etiket: 'Fiyat', deger: FIYAT[m.fiyat] || '–'},
           s ? {ikon: 'saat', etiket: 'Bugün', deger: v.acik.acik ? 'Açık' : nokta(v.acik.acilis || s[0]), alt: v.acik.acik ? 'şu an' : 'açılış'} : {ikon: 'saat', etiket: 'Şu an', deger: v.acik.acik == null ? '–' : v.acik.acik ? 'Açık' : 'Kapalı'}])}`,
@@ -138,7 +137,7 @@
         {baslik: 'Bilinmesi gerekenler', html: bilinmesi(v)},
         v.il?.tescilli?.length ? {baslik: `${m.il} lezzetleri`, html: ilKart(v)} : null,
         v.benzer.length ? {baslik: 'Benzer mekânlar', html: benzer(v)} : null,
-        `${GM.tazelik(d.dogrulama)}${hataLink()}`
+        kuyrukSatir(v)
       ], {bindir: true});
     },
     altBar: ctx => { const v = GM.mekanPaket(ctx.param.slug); if (!v) return ''; return GM.rezBar({baslikHtml: `${GM.fiyat(v.m.fiyat)} <span>${GM.esc(FIYAT[v.m.fiyat] || '')}</span>`, alt: v.m.rezervasyon ? `${bugunMetin(v)} · 2 kişi` : 'Rezervasyon almıyor', altIkon: v.m.rezervasyon ? 'saat' : 'pin', eylem: v.m.rezervasyon ? {metin: 'Rezerve et', veri: {eylem: 'mk-rez'}} : {metin: 'Yol tarifi', ikon: 'yon', veri: {eylem: 'mk-yol'}}}); }

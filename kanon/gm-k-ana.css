@@ -34,9 +34,7 @@
 .gm-ka-kar-sure{display:flex;align-items:baseline;gap:var(--gm-s-2);white-space:nowrap}
 .gm-ka-kar-sure b{font:var(--gm-t-numeral-md-weight) var(--gm-t-section-size)/1 var(--gm-font-bold);letter-spacing:var(--gm-t-numeral-md-track)}
 .gm-ka-kar-sure small{margin-right:var(--gm-s-2);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate)}
-.gm-ka-kar-ad{display:grid;gap:var(--gm-s-2);min-width:0}
-.gm-ka-kar-ad b{font:var(--gm-t-subheading-weight) var(--gm-t-meta-size)/1.2 var(--gm-font-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gm-ka-kar-ad small{font:var(--gm-t-meta-weight) var(--gm-t-label-size)/1.2 var(--gm-font);color:var(--gm-slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-ka-kar-ad{min-width:0;font:var(--gm-t-subheading-weight) var(--gm-t-meta-size)/1.2 var(--gm-font-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gm-ka-kisa{display:flex;gap:var(--gm-s-8);overflow-x:auto;margin:0 calc(-1 * var(--gm-gutter));padding:var(--gm-s-16) var(--gm-gutter) 0;scrollbar-width:none}
 .gm-ka-kisa::-webkit-scrollbar{display:none}
 .gm-ka-kisa-oge{flex:0 0 auto;display:flex;align-items:center;gap:var(--gm-s-8);min-height:var(--gm-size-touch);padding:var(--gm-s-8) var(--gm-s-16) var(--gm-s-8) var(--gm-s-8);border-radius:var(--gm-r-control);background:var(--gm-paper);border:var(--gm-size-border) solid var(--gm-line);color:var(--gm-ink);text-decoration:none}
@@ -203,6 +201,69 @@
 .gm-ka-kar-oge:active,.gm-ka-kisa-oge:active,.gm-ka-hizmet-oge:active,.gm-ka-kizgara-oge:active,.gm-ka-kol:active,.gm-ka-yolculuk:active,.gm-ka-kapak:active{transform:scale(.98)}
 .gm-ka-kisa-oge,.gm-ka-hizmet-oge,.gm-ka-kizgara-oge,.gm-ka-kol,.gm-ka-yolculuk,.gm-ka-kapak{transition:transform var(--gm-m-press) var(--gm-ease)}
 
+/* ---------- Yığılma kuralı (Görev 10, docs/YIGILMA-KURALI.md) — ana sayfa çeşitleri ----------
+   Kart altında / foto üstünde en çok 2 metin satırı: etiket foto üstüne hap olur, meta tek satır (.gm-tek-satir ya da aynı davranış).
+   Kanon kartlarının (GM.rotaKart, GM.etkinlikKart, GM.icerikKart, GM.heroAna, GM.teaser) ana sayfa türevleri sinif ile seçilir: gm-ka-rk · gm-ka-iki (şerit) · gm-ka-puf · gm-ka-hero · gm-ka-teaser. */
+/* Foto üstü etiket hapı (sol üst / sol alt): kâğıt zemin, birincil yazı, chip-sm köşe. */
+.gm-ka-hap .icon{font-size:var(--gm-size-icon-check);color:var(--gm-primary)}
+.gm-ka-hap{gap:var(--gm-s-4);max-width:calc(100% - var(--gm-size-touch) - var(--gm-s-24));overflow:hidden;text-overflow:ellipsis}
+.gm-ka-hap.is-ikon{justify-content:center;width:var(--gm-size-badge);padding:0}
+.gm-rk.gm-ka-rk .gm-rk-etiket,.gm-serit.gm-ka-iki .gm-ek .gm-card__category,.gm-ka-puf .gm-puf-metin small{position:absolute;z-index:3;display:block;max-width:calc(100% - var(--gm-size-touch) - var(--gm-s-24));height:var(--gm-size-badge);padding:0 var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-paper);color:var(--gm-primary);font:var(--gm-t-card-category-weight) var(--gm-t-card-category-size)/var(--gm-size-badge) var(--gm-font-bold);letter-spacing:var(--gm-t-label-track);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--gm-sh-sm)}
+/* Rota kapak kartı (ana-a geniş, ana-c hikâye): etiket sol üstte hap; altta ad · tek satır özet (kaydırılır). */
+.gm-rk.gm-ka-rk .gm-rk-metin{position:static}
+.gm-rk.gm-ka-rk .gm-rk-etiket{top:var(--gm-s-12);left:var(--gm-s-12)}
+.gm-rk.gm-ka-rk .gm-rk-ozet,.gm-ka-yck-meta,.gm-ka-profil-alt.gm-tek-satir,.gm-ka-kapak-alt.gm-tek-satir{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent)}
+:is(.gm-rk.gm-ka-rk .gm-rk-ozet,.gm-ka-yck-meta,.gm-ka-profil-alt,.gm-ka-kapak-alt).is-sigar{-webkit-mask-image:none;mask-image:none}
+.gm-rk.gm-ka-rk .gm-rk-ozet::-webkit-scrollbar{display:none}
+.gm-rk.gm-ka-rk .gm-rk-ad{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Etkinlik kartı şeridi: tür hapı fotonun sol altına, ad tek satır → ad · yer. */
+.gm-serit.gm-ka-iki .gm-ek .gm-card__body{position:relative}
+.gm-serit.gm-ka-iki .gm-ek .gm-card__text{position:static}
+.gm-serit.gm-ka-iki .gm-ek .gm-card__category{left:var(--gm-s-8);bottom:calc(100% + var(--gm-s-8))}
+/* Tek satır ad: line-clamp yerine nowrap + üç nokta (clamp, display:flow-root ezildiğinde ikinci satırı sızdırıyor). */
+.gm-serit.gm-ka-iki .gm-ek .gm-card__title,.gm-ka-deneyim-govde .gm-card__title,.gm-ka-puf .gm-puf-metin b{display:block;height:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Lezzet (içerik) kartı: kategori hapı fotonun sol üstünde, başlık tek satır → başlık · okuma süresi. */
+.gm-ka-satirlar .gm-ek-satir .gm-satir-metin > b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-ka-strip .gm-strip-metin b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-ka-puf{position:relative}
+.gm-ka-puf .gm-puf-metin small{top:var(--gm-s-8);left:var(--gm-s-8);max-width:calc(100% - var(--gm-s-16))}
+/* Hero (ana-a): sayı şeridi hiçbir genişlikte kırılmaz; sığmazsa yatay kayar. */
+.gm-ka-hero .gm-stats{overflow-x:auto;scrollbar-width:none}
+.gm-ka-hero .gm-stats::-webkit-scrollbar{display:none}
+.gm-ka-hero .gm-stats>*{flex:none}
+.gm-ka-hero .gm-stats>span:not(.gm-stats-ayrac){white-space:nowrap}
+/* Mekân Bul çağrısı: çipler tek satır, sığmazsa kayar ve sağda solar. */
+.gm-ka-teaser .gm-teaser-cipler{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent)}
+.gm-ka-teaser .gm-teaser-cipler::-webkit-scrollbar{display:none}
+.gm-ka-teaser .gm-teaser-cipler>*{flex:none}
+/* Seçki kapağı: rozet hapı sol üstte (şema sağ üstte). */
+.gm-ka-kapak > .gm-ka-hap{top:var(--gm-s-16);left:var(--gm-s-16);max-width:calc(100% - var(--gm-size-box-xxl) - var(--gm-s-64))}
+/* Yolculuk kartı (Airbnb): ad + rozet aynı satır. */
+.gm-ka-yolculuk-ust{display:flex;align-items:center;gap:var(--gm-s-8);min-width:0}
+.gm-ka-yolculuk-ust b{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-ka-yolculuk-ust .gm-bilet-rozet{flex:none}
+/* Canlı yolculuk kartı (GM.canliOzetKart): ad + süre · tek meta (çipler içinde) · ilerleme. */
+.gm-ka-yck-ad{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/1.2 var(--gm-font-bold)}
+.gm-ka-yck-meta{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-size-badge) var(--gm-font);color:color-mix(in srgb,var(--gm-paper) 72%,transparent)}
+.gm-ka-yck-meta .gm-yck-cip{display:inline-flex;margin-left:var(--gm-s-8);vertical-align:top;color:var(--gm-paper)}
+/* Ana · B yüzen mekân kartı (GM.pinKart): pin seçilince sayfa gizlenir, kart alt menünün 12 üstünde tamamen görünür (Airbnb harita kartı). */
+.gm-ka-uber.is-pin .gm-ka-u-sayfa,.gm-ka-uber.is-pin .gm-ka-u-liste{opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--gm-m-press) var(--gm-ease),visibility 0s linear var(--gm-m-press)}
+.gm-ka-u-pinkart{position:absolute;left:var(--gm-s-16);right:var(--gm-s-16);bottom:var(--ka-pk-alt,var(--gm-size-box-xxl));z-index:7}
+.gm-ka-u-pinkart[hidden]{display:none}
+.gm-ka-pk{display:grid;grid-template-columns:var(--gm-size-box-xxl) minmax(0,1fr);gap:var(--gm-s-12);padding:var(--gm-s-12);border-radius:var(--gm-r-surface);background:var(--gm-paper);box-shadow:var(--gm-sh-md);animation:gm-ka-pk-gel var(--gm-m-press) var(--gm-ease)}
+@keyframes gm-ka-pk-gel{from{opacity:0;transform:translateY(var(--gm-s-16))}}
+.gm-ka-pk-foto{position:relative;display:block;width:var(--gm-size-box-xxl);height:var(--gm-size-box-xxl);overflow:hidden;border-radius:var(--gm-r-control);background:var(--gm-line)}
+.gm-ka-pk-foto .gm-photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.gm-ka-pk-govde{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:var(--gm-s-4);min-width:0}
+.gm-ka-pk-ust{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--gm-s-8);align-items:center;margin:calc(-1 * var(--gm-s-4)) calc(-1 * var(--gm-s-4)) 0 0}
+.gm-ka-pk-ad{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:var(--gm-t-card-weight) var(--gm-t-card-size)/var(--gm-t-card-line) var(--gm-font-bold);color:var(--gm-ink);text-decoration:none}
+.gm-ka-pk-kapat{width:var(--gm-s-32);height:var(--gm-s-32);min-width:0;min-height:0}
+.gm-ka-pk-eylem{display:flex;gap:var(--gm-s-8);margin-top:var(--gm-s-8)}
+.gm-ka-pk-eylem > *{flex:1 1 0;min-width:0;white-space:nowrap}
+/* Sayfa başlığında × görünürken ⌃/⌄ gizlenir (ikisi yan yana durmaz). */
+.gm-ka-u-kapat:not([hidden]) ~ .gm-ka-u-ac{display:none}
+/* Ana · B (Uber): tam ve harita konumunda arama hapı görünürken üst bardaki arama ikonu gizlenir (çift arama yok); orta konumda planlayıcı varken ikon kalır. */
+.gm-ekran:has(.gm-ka-uber:is([data-konum="tam"],[data-konum="harita"])) .gm-header .gm-hara{display:none}
 @media (prefers-reduced-motion: reduce){.gm-ka-akis > *{animation:none}.gm-ka-ab-cevir .icon,.gm-ka-kar-oge,.gm-ka-isekme-oge{transition:none}}
 
 /* ===================== Uber kalıbı (ana-b) =====================

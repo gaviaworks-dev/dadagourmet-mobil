@@ -19,7 +19,7 @@
   };
   const HARITA = 'kesfet-harita';
   // Rota bileti (Flighty): kalkış ●──● varış, km · süre · tek kaynak durak sayısı, şimdi çıkarsan varış saati.
-  const bilet = (r, bugun) => GM.rotaBilet(r, {etiket: bugun ? 'Bugünün Rotası' : r.tema, rozet: 'Pilot rota', ozet: `<b>${GM.sayi(r.km)} km</b> · ${GM.sure(r.dk)} · ${GM.rotaSayiMetin(r)}<br>Şimdi çıkarsan varış <b>${GM.varisSaati(r.dk)}</b>`,
+  const bilet = (r, bugun) => GM.rotaBilet(r, {etiket: bugun ? r.tema : 'Dada Route', rozet: 'Pilot rota', ozet: `<b>${GM.sayi(r.km)} km</b> · ${GM.sure(r.dk)} · ${GM.rotaSayiMetin(r)}<br>Şimdi çıkarsan varış <b>${GM.varisSaati(r.dk)}</b>`,
     eylem: GM.btn({metin: 'Rotayı aç', ikon: 'harita', git: `#/rota/${r.id}`}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Rotayı paylaş', tur: 'kutu', veri: {eylem: 'rota-paylas', rota: r.id}})});
   // Sayfa başlığı (harita konumunda da görünen tek satır): rota · km · yol üstü durak sayısı (GM.rotaSayi, tek kaynak).
   const ozet = (r, bugun) => GM.cekmeceOzet({baslik: bugun ? 'Bugünün Rotası' : r.ad, alt: `${GM.esc(bugun ? r.ad : r.tema)} · ${GM.sayi(r.km)} km · ${GM.rotaSayi(r).yolUstu} yol üstü`});
@@ -34,7 +34,7 @@
         + GM.guvenSerit([{ikon: 'mekan', metin: `<b>${M.length}</b> mekân yayında`}, {ikon: 'rota', metin: 'Lezzet rotası planlama'}, {ikon: 'etkinlik', metin: 'Haftalık festival takvimi'}])
         + GM.bolumler([
           {id: 'kesfet-duraklar', html: durakBolum(R)},
-          {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.seritKartlar(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
+          {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.konseptSerit(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
           GM.reklamYeri({kod: 'AS-T1'}),
           {baslik: 'Nasıl keşfetmek istersin?', html: GM.modulIzgara([
             GM.modulKart({ikon: 'rota', baslik: 'Dada Route', alt: 'Yol üstü lezzet durakları', fiil: 'Rota çiz', git: '#/rota', ana: true}),
@@ -42,9 +42,9 @@
             GM.modulKart({ikon: 'mekan', baslik: 'Mekânlar', alt: `${M.length} mekân, harita ve liste`, fiil: 'Gözat', git: '#/mekanlar', gorsel: M.filter(m => m.kapakB)[4]?.kapakB}),
             GM.modulKart({ikon: 'lezzet', baslik: 'Gurme Lezzetler', alt: 'Yöresel tatlar ve hikâyeleri', fiil: 'Keşfet', git: '#/lezzetler', gorsel: lez[0]?.gorsel})])},
           GM.reklamYeri({kod: 'AS-M1'}),
-          {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.yatay(etk.map(e => GM.etkinlikKart(e)))},
-          {baslik: 'Gurme Lezzetler', eylem: 'Tamamını Gör', git: '#/lezzetler', html: GM.yatay(lez.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`})))},
-          GM.teaser({ikon: 'bul', baslik: 'Ne aradığını bilmiyor musun?', metin: 'Bütçeni, ortamı ve mutfağı seç; **sana uygun mekânları** sıralayalım.', cipler: [['Kebap', 'kebap'], ['Deniz', 'deniz'], ['Kahvaltı', 'kahvalti'], ['Esnaf Lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`})), btn: {metin: 'Mekân Bul', ikon: 'bul', git: '#/mekan-bul'}}),
+          {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.yatay(etk.map(e => GM.etkinlikKart(e)), {sinif: 'gm-ka-iki'})},
+          {baslik: 'Gurme Lezzetler', eylem: 'Tamamını Gör', git: '#/lezzetler', html: GM.yatay(lez.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`, sinif: 'gm-ka-puf'})))},
+          GM.teaser({ikon: 'bul', baslik: 'Ne aradığını bilmiyor musun?', metin: 'Bütçeni, ortamı ve mutfağı seç; **sana uygun mekânları** sıralayalım.', cipler: [['Kebap', 'kebap'], ['Deniz', 'deniz'], ['Kahvaltı', 'kahvalti'], ['Esnaf Lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`})), btn: {metin: 'Mekân Bul', ikon: 'bul', git: '#/mekan-bul'}, sinif: 'gm-ka-teaser'}),
           GM.reklamYeri({kod: 'AS-B1'})
         ]);
       return GM.uberEkran({
@@ -60,7 +60,7 @@
       const {R, M} = veri();
       let rota = R, U = null;
       // Rotaya dön: seçili mekân kartı / alan listesi kapanır, bilet geri gelir, harita rotaya yeniden oturur.
-      const rotayaDon = u => { u.secimYaz(bilet(rota, rota === R)); u.ozetYaz(ozet(rota, rota === R)); u.kapatGoster(false); GM.haritaSec(u.el, ''); };
+      const rotayaDon = u => { u.pinKart?.(null); u.secimYaz(bilet(rota, rota === R)); u.ozetYaz(ozet(rota, rota === R)); u.kapatGoster(false); GM.haritaSec(u.el, ''); };
       const t = GM.uberBagla(kok, {
         hazir: u => { U = u; },
         kapat: () => uDon(),
@@ -73,10 +73,10 @@
         pinSec: (id, u) => {
           U = u; const m = GM.mekan(id); if (!m) return;
           const d = GM.rotaOneri(rota).find(x => x.slug === id);
-          u.secimYaz(GM.mekanKart(m, {tur: 'harita', secili: true, sapma: d ? {dk: d.sapma, km: d.km} : null,
-            eylem: GM.btn({metin: 'Mekânı aç', ikon: 'mekan', git: `#/mekan/${m.slug}`}) + GM.btn({metin: 'Rotaya dön', tur: 'ikincil', veri: {eylem: 'rotaya-don'}})}));
-          u.ozetYaz(GM.cekmeceOzet({baslik: m.ad, alt: GM.esc([m.kategori, GM.konumMetin(m)].filter(Boolean).join(' · '))}));
-          u.kapatGoster(true); u.git('orta'); u.sec(id);
+          // Yüzen mekân kartı (Airbnb/Google Maps): sayfa gizlenir, kart alt menünün üstünde tamamen görünür; ikincil eylem gerçek: rotadaki durağı rotaya ekler (rota ekranı ile aynı durum anahtarı).
+          u.pinKart(GM.pinKart(m, {durum: d ? {sapma: {dk: d.sapma, km: d.km}} : {},
+            eylem: GM.btn({metin: 'Mekânı aç', boyut: 'sm', git: `#/mekan/${m.slug}`}) + (d ? GM.btn({metin: 'Rotaya ekle', tur: 'ikincil', boyut: 'sm', veri: {eylem: 'pin-rotaya-ekle', id: m.slug}}) : GM.btn({metin: 'Rota çiz', tur: 'ikincil', boyut: 'sm', git: '#/rota/planla'}))}));
+          u.sec(id);
         },
         alan: (b, u) => {
           U = u; const l = M.filter(m => m.lng && m.lat && b.contains([m.lng, m.lat]));
@@ -89,9 +89,10 @@
       });
       const uDon = () => { if (!U) return; rotayaDon(U); U.ciz(rota.cizgi); };
       const a = GM.eylem(kok, 'rota-paylas', el => { const r = GM.rotaBul(el.dataset.rota) || R; GM.paylas({baslik: r.ad, url: `https://dadagourmet.com/dada-route/${r.id}`}); });
-      const b = GM.eylem(kok, 'rotaya-don', uDon);
+      const b = GM.eylem(kok, 'rotaya-don', uDon), f = GM.eylem(kok, 'pin-kapat', uDon);
       const c = GM.kaydetBagla(kok);
-      return () => { t(); a(); b(); c(); };
+      const e = GM.eylem(kok, 'pin-rotaya-ekle', el => { const k = `rota-${rota.id}`, dd = GM.durum.oku(k, null) || {eklenen: [], sekme: 'kesfet', katman: ['neYenir', 'sarj', 'ibadet']}; if (!dd.eklenen.includes(el.dataset.id)) dd.eklenen.push(el.dataset.id); GM.durum.yaz(k, dd); const x = GM.rotaOneri(rota).find(y => y.slug === el.dataset.id); GM.toast(`${rota.ad} rotasına eklendi · **+${x?.sapma || 1} dk**`, {tur: 'basari'}); el.disabled = true; });
+      return () => { t(); a(); b(); c(); e(); f(); };
     }
   });
 })();

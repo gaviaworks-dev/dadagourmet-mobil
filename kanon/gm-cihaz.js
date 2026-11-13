@@ -191,13 +191,13 @@
   GM.durumCipi = (o = {}) => o.durum === 'rota' ? GM.androidCip({...o, tur: 'rota'}) : `<span class="${liste('gm-tel-cip', `is-${o.durum || 'oruc'}`)}">${ik(RITIM_IKON[o.durum || 'oruc'])}${o.durum === 'randevu' ? GM.cihazGeriSayac(o.kalanSn) : GM.cihazSayac(o.gecenSn, {bicim: 'kisa'})}</span>`;
 
   // ---------- Kilit ekranı widget'ları (iOS accessory; tek renk, kilit ekranı yazı rengine uyar) ----------
-  // tur: 'daire' (accessoryCircular: halka + ikon + değer), 'dikdortgen' (accessoryRectangular: başlık, metin, isteğe bağlı çubuk), 'satir' (accessoryInline: tarih satırında ikon + kısa metin).
+  // tur: 'daire' (accessoryCircular: halka + ikon + değer + isteğe bağlı birim), 'dikdortgen' (accessoryRectangular: başlık, metin, isteğe bağlı çubuk), 'satir' (accessoryInline: tarih satırında ikon + kısa metin).
   // iOS 17+ accessory widget'lar Button taşıyabilir; bu katalogda kilit ekranı widget'ları bilgi gösterir, dokunmak uygulamayı açar (ac).
   GM.kilitWidget = (o = {}) => {
     const t = o.tur || 'daire', ac = o.ac ? ` data-wg-ac="${esc(o.ac)}"` : '';
     if (t === 'satir') return `<button type="button" class="gm-kw is-satir"${ac} aria-label="${esc(o.aria || o.metin)}">${ik(o.ikon)}<span>${esc(o.metin)}</span></button>`;
     if (t === 'dikdortgen') return `<button type="button" class="gm-kw is-dikdortgen"${ac} aria-label="${esc(o.aria || `${o.baslik}, ${o.metin}`)}"><b>${ik(o.ikon)}<span>${esc(o.baslik)}</span></b><span>${o.sayac || esc(o.metin)}</span>${o.alt ? `<small>${esc(o.alt)}</small>` : ''}${o.oran != null ? `<span class="gm-kw-cubuk" style="--cih-o:${kisit(o.oran, 0, 1).toFixed(3)}"><i></i></span>` : ''}</button>`;
-    return `<button type="button" class="gm-kw is-daire"${ac} aria-label="${esc(o.aria || o.deger)}">${GM.cihazHalka({tur: 'kilit', oran: o.oran ?? 0, boyut: 'kw', orta: `${ik(o.ikon)}<b>${esc(o.deger)}</b>`})}</button>`;
+    return `<button type="button" class="gm-kw is-daire"${ac} aria-label="${esc(o.aria || o.deger)}">${GM.cihazHalka({tur: 'kilit', oran: o.oran ?? 0, boyut: 'kw', orta: `${ik(o.ikon)}<b>${esc(o.deger)}</b>${o.birim ? `<small>${esc(o.birim)}</small>` : ''}`})}</button>`;
   };
 
   // ---------- Kilit ekranı (W2): Canlı Etkinlik kartları, izin satırı, bildirim yığını ----------
@@ -959,7 +959,7 @@
   //     ilKimlik (yalnız veride varsa), ipucu, oneri:{ad, ozet} (bos), hal, eski}
   const once = x => (x ? `<small class="gm-wy-once">${ik(x.tur === 'sarj' ? 'charging-station' : 'gas-pump')}<span>Önce: <b>${esc(x.ad)}</b> · ${esc([x.turAd, x.uzak].filter(Boolean).join(' '))}</span></small>` : '');
   const serit = (o, r) => `<span class="gm-wy-serit"><small>${esc(r.kalkis || '')}</small>${GM.rotaIlerleme(o, 'is-wy')}<small>${esc(r.varis || '')}</small></span>`;
-  const siluet = (r, konum) => `<span class="gm-wy-siluet">${r.cizgi?.length ? GM.rotaKapakCizgi({rota: {cizgi: r.cizgi}, iller: konum ? [{lng: konum[0], lat: konum[1]}] : [], w: 150, h: 150, dolgu: {top: 16, right: 16, bottom: 16, left: 16}}) : ''}<small>${esc(`${r.kalkis || ''} → ${r.varis || ''}`)}</small></span>`;
+  const siluet = (r, konum, w = 150, h = 150) => `<span class="gm-wy-siluet">${r.cizgi?.length ? GM.rotaKapakCizgi({rota: {cizgi: r.cizgi}, iller: konum ? [{lng: konum[0], lat: konum[1]}] : [], w, h, dolgu: {top: 16, right: 16, bottom: 16, left: 16}}) : ''}<small>${esc(`${r.kalkis || ''} → ${r.varis || ''}`)}</small></span>`;
   GM.wyRota = (o = {}) => {
     const boy = o.boy || 'kucuk', d = o.durak || {}, r = o.rota || {};
     if (o.hal === 'giris') return hal(o, 'rota', 'route', 'Dada Route', 'Giriş yap', 'Rotaların ve canlı yolculuğun burada görünsün', '#/giris');
@@ -967,12 +967,12 @@
     const ac = `#/rota/surus/${r.id || ''}`;
     const etiket = `Dada Route ${r.kalkis} → ${r.varis}: sıradaki Dada durağı ${d.ad}, ${d.ilce || ''} ${d.il || ''}, ${d.uzak}, ${d.sure}, ${d.sapmaMetin || ''}, varış ${d.varis}${o.once ? `; önce ${o.once.ad} ${o.once.turAd || ''} ${o.once.uzak}` : ''}${o.ipucu ? `. ${o.ipucu}` : ''}`;
     const sapma = d.sapmaMetin ? `<span class="gm-wy-sapma">${ik(/üstü/.test(d.sapmaMetin) ? 'road' : 'arrow-turn-up')}${esc(d.sapmaMetin)}</span>` : '';
-    if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'rota', foto: true, ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `${foto(d.gorsel, 'gm-wy-zemin is-derin')}<span class="gm-wy-ust-satir"><small class="gm-wy-foto-etiket">${ik('route')}Sıradaki durak</small>${sapma}</span><span class="gm-wy-alt"><span class="gm-wy-dev is-foto">${esc(d.uzak)}</span><small class="gm-wy-sure">${esc(d.sure)}</small>${ad(d.ad, esc(d.ilce || ''))}</span>`});
-    if (boy === 'orta') return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `<span class="gm-wy-yan is-durak"><span class="gm-wy-kare is-durak">${d.gorsel ? `<img src="${esc(d.gorsel)}" alt="">` : ''}${sapma}</span><span class="gm-wy-sutun">${bas('route', 'Sıradaki durak', `Varış <b>${esc(d.varis)}</b>`)}${ad(d.ad, esc([d.turAd, d.il].filter(Boolean).join(' · ')), 'is-durak')}<span class="gm-wy-dev is-orta">${esc(d.uzak)}<small>${esc(d.sure)}</small></span>${serit(o, r)}${once(o.once)}</span></span>`});
-    const liste_ = (o.sonraki || []).slice(0, 3).map(x => `<span class="gm-wy-satir">${foto(x.gorsel, 'gm-wy-kucuk')}${ad(x.ad, esc([x.uzak, x.sapma].filter(Boolean).join(' · ')))}</span>`).join('');
-    return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `<span class="gm-wy-kahraman">${foto(d.gorsel, 'gm-wy-zemin is-derin')}<span class="gm-wy-ust-satir"><small class="gm-wy-foto-etiket">${ik('route')}Sıradaki durak</small>${sapma}</span><span class="gm-wy-kahraman-alt">${ad(d.ad, esc([d.turAd, d.ilce, d.il].filter(Boolean).join(' · ')), 'is-buyuk')}<span class="gm-wy-mesafe is-foto"><b>${esc(d.uzak)}</b><small>${esc(`${d.sure} · varış ${d.varis}`)}</small></span></span></span>`
-      + `<span class="gm-wy-yan is-rota-alt">${siluet(r, o.konum)}<span class="gm-wy-sutun"><small class="gm-wy-etiket"><span>Sonra</span><span>${esc(`${r.varis} ${o.varis}`)}</span></small><span class="gm-wy-liste">${liste_}</span></span></span>`
-      + `${once(o.once)}${o.ilKimlik ? `<small class="gm-wy-once is-il">${ik('certificate')}<span>${esc(o.ilKimlik)}</span></small>` : ''}${dugme({ac, ikon: 'location-arrow', metin: 'Navigasyonda aç', tam: true, ton: 'ana'})}${ipucu(o.ipucu)}`});
+    // Görev 10 sadeleşme: küçük = foto · etiket · büyük mesafe · ad (süre); orta = foto · ad · büyük mesafe/süre · varış (şerit, Önce satırı, sapma yok);
+    // büyük = foto kahraman (+ sapma) · yolculuk şeridi · Önce (yakıt) satırı · tek eylem. Sonraki duraklar, il kimliği ve ipucu uygulamada.
+    if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'rota', foto: true, ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `${foto(d.gorsel, 'gm-wy-zemin is-derin')}<span class="gm-wy-ust-satir"><small class="gm-wy-foto-etiket">${ik('route')}Sıradaki durak</small></span><span class="gm-wy-alt"><span class="gm-wy-dev is-foto">${esc(d.uzak)}</span>${ad(d.ad, esc(d.sure))}</span>`});
+    if (boy === 'orta') return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `<span class="gm-wy-yan is-durak"><span class="gm-wy-kare is-durak">${d.gorsel ? `<img src="${esc(d.gorsel)}" alt="">` : ''}</span><span class="gm-wy-sutun">${bas('route', 'Sıradaki durak', `Varış <b>${esc(d.varis)}</b>`)}${ad(d.ad, esc([d.turAd, d.il].filter(Boolean).join(' · ')), 'is-durak')}<span class="gm-wy-dev is-orta">${esc(d.uzak)}<small>${esc(d.sure)}</small></span></span></span>`});
+    return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, sinif: 'is-durak', icerik: `<span class="gm-wy-kahraman">${foto(d.gorsel, 'gm-wy-zemin is-derin')}<span class="gm-wy-ust-satir"><small class="gm-wy-foto-etiket">${ik('route')}Sıradaki durak</small>${sapma}</span><span class="gm-wy-kahraman-alt">${ad(d.ad, esc([d.turAd, d.il].filter(Boolean).join(' · ')), 'is-buyuk')}<span class="gm-wy-mesafe is-foto"><b>${esc(d.uzak)}</b><small>${esc(`${d.sure} · varış ${d.varis}`)}</small></span></span></span>`
+      + `${serit(o, r)}${once(o.once)}${dugme({ac, ikon: 'location-arrow', metin: 'Navigasyonda aç', tam: true, ton: 'ana'})}`});
   };
   // Yolculuk: geçilen yolun halkası, kalan ve varış; orta: + rota şeridi; büyük: + durgun rota silueti ve ara sayılar.
   GM.wyYolculuk = (o = {}) => {
@@ -982,10 +982,10 @@
     const etiket = `Yolculuk ${r.kalkis} → ${r.varis}: yüzde ${yuzde}, ${o.kalan} kaldı, ${r.varis} varış ${o.varis}`;
     const h = halka(o.oran, `<b>%${yuzde}</b><small>yol</small>`);
     if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, icerik: `${bas('flag-checkered', 'Yolculuk')}<span class="gm-wy-merkez">${h}</span>${ad(`${r.varis} ${o.varis}`, esc(`${o.kalan} kaldı`), 'is-orta')}`});
-    const ozet = `<span class="gm-wy-sutun">${ad(`${r.varis} ${o.varis}`, esc(`${o.kalan} · ${o.kalanSure} kaldı`), 'is-buyuk')}<small class="gm-wy-etiket"><span>${esc(`${o.gecilen} geride`)}</span></small></span>`;
+    const ozet = `<span class="gm-wy-sutun">${ad(`${r.varis} ${o.varis}`, esc(`${o.kalan} · ${o.kalanSure} kaldı`), 'is-buyuk')}</span>`;
     if (boy === 'orta') return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, icerik: `${bas('flag-checkered', `${r.kalkis} → ${r.varis}`)}<span class="gm-wy-yan is-defter">${h}${ozet}</span>${serit(o, r)}`});
-    const sayi = (o.sayilar || []).map(x => `<span class="gm-wy-sayi">${ik(x.ikon)}<b>${esc(x.deger)}</b><small>${esc(x.ad)}</small></span>`).join('');
-    return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, icerik: `${bas('flag-checkered', `${r.kalkis} → ${r.varis}`)}<span class="gm-wy-yan is-defter">${h}${ozet}</span>${serit(o, r)}<span class="gm-wy-yan is-rota-alt">${siluet(r, o.konum)}<span class="gm-wy-sayilar">${sayi}</span></span>`});
+    // büyük: orta + durgun rota silueti (konum işaretli) tam genişlik; sayı kutuları yok (Görev 10)
+    return GM.wyKabuk({boy, tur: 'rota', ac, eski: o.eski, etiket, sinif: 'is-yolculuk', icerik: `${bas('flag-checkered', `${r.kalkis} → ${r.varis}`)}<span class="gm-wy-yan is-defter">${h}${ozet}</span>${serit(o, r)}${siluet(r, o.konum, 300, 150)}`});
   };
   // Widget galerisi (iOS "Widget Ekle" / Android widget seçici önizlemesi): bulanık duvar kâğıdı, ortada tek widget seçili boyda, adı, açıklaması, boy noktaları.
   // o: {widget:html, boy, boylar:['kucuk','orta','buyuk'], ad, aciklama, platform}
@@ -1017,7 +1017,8 @@
     const karo = x => `<span class="gm-wy-karo">${foto(x.gorsel, 'gm-wy-zemin')}${ad(x.ad, esc([x.mesafe, acikMetin(x)].filter(Boolean).join(' · ')))}</span>`;
     if (boy === 'orta') return GM.wyKabuk({boy, tur: 'sofra', ac: '#/mekanlar', eski: o.eski, etiket, icerik: `${ust}<span class="${liste('gm-wy-karolar', l.length < 3 && `is-n${l.length}`)}">${l.slice(0, 3).map(karo).join('')}</span>`});
     const satir = x => `<span class="gm-wy-satir">${foto(x.gorsel, 'gm-wy-kucuk')}${ad(x.ad, esc([x.semt, acikMetin(x)].filter(Boolean).join(' · ')))}<small class="gm-wy-sag">${esc(x.mesafe)}</small></span>`;
-    return GM.wyKabuk({boy, tur: 'sofra', ac: '#/mekanlar', eski: o.eski, etiket, icerik: `${ust}${serit}<span class="gm-wy-kapak">${foto(m.gorsel, 'gm-wy-zemin')}${ad(m.ad, esc([m.semt, m.mesafe, acikMetin(m)].filter(Boolean).join(' · ')))}</span><span class="gm-wy-liste">${l.slice(1, 4).map(satir).join('')}</span>${ipucu(o.ipucu)}`});
+    // büyük: kapak (en yakın) + iki satır; öğün şeridi ve ipucu yok (Görev 10)
+    return GM.wyKabuk({boy, tur: 'sofra', ac: '#/mekanlar', eski: o.eski, etiket, icerik: `${ust}<span class="gm-wy-kapak">${foto(m.gorsel, 'gm-wy-zemin')}${ad(m.ad, esc([m.semt, m.mesafe, acikMetin(m)].filter(Boolean).join(' · ')))}</span><span class="gm-wy-liste">${l.slice(1, 3).map(satir).join('')}</span>`});
   };
 
   // ---------- G4 · Masam: rezervasyon geri sayımı; saat geçince "nasıldı? · Ziyaret Ettim" ----------
@@ -1033,9 +1034,10 @@
     }
     const etiket = `Masam: ${z.ad}, ${z.gunAd} ${z.saat}, ${z.kisi} kişi, ${durum}${o.kalan ? `, ${o.kalan} sonra` : ''}`;
     const saat = `<span class="gm-wy-dev is-saat">${esc(z.saat)}</span>`;
-    const kalan = o.kalan ? `<small class="gm-wy-kalan">${ik('clock')}${esc(`${o.kalan} sonra`)}</small>` : '';
-    if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'masam', ac, eski: o.eski, etiket, icerik: `${bas('calendar-check', 'Masam', esc(z.gunAd))}${saat}${ad(z.ad, esc(`${z.kisi} kişi · ${durum}`))}${kalan}`});
-    return GM.wyKabuk({boy, tur: 'masam', ac, eski: o.eski, etiket, icerik: `<span class="gm-wy-yan">${foto(z.gorsel, 'gm-wy-kare')}<span class="gm-wy-sutun">${bas('calendar-check', 'Masam', esc(z.gunAd))}${saat}${ad(z.ad, esc(`${z.semt} · ${z.kisi} kişi · ${durum}`))}<span class="gm-wy-alt-satir">${kalan}<span class="gm-wy-bag">${ik('location-arrow')}Yol tarifi</span></span></span></span>`});
+    // Görev 10: kalan süre başlık satırının sağında; altta tek meta satırı; orta boyda tek eylem (Yol tarifi)
+    const sag = esc(o.kalan ? `${o.kalan} sonra` : z.gunAd);
+    if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'masam', ac, eski: o.eski, etiket, icerik: `${bas('calendar-check', 'Masam', esc(z.gunAd))}${saat}${ad(z.ad, esc(o.kalan ? `${o.kalan} sonra` : durum))}`});
+    return GM.wyKabuk({boy, tur: 'masam', ac, eski: o.eski, etiket, icerik: `<span class="gm-wy-yan">${foto(z.gorsel, 'gm-wy-kare')}<span class="gm-wy-sutun">${bas('calendar-check', 'Masam', sag)}${saat}${ad(z.ad, esc(`${z.kisi} kişi · ${durum}`))}<span class="gm-wy-alt-satir"><span class="gm-wy-bag">${ik('location-arrow')}Yol tarifi</span></span></span></span>`});
   };
 
   // ---------- G6 · Lezzet Takvimi: etkinlik geri sayımı, Hatırlat anahtarı ----------
@@ -1046,7 +1048,7 @@
     const gun = `<span class="gm-wy-dev is-gun">${esc(e.kalanGun)}<small>gün</small></span>`, ac = `#/etkinlik/${e.slug}`;
     if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'takvim', ac, eski: o.eski, etiket, icerik: `${bas('calendar-days', baslik)}${gun}${ad(e.ad, esc(`${e.gun} ${e.ay} · ${e.yer}`), 'is-iki')}`});
     const anahtar = o.misafir ? `<span class="gm-wy-bag">${ik('right-to-bracket')}Hatırlatma için giriş yap</span>` : `<button type="button" class="${liste('gm-wy-anahtar', o.hatirlat && 'is-acik')}" role="switch" aria-checked="${!!o.hatirlat}" data-wg-eylem="hatirlat" data-id="${esc(e.slug)}"><span>Hatırlat</span><i aria-hidden="true"></i></button>`;
-    return GM.wyKabuk({boy, tur: 'takvim', ac, eski: o.eski, etiket, icerik: `<span class="gm-wy-yan">${foto(e.gorsel, 'gm-wy-kare')}<span class="gm-wy-sutun">${bas('calendar-days', baslik, esc(e.tur || ''))}${gun}${ad(e.ad, esc(`${e.gun} ${e.ay} · ${e.yer}`))}${anahtar}</span></span>`});
+    return GM.wyKabuk({boy, tur: 'takvim', ac, eski: o.eski, etiket, icerik: `<span class="gm-wy-yan">${foto(e.gorsel, 'gm-wy-kare')}<span class="gm-wy-sutun">${bas('calendar-days', baslik)}${gun}${ad(e.ad, esc(`${e.gun} ${e.ay} · ${e.yer}`))}${anahtar}</span></span>`});
   };
 
   // ---------- G7 · Günün Gurme Lezzeti (editoryal; özel font yalnız başlıkta) ----------
@@ -1057,7 +1059,7 @@
     const dergi = `<span class="gm-wy-dergi"><small>${esc(y.kategori)}</small><b>${esc(y.ad)}</b></span>`;
     if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'lezzet', foto: true, ac, eski: o.eski, etiket, icerik: `${foto(y.gorsel, 'gm-wy-zemin')}<span class="gm-wy-etiket-cip">${ik('book-open')}Günün lezzeti</span><span class="gm-wy-alt"><span class="gm-wy-dergi"><b>${esc(y.ad)}</b></span></span>`});
     if (boy === 'orta') return GM.wyKabuk({boy, tur: 'lezzet', ac, eski: o.eski, etiket, icerik: `<span class="gm-wy-yan is-genis">${foto(y.gorsel, 'gm-wy-kare is-uzun')}<span class="gm-wy-sutun">${bas('book-open', 'Günün Gurme Lezzeti')}${dergi}<span class="gm-wy-alt-satir"><small class="gm-wy-kalan">${esc(y.sure || '')}</small>${kaydet}</span></span></span>`});
-    return GM.wyKabuk({boy, tur: 'lezzet', foto: true, ac, eski: o.eski, etiket, icerik: `${foto(y.gorsel, 'gm-wy-zemin')}<span class="gm-wy-etiket-cip">${ik('book-open')}Günün Gurme Lezzeti</span><span class="gm-wy-alt">${dergi}${y.ozet ? `<p class="gm-wy-ozet">${esc(y.ozet)}</p>` : ''}<span class="gm-wy-alt-satir"><small class="gm-wy-kalan">${esc(y.sure || '')}</small>${kaydet}</span></span>`});
+    return GM.wyKabuk({boy, tur: 'lezzet', foto: true, ac, eski: o.eski, etiket, icerik: `${foto(y.gorsel, 'gm-wy-zemin')}<span class="gm-wy-etiket-cip">${ik('book-open')}Günün Gurme Lezzeti</span><span class="gm-wy-alt">${dergi}<span class="gm-wy-alt-satir"><small class="gm-wy-kalan">${esc(y.sure || '')}</small>${kaydet}</span></span>`});
   };
 
   // ---------- G8 · Gurme Defterim: sonraki rütbeye kalan puan (kesinleşen dolu, bekleyen soluk) ----------
@@ -1068,8 +1070,8 @@
     const etiket = `Gurme Defterim: ${o.rutbe}, ${o.sonraki} rütbesine ${o.kalan} puan; ${o.puan} puan${o.bekleyen ? `, ${o.bekleyen} onay bekliyor` : ''}`;
     const h = halka(o.oran, `<b>${esc(o.kalan)}</b><small>puan</small>`, o.bekleyenOran);
     if (boy === 'kucuk') return GM.wyKabuk({boy, tur: 'defter', ac: '#/profil', eski: o.eski, etiket, icerik: `${bas('medal', 'Gurme Defterim')}<span class="gm-wy-merkez">${h}</span>${ad(o.hedef || `${o.sonraki}’ye`, esc(`${o.rutbe} · ${o.puan} puan`), 'is-orta')}`});
-    const merdiven = `<span class="gm-wy-merdiven" aria-hidden="true">${(o.rutbeler || []).map((x, i, a) => { const sonraki = a[i + 1]?.esik ?? x.esik, oran = o.puan >= sonraki ? 1 : o.puan < x.esik ? 0 : (o.puan - x.esik) / Math.max(1, sonraki - x.esik); return `<span class="${liste('gm-wy-basamak', x.ad === o.rutbe && 'is-simdi')}" style="--cih-o:${kisit(i === a.length - 1 ? (o.puan >= x.esik ? 1 : 0) : oran, 0, 1).toFixed(3)}"><i></i><small>${esc(x.ad)}</small></span>`; }).join('')}</span>`;
-    return GM.wyKabuk({boy, tur: 'defter', ac: '#/profil', eski: o.eski, etiket, icerik: `${bas('medal', 'Gurme Defterim', esc(`${o.puan} puan`))}<span class="gm-wy-yan is-defter">${h}<span class="gm-wy-sutun">${ad(o.rutbe, esc(`${o.hedef || `${o.sonraki}’ye`} ${o.kalan} puan`), 'is-buyuk')}${o.bekleyen ? `<small class="gm-wy-etiket">${esc(`${o.bekleyen} puan mekân onayı bekliyor`)}</small>` : '<small class="gm-wy-etiket">Ziyaret ettiğin mekânlar burada birikir</small>'}</span></span>${merdiven}`});
+    // orta: halka + rütbe + sonraki rütbeye kalan (+ bekleyen varsa); rütbe merdiveni yok (Görev 10)
+    return GM.wyKabuk({boy, tur: 'defter', ac: '#/profil', eski: o.eski, etiket, icerik: `${bas('medal', 'Gurme Defterim', esc(`${o.puan} puan`))}<span class="gm-wy-yan is-defter">${h}<span class="gm-wy-sutun">${ad(o.rutbe, esc(`${o.hedef || `${o.sonraki}’ye`} ${o.kalan} puan`), 'is-buyuk')}${o.bekleyen ? `<small class="gm-wy-etiket">${esc(`${o.bekleyen} puan mekân onayı bekliyor`)}</small>` : ''}</span></span>`});
   };
   // Kaydettiklerim: fotoğraf karoları (orta 3, büyük 6).
   GM.wyKoleksiyon = (o = {}) => {

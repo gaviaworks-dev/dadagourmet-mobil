@@ -33,20 +33,30 @@
 .gm-sema.is-koyu .gm-sema-kenar{stroke:var(--gm-ink)}
 .gm-sema.is-koyu .gm-sema-rota{stroke:var(--gm-on-dark-accent)}
 
-/* ===================== Pin (GM.pin) — ikon kutusu ailesinden: yuvarlak dolu, kâğıt halka, sh-md ===================== */
-.gm-pin{--pin:var(--gm-mekan);--pin-tint:var(--gm-mekan-tint);position:relative;display:inline-grid;justify-items:center;gap:var(--gm-s-4);line-height:1;cursor:pointer}
-.gm-pin-kafa{display:inline-flex;align-items:center;justify-content:center;gap:var(--gm-s-4);min-width:var(--gm-size-map-pin);height:var(--gm-size-map-pin);padding:0;border-radius:var(--gm-r-round);background:var(--pin);color:var(--gm-paper);box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),var(--gm-sh-md);font:var(--gm-t-photo-meta-weight) var(--gm-t-photo-meta-size)/1 var(--gm-font-bold);transition:transform var(--gm-m-fast) var(--gm-e-standard)}
-.gm-pin-kafa .icon{font-size:var(--gm-size-icon-sm)}
-.gm-pin.has-etiket .gm-pin-kafa{padding:0 var(--gm-s-12) 0 var(--gm-s-8)}
-.gm-pin-sira{font:inherit;color:inherit}
-.gm-pin.is-kucuk .gm-pin-kafa{min-width:var(--gm-size-map-pin-sm);height:var(--gm-size-map-pin-sm)}
-.gm-pin.is-kucuk .gm-pin-kafa .icon{font-size:var(--gm-size-icon-check)}
-.gm-pin.is-soluk .gm-pin-kafa{background:var(--gm-paper);color:var(--pin);box-shadow:0 0 0 var(--gm-size-border) var(--gm-line),var(--gm-sh-sm)}
-.gm-pin.is-secili .gm-pin-kafa{min-width:var(--gm-size-map-pin-lg);height:var(--gm-size-map-pin-lg);box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),0 0 0 calc(var(--gm-size-border2) * 3) color-mix(in srgb,var(--pin) 28%,transparent),var(--gm-sh-md)}
-.gm-pin.is-secili .gm-pin-kafa .icon{font-size:var(--gm-size-icon-md)}
-.gm-pin.is-secili::after{content:"";position:absolute;top:calc(var(--gm-size-map-pin-lg) - 2px);width:0;height:0;border-left:var(--gm-size-map-tail) solid transparent;border-right:var(--gm-size-map-tail) solid transparent;border-top:var(--gm-size-map-tail) solid var(--pin)}
-.gm-pin-ad{max-width:160px;padding:var(--gm-s-4) var(--gm-s-8);border-radius:var(--gm-r-choice);background:var(--gm-paper);color:var(--gm-ink);box-shadow:var(--gm-sh-sm);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:var(--gm-s-4)}
+/* ===================== Harita işaretleri (GM.pin · GM.kume · GM.rotaSure) — kanon işaret dili docs/HARITA-ISARET.md =====================
+   Her işaret yuvarlak: dolu daire + ince kâğıt kenar (border2) + yumuşak sh-pin. Hap/balon yok. Kafa metin taşımaz (ikon, sıra no ya da foto).
+   Boy: mekân map-pin · katman map-pin-sm · foto map-pin-foto · seçili bir kademe büyür (yumuşak geçiş). Ad etiketi pinin altında, yalnız seçiliyken ya da .gm-harita.is-yakin. */
+.gm-pin{--pin:var(--gm-mekan);--pin-tint:var(--gm-mekan-tint);--pin-boy:var(--gm-size-map-pin);--pin-ikon:var(--gm-size-icon-sm);position:relative;display:inline-grid;place-items:center;line-height:1;cursor:pointer}
+.gm-pin-kafa{display:inline-flex;align-items:center;justify-content:center;width:var(--pin-boy);height:var(--pin-boy);padding:0;overflow:hidden;border-radius:var(--gm-r-round);background:var(--pin);color:var(--gm-paper);box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),var(--gm-sh-pin);font:var(--gm-t-photo-meta-weight) var(--gm-t-photo-meta-size)/1 var(--gm-font-bold);transition:width var(--gm-m-fast) var(--gm-e-standard),height var(--gm-m-fast) var(--gm-e-standard),box-shadow var(--gm-m-fast) var(--gm-e-standard),transform var(--gm-m-fast) var(--gm-e-standard)}
+.gm-pin-kafa .icon{font-size:var(--pin-ikon)}
+.gm-pin-kafa img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.gm-pin-sira{font:inherit;color:inherit;font-variant-numeric:tabular-nums}
+.gm-pin.is-katman,.gm-pin.is-kucuk{--pin-boy:var(--gm-size-map-pin-sm);--pin-ikon:var(--gm-size-icon-check)}
+.gm-pin.has-gorsel{--pin-boy:var(--gm-size-map-pin-foto)}
+.gm-pin.has-gorsel .gm-pin-kafa{background:var(--gm-paper)}
+.gm-pin.is-soluk .gm-pin-kafa{background:var(--gm-paper);color:var(--pin);box-shadow:0 0 0 var(--gm-size-border) var(--gm-line),var(--gm-sh-pin)}
+.gm-pin.is-secili{--pin-boy:var(--gm-size-map-pin-lg);--pin-ikon:var(--gm-size-icon-md)}
+.gm-pin.is-secili.has-gorsel{--pin-boy:var(--gm-size-map-pin-foto-lg)}
+.gm-pin.is-secili .gm-pin-kafa{box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),0 0 0 calc(var(--gm-size-border2) * 3) color-mix(in srgb,var(--pin) 24%,transparent),var(--gm-sh-pin)}
+.gm-pin.is-secili.is-soluk .gm-pin-kafa{background:var(--pin);color:var(--gm-paper)}
+.gm-pin.is-secili .gm-pin-sira{font-size:var(--gm-t-stat-size)}
+/* Ad etiketi: pinin altında, kutu köşesi chip-sm (kapsül değil), tek satır; işaretin kutusuna katılmaz (pin konumu kaymaz). */
+.gm-pin-ad{position:absolute;top:calc(100% + var(--gm-s-4));left:50%;transform:translateX(-50%);display:none;max-width:var(--gm-size-map-label-max);padding:var(--gm-s-2) var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-paper);color:var(--gm-ink);box-shadow:0 0 0 var(--gm-size-border) var(--gm-line),var(--gm-sh-sm);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.gm-pin.is-secili .gm-pin-ad,.gm-harita.is-yakin .gm-pin-ad{display:block}
+.gm-pin-ad.is-cakisik{visibility:hidden}
+.gm-pin.is-secili .gm-pin-ad.is-cakisik{visibility:visible}
 .gm-pin:active .gm-pin-kafa{transform:scale(.94)}
+@media (prefers-reduced-motion:reduce){.gm-pin-kafa{transition:none}}
 .gm-pin.is-neYenir{--pin:var(--gm-ne-yenir);--pin-tint:var(--gm-ne-yenir-tint)}
 .gm-pin.is-neAlinir{--pin:var(--gm-ne-alinir);--pin-tint:var(--gm-ne-alinir-tint)}
 .gm-pin.is-yakit{--pin:var(--gm-yakit);--pin-tint:var(--gm-yakit-tint)}
@@ -57,10 +67,16 @@
 .gm-pin.is-cografi{--pin:var(--gm-cografi);--pin-tint:var(--gm-cografi-tint)}
 .gm-pin.is-baslangic,.gm-pin.is-varis{--pin:var(--gm-ink)}
 
-/* Küme: primary tint halka + dolu çekirdek; sayıya göre üç boy */
-.gm-kume{display:inline-flex;align-items:center;justify-content:center;width:var(--gm-size-map-cluster);height:var(--gm-size-map-cluster);border-radius:var(--gm-r-round);background:var(--gm-primary);color:var(--gm-paper);box-shadow:0 0 0 calc(var(--gm-size-border2) * 3) color-mix(in srgb,var(--gm-primary) 22%,transparent),var(--gm-sh-md);font:var(--gm-t-photo-meta-weight) var(--gm-t-photo-meta-size)/1 var(--gm-font-bold)}
+/* Küme: sayılı yuvarlak, her haritada aynı — dolu primary çekirdek + kâğıt kenar + primary tint hale; sayıya göre üç boy */
+.gm-kume{display:inline-flex;align-items:center;justify-content:center;width:var(--gm-size-map-cluster);height:var(--gm-size-map-cluster);border-radius:var(--gm-r-round);background:var(--gm-primary);color:var(--gm-paper);box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),0 0 0 calc(var(--gm-size-border2) * 4) color-mix(in srgb,var(--gm-primary) 18%,transparent),var(--gm-sh-pin);font:var(--gm-t-photo-meta-weight) var(--gm-t-photo-meta-size)/1 var(--gm-font-bold);font-variant-numeric:tabular-nums;cursor:pointer}
 .gm-kume.is-md{width:var(--gm-size-map-cluster-md);height:var(--gm-size-map-cluster-md)}
 .gm-kume.is-lg{width:var(--gm-size-map-cluster-lg);height:var(--gm-size-map-cluster-lg);font-size:var(--gm-t-stat-size)}
+
+/* Rota süre etiketi (GM.rotaSure): rota başına en çok bir, çizginin orta noktasında küçük kart; köşe chip-sm, ince kenar, gölgesiz. Seçili rota dolu primary. */
+.gm-rota-sure{display:inline-flex;align-items:center;padding:var(--gm-s-2) var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-paper);color:var(--gm-ink);box-shadow:0 0 0 var(--gm-size-border) var(--gm-line);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font-bold);font-variant-numeric:tabular-nums;white-space:nowrap;cursor:pointer}
+.gm-rota-sure.is-alt{color:var(--gm-slate)}
+.gm-rota-sure.is-secili{background:var(--gm-primary);color:var(--gm-paper);box-shadow:0 0 0 var(--gm-size-border) var(--gm-primary)}
+.gm-harita-ml.is-rota-sure,.gm-harita-isaret.is-rota-sure{z-index:1}
 
 /* Konum: platform geleneği mavi nokta, nabız halesi, yön konisi */
 .gm-konum{position:relative;display:inline-block;width:var(--gm-size-map-dot);height:var(--gm-size-map-dot)}
@@ -112,10 +128,15 @@
    Satır türlerinde (foto yanda) etiket satırı · ad · tek meta. Tipografi rol başına tek: etiket card-category (büyük harf) · ad card (kalın; geniş kartta featured) · meta 13. */
 .gm-mk .gm-photo.is-yok,.gm-mk-satir .gm-photo.is-yok,.gm-dk .gm-photo.is-yok{display:grid;place-items:center;background:var(--gm-primary-tint);color:var(--gm-primary)}
 .gm-mk-ust{position:absolute;left:var(--gm-s-12);top:var(--gm-s-12);z-index:3;display:flex;gap:var(--gm-s-4);max-width:calc(100% - var(--gm-size-touch) - var(--gm-s-16))}
-.gm-mk-ust > *{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-mk-ust > *{flex:none;white-space:nowrap}
 .gm-mk-ust > :is(.gm-acik,.gm-mk-rozet){height:var(--gm-size-badge);padding:0 var(--gm-s-8);border-radius:var(--gm-r-chip-sm);font:var(--gm-t-card-category-weight) var(--gm-t-card-category-size)/1 var(--gm-font-bold)}
 .gm-mk-ust > .gm-mk-rozet{display:block;line-height:var(--gm-size-badge)}
 .gm-mk-rozet.is-etiket{background:var(--gm-paper);color:var(--gm-primary)}
+/* Rozet asla "…" ile bitmez: kısa ad (GM.mekanEtiketKisa) + dar kartta (≤160) yazı bir kademe küçülür (label 11 → nav 10). */
+.gm-mk.is-kompakt .gm-card__media{container-type:inline-size}
+@container (max-width:160px){.gm-mk-rozet.is-etiket{font-size:var(--gm-t-nav-size)}}
+/* Çok dar kartta (≤140, 320 genişlik) rozet sol alta iner; kaydet kutusuyla çakışmaz. */
+@container (max-width:140px){.gm-mk.is-kompakt .gm-mk-ust{top:auto;bottom:var(--gm-s-12)}}
 .gm-mk-rozet{display:inline-flex;align-items:center;height:var(--gm-size-badge-sm);padding:0 var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-primary);color:var(--gm-paper);font:var(--gm-t-card-category-weight) var(--gm-t-card-category-size)/1 var(--gm-font-bold);letter-spacing:var(--gm-t-label-track);text-transform:uppercase}
 /* Kaydet kutusu (Gastro ızgara kartı): 44 dokunma alanının ortasında 32'lik yarı saydam koyu kutu, ince açık kenar; ikon gölgesiz. */
 .gm-save.gm-mk-kaydet::before{content:'';position:absolute;inset:var(--gm-save-inset);border-radius:var(--gm-r-chip-sm);background:color-mix(in srgb,var(--gm-overlay) 32%,transparent);box-shadow:inset 0 0 0 var(--gm-size-border) color-mix(in srgb,var(--gm-paper) 45%,transparent);-webkit-backdrop-filter:blur(var(--gm-s-8));backdrop-filter:blur(var(--gm-s-8))}

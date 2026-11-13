@@ -40,8 +40,11 @@
   const ETIKET_DIL = {'Fine Dining': 'en'};
   const dilAt = e => (ETIKET_DIL[e] ? ` lang="${ETIKET_DIL[e]}"` : '');
   GM.mekanEtiketSpan = (m, sinif) => { const e = GM.mekanEtiket(m); return e ? `<span class="${liste('gm-card__category', sinif)}"${dilAt(e)}>${esc(e)}</span>` : ''; };
+  // Rozette kısa ad (webdeki kategori/mutfak adının kısaltması; yeni kategori yok): rozet dar ızgara kartında da tam okunur, "…" ile bitmez.
+  const ETIKET_KISA = {'Otel Restoranı': 'Otel', 'Tematik Restoran': 'Tematik', 'Türk Mutfağı': 'Türk', 'Akdeniz Mutfağı': 'Akdeniz', 'Ege Mutfağı': 'Ege', 'İtalyan Mutfağı': 'İtalyan', 'Japon Mutfağı': 'Japon', 'Anadolu Mutfağı': 'Anadolu', 'Fransız Mutfağı': 'Fransız', 'Kebap / Ocakbaşı': 'Ocakbaşı'};
+  GM.mekanEtiketKisa = m => { const e = GM.mekanEtiket(m); return ETIKET_KISA[e] || (e.endsWith(' Mutfağı') ? e.slice(0, -8) : e); };
   // Foto üstü rozet satırı (sol üst): kategori etiketi (+ ekranın vurgu rozeti, ör. "Dada Seçkisi"). Tek satır, kaydet kutusuyla çakışmaz.
-  GM.mekanRozet = (m, o = {}) => { const e = GM.mekanEtiket(m); const l = [o.rozet ? `<span class="${liste('gm-mk-rozet', o.rozetTon && `is-${esc(o.rozetTon)}`)}">${esc(o.rozet)}</span>` : '', e ? `<span class="gm-mk-rozet is-etiket"${dilAt(e)}>${esc(e)}</span>` : ''].filter(Boolean); return l.length ? `<div class="gm-mk-ust">${l.join('')}</div>` : ''; };
+  GM.mekanRozet = (m, o = {}) => { const e = GM.mekanEtiket(m), k = GM.mekanEtiketKisa(m); const l = [o.rozet ? `<span class="${liste('gm-mk-rozet', o.rozetTon && `is-${esc(o.rozetTon)}`)}">${esc(o.rozet)}</span>` : '', e ? `<span class="gm-mk-rozet is-etiket"${dilAt(e)}${k !== e ? ` title="${esc(e)}" aria-label="${esc(e)}"` : ''}>${esc(k)}</span>` : ''].filter(Boolean); return l.length ? `<div class="gm-mk-ust">${l.join('')}</div>` : ''; };
   // Kartta yer: ızgara ve satırda tek değer (ilçe), geniş kartta (büyük, TheFork, editoryal, OpenTable) "semt, ilçe".
   GM.mekanYer = (m, genis) => `<span class="gm-mk-yer">${esc(genis ? GM.konumMetin(m) : m.ilce || m.semt || m.il || '')}</span>`;
   // Puan yalnız gerçekten varsa (uydurma yok; boş "★ –" kartta gürültü).

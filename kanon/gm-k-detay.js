@@ -39,17 +39,39 @@
   // ---------- Kimlik ve küçük parçalar ----------
   // Konum hiyerarşisi (GM.konumMetin uzun biçiminden türer): Türkiye › İstanbul › Beyoğlu › semt; Michelin/Resy adres satırı ritmi.
   GM.konumYol = (m, o = {}) => { const l = [m.ulke, m.il, m.ilce, m.semt].filter(Boolean); return `<p class="${liste('gm-konum-yol', o.foto && 'is-foto', o.sinif)}">${ik('pin')}<span>${l.map((x, i) => `<span${i === l.length - 1 ? ' class="is-son"' : ''}>${esc(x)}</span>`).join(`<i class="gm-konum-ayrac" aria-hidden="true">›</i>`)}</span></p>`; };
-  // Mekân kimlik bloğu (GM.metinBlok ailesi): rozetler, ad, konum hiyerarşisi, künye satırı (kategori · mutfak · fiyat), durum satırı (puan · açık · görüntülenme).
+  // Tek meta satırı (docs/YIGILMA-KURALI.md 1 ve 5): [puan] · semt · kategori · ₺ · açık durumu · mutfak · görüntülenme; .gm-tek-satir, sığmazsa yatay kayar.
+  // Puan yoksa hiç yazılmaz (uydurulmaz; "Henüz yok" özet kutusunda). o: {puan, konum, kategori, fiyat, durum, mutfak, goz: false → çizme; sinif}
+  // Durum kısa biçimi: kapalıyken açılış saati yeter ("18.00’de açılır", kırmızı nokta kapalıyı söyler); açıkken "Açık, 00.00’a kadar".
+  const kisaDurum = a => { const t = a.acik === false && a.acilis ? a.metin.replace(/^Kapalı · /, '') : a.metin.replace(' · ', ', '); return t.charAt(0).toLocaleUpperCase('tr') + t.slice(1); };
+  GM.mekanMeta = (m, d = {}, o = {}) => {
+    const acik = GM.mekanAcik(m, d), nk = '<span class="gm-nokta" aria-hidden="true">·</span>', yer = m.semt || m.ilce || m.il;
+    const l = [
+      o.puan !== false && m.puan != null ? GM.puan({deger: m.puan}) : '',
+      o.konum !== false && yer ? `<span class="gm-mkim-yer">${ik('pin')}${esc(yer)}</span>` : '',
+      o.kategori !== false && m.kategori ? `<b>${esc(m.kategori)}</b>` : '',
+      o.fiyat !== false && m.fiyat ? GM.fiyat(m.fiyat) : '',
+      o.durum !== false && acik.metin ? GM.acikDurum(acik.acik, {metin: kisaDurum(acik)}) : '',
+      o.mutfak !== false && m.mutfak?.[0] ? `<span>${esc(m.mutfak[0])}</span>` : '',
+      o.goz !== false ? GM.gozSayi(d.goruntulenme) : ''
+    ].filter(Boolean);
+    return l.length ? `<p class="${liste('gm-mkim-meta gm-tek-satir', o.sinif)}">${l.join(nk)}</p>` : '';
+  };
+  // Mekân kimlik bloğu (GM.metinBlok ailesi): en çok 3 satır — rozet satırı (isteğe bağlı) · ad · tek meta satırı (GM.mekanMeta).
+  // o: {kompakt (rozetsiz), rozetHtml (rozet satırının yerine hazır satır, ör. GM.ayirtSatir), rozetler, meta (GM.mekanMeta seçenekleri), sinif}
   GM.mekanKimlik = (m, d = {}, o = {}) => {
-    const acik = GM.mekanAcik(m, d), kat = [m.kategori, o.kompakt ? null : m.mutfak?.[0]].filter(Boolean);
     const roz = o.kompakt ? [] : [...(m.seckiler || []).includes('rota') ? [GM.rozet({metin: 'Dada Route durağı', ikon: 'rota'})] : [], ...(d.editorNotu ? [GM.rozet({metin: 'Editör notu', ikon: 'pen-nib', ton: 'notr'})] : []), ...(o.rozetler || [])];
-    const nk = '<span class="gm-nokta" aria-hidden="true">·</span>';
-    return `<header class="${liste('gm-mkim', o.kompakt && 'is-kompakt', o.sinif)}">${roz.length ? `<div class="gm-mkim-rozet">${roz.join('')}</div>` : ''}<h1 class="gm-t-display">${esc(m.ad)}</h1>${o.kompakt ? '' : GM.konumYol(m)}<p class="gm-mkim-kunye">${kat.map(esc).join(nk)}${o.kompakt ? `${nk}<span class="gm-mkim-yer">${esc(GM.konumMetin(m))}</span>` : m.fiyat ? `${nk}${GM.fiyat(m.fiyat)}` : ''}</p><p class="gm-mkim-durum">${GM.puan({deger: m.puan})}${o.kompakt && m.fiyat ? `${nk}${GM.fiyat(m.fiyat)}` : ''}${acik.metin ? `${nk}${GM.acikDurum(acik.acik, {metin: acik.metin})}` : ''}${d.goruntulenme && !o.kompakt ? `${nk}<span class="gm-mkim-goz" aria-label="${esc(d.goruntulenme)} görüntülenme">${ik('eye')}${esc(GM.sayi(d.goruntulenme))}</span>` : ''}</p></header>`;
+    const ust = o.rozetHtml ?? (roz.length ? `<div class="gm-mkim-rozet gm-tek-satir">${roz.join('')}</div>` : '');
+    return `<header class="${liste('gm-mkim', o.kompakt && 'is-kompakt', o.sinif)}">${ust}<h1 class="gm-t-display">${esc(m.ad)}</h1>${GM.mekanMeta(m, d, o.meta)}</header>`;
   };
   // Haftalık saatler (GM.kunye satır ritminden türer): gün · saat, bugün kalın ve rozetli, kapalı gün soluk.
   GM.saatTablo = (saatler, o = {}) => { const bugun = (GM.simdi().getDay() + 6) % 7 + 1; return `<ul class="${liste('gm-saat-tablo', o.sinif)}">${GUN.map((g, i) => { const x = saatler?.[i + 1], b = i + 1 === bugun; return `<li class="${liste(b && 'is-bugun', !x && 'is-kapali')}"><span>${esc(g)}${b ? `<small class="gm-saat-bugun">Bugün</small>` : ''}</span><b>${x ? `${esc(nokta(x[0]))} – ${esc(nokta(x[1]))}` : 'Kapalı'}</b></li>`; }).join('')}</ul>`; };
   // Bilgi tazeliği (GM.durumRozet + meta): web künye "yakın zamanda doğrulandı" + son güncelleme.
-  GM.tazelik = (t = {}) => (t.metin ? `<p class="gm-tazelik">${GM.durumRozet({ton: 'basari', ikon: 'dogrulandi', metin: t.metin})}${t.tarih ? `<small>Son güncelleme ${esc(t.tarih)}</small>` : ''}</p>` : '');
+  // Tek satır (yığılma kuralı 1-2): doğrulama rozeti · güncelleme tarihi · (o.hata) sağda "Hata bildir"; "Bilgi hatası bildir" artık tek başına satır olmaz.
+  GM.tazelik = (t = {}, o = {}) => {
+    const hata = o.hata ? GM.btn({metin: 'Hata bildir', ikon: 'flag', tur: 'text', boyut: 'sm', sinif: 'gm-tazelik-hata', veri: {eylem: 'mk-hata'}, attrs: 'aria-label="Bilgi hatası bildir"'}) : '';
+    if (!t.metin) return hata ? `<div class="gm-tazelik">${hata}</div>` : '';
+    return `<div class="gm-tazelik"><div class="gm-tazelik-sol gm-tek-satir" title="${esc(t.metin)}">${GM.durumRozet({ton: 'basari', ikon: 'dogrulandi', metin: 'Doğrulandı'})}${t.tarih ? `<small aria-label="Son güncelleme ${esc(t.tarih)}">${esc(t.tarih)}</small>` : ''}</div>${hata}</div>`;
+  };
   // Editör kutusu (GM.ipucu ailesi, Resy "Neden seviyoruz"): primary-tint yüzey, kalem ikonu, başlık, kaynak etiketi, alıntı metni.
   GM.editorNot = (o = {}) => `<aside class="${liste('gm-editor', o.sinif)}"><div class="gm-editor-bas"><span class="gm-editor-ikon" aria-hidden="true">${ik(o.ikon || 'pen-nib')}</span><div><small class="gm-t-label">${esc(o.ust || 'Dada Gourmet editörü')}</small><h3>${esc(o.baslik || 'Editör Notu')}</h3></div>${o.etiket ? `<span class="gm-editor-etiket">${esc(o.etiket)}</span>` : ''}</div><p>${vurgu(o.metin || '')}</p></aside>`;
   // 4'lü eşit eylem şeridi (GM.altEylem .gm-bar-ikon ailesi, Michelin): ikon + etiket, basılı hâl primary tint; tek satır etiket.
@@ -66,7 +88,7 @@
   // Kimlik paneli (detay-v2 panel bindirmesinden türer): fotoğraf sahnesinin üstüne r-sheet köşeyle biner; kimlik, eylem şeridi, editör kutusu taşır.
   GM.kimlikPanel = html => `<div class="gm-mb">${html}</div>`;
   // Rota bağlamı (GM.sapma + GM.ipucu tint yüzeyi; Roadtrippers/Watch Duty): "İstanbul – İzmir rotasında · Yol üstü · 1. km".
-  GM.rotaBaglam = (o = {}) => `<div class="${liste('gm-hs-baglam', o.sinif)}">${ik(o.ikon || 'rota')}<span><b>${esc(o.baslik)}</b><small>${o.sapma ? GM.sapma(o.sapma) : ''}${o.alt ? `<span>${esc(o.alt)}</span>` : ''}</small></span></div>`;
+  GM.rotaBaglam = (o = {}) => `<div class="${liste('gm-hs-baglam', o.sinif)}">${ik(o.ikon || 'rota')}<span><b>${esc(o.baslik)}</b><small class="gm-tek-satir">${o.sapma ? GM.sapma(o.sapma) : ''}${o.alt ? `<span>${esc(o.alt)}</span>` : ''}</small></span></div>`;
   // Fotoğraf şeridi (Google Maps yer kartı; GM.yatay şerit ailesi): ilki geniş, dokununca tüm fotoğraflar.
   GM.fotoSerit = (G = []) => (G.length ? `<div class="gm-hs-fotolar" role="list" aria-label="Fotoğraflar">${G.map((g, i) => `<button type="button" role="listitem" class="gm-hs-foto" data-eylem="mk-galeri" data-id="${i}" aria-label="${esc(g.alt || 'Fotoğraf')}"><span class="gm-photo"${bg(g.src)}></span>${i === 0 && G.length > 1 ? `<small>${ik('galeri')}${G.length}</small>` : ''}</button>`).join('')}</div>` : '');
   // Harita sheet başlığı: kimlik bloğu + sağda yuvarlak ikon düğmeleri; tam durakta küçült düğmesi görünür.
@@ -260,8 +282,23 @@
     const sh = ev => { const b = ev.target.closest?.('.gm-sheet [data-eylem="mk-yol"]'); if (b && !b.closest('.gm-hg-sheet') && kok.isConnected && !kok.classList.contains('is-gizli') && GM.aktif()?.el === kok) yolTarifi(m); };
     document.addEventListener('click', sh);
     boya();
-    const hs = kok.querySelector('[data-hs]'), hsTemiz = hs ? hsKur(hs, o) : null;
-    return () => { kok.removeEventListener('gm-degisim', sekmeBasi); kok.removeEventListener('click', h); document.removeEventListener('gm-mekan-kayit', yenile); document.removeEventListener('click', sh); hsTemiz?.(); };
+    const hs = kok.querySelector('[data-hs]'), hsTemiz = hs ? hsKur(hs, o) : null, yapTemiz = yapisKur(kok), sigTemiz = sigarKur(kok);
+    return () => { kok.removeEventListener('gm-degisim', sekmeBasi); kok.removeEventListener('click', h); document.removeEventListener('gm-mekan-kayit', yenile); document.removeEventListener('click', sh); hsTemiz?.(); yapTemiz?.(); sigTemiz?.(); };
+  };
+  // Yapışma (yığılma kuralı 4, Gastro detay): fotoğrafa binen beyaz panel header'ın altına yaklaştıkça köşe yarıçapı konuma bağlı olarak 24 → 0 iner
+  // (son 48 px'te), değdiğinde .is-yapisik (kanon yardımcı) alır; panel zaten tam genişlik. --gm-yapis: 1 = yarım/serbest, 0 = yapışık.
+  const yapisKur = kok => {
+    const k = kok.querySelector('.gm-kaydir'), p = kok.querySelector('.gm-detay-panel,.gm-mb,.gm-ref-akis.is-bindir'); if (!k || !p) return null;
+    const bar = kok.querySelector('.gm-header'), mesafe = TK.space[48];
+    const boya = () => { const d = p.getBoundingClientRect().top - (bar ? bar.getBoundingClientRect().bottom : k.getBoundingClientRect().top); p.style.setProperty('--gm-yapis', Math.max(0, Math.min(1, d / mesafe)).toFixed(3)); p.classList.toggle('is-yapisik', d <= 1); };
+    k.addEventListener('scroll', boya, {passive: true}); boya();
+    return () => k.removeEventListener('scroll', boya);
+  };
+  // Tek satır şeritleri sığıyorsa sağ solma kalkar (.gm-tek-satir.is-sigar); boyut değişince yeniden ölçülür.
+  const sigarKur = kok => {
+    const olc = () => kok.querySelectorAll('.gm-tek-satir').forEach(e => { if (e.clientWidth) e.classList.toggle('is-sigar', e.scrollWidth <= e.clientWidth + 1); });
+    const g = new ResizeObserver(olc), sek = () => requestAnimationFrame(olc); g.observe(kok); sek(); kok.addEventListener('gm-degisim', sek);
+    return () => { g.disconnect(); kok.removeEventListener('gm-degisim', sek); };
   };
 
   // ---------- Harita üstü detay sheet'i (C) ----------
@@ -276,7 +313,7 @@
     let durak = 'yarim', y = H(), surukle = null;
     const oran = () => { const a = Y.yarim(), t = Math.max(0, Math.min(1, (a - y) / Math.max(1, a))); return t; };
     const uygula = (anim = false) => {
-      hs.style.transition = anim && !GM.azHareket() ? `transform var(--gm-spring-varsayilan-ms) var(--gm-spring-varsayilan)` : 'none';
+      hs.style.transition = anim && !GM.azHareket() ? `transform var(--gm-spring-varsayilan-ms) var(--gm-spring-varsayilan),border-radius var(--gm-spring-varsayilan-ms) var(--gm-spring-varsayilan)` : 'none';
       hs.style.transform = `translate3d(0,${Math.round(y)}px,0)`;
       sahne.style.setProperty('--gm-hs-oran', oran().toFixed(3));
       sahne.style.setProperty('--gm-hs-gorunur', `${Math.round(H() - y)}px`);
@@ -357,12 +394,12 @@
   // Alıntı bloğu (Michelin editoryal tipografisi; GM.metinBlok ailesi): featured boyda alıntı, altında kaynak satırı.
   GM.alinti = (o = {}) => `<figure class="gm-alinti"><blockquote>${vurgu(o.metin || '')}</blockquote>${o.kaynak ? `<figcaption>${ik(o.ikon || 'pen-nib')}<span>${esc(o.kaynak)}</span></figcaption>` : ''}</figure>`;
   // Ayırt ediciler satırı (Michelin ayırt edicilik ikonları → Gourmet'in gerçek seçkileri; ödül uydurulmaz): ikon + büyük harf etiket, ince ayraçlı.
-  GM.ayirtSatir = (l = []) => (l.length ? `<ul class="gm-ayirt" aria-label="Seçkiler">${l.map(x => `<li>${ik(x.ikon)}<span>${esc(x.ad)}</span></li>`).join('')}</ul>` : '');
+  GM.ayirtSatir = (l = []) => (l.length ? `<ul class="gm-ayirt gm-tek-satir" aria-label="Seçkiler">${l.map(x => `<li>${ik(x.ikon)}<span>${esc(x.ad)}</span></li>`).join('')}</ul>` : '');
   // Olanak listesi (GM.kunye ikon-satır ritmi; Michelin olanak ızgarası / Airbnb "neler var"): sutun 1|2, en çok n, fazlası "Tümünü göster" düğmesi.
   GM.olanakListe = (l = [], o = {}) => { const n = o.en || l.length, g = l.slice(0, n); return `<div class="gm-olanak-kap"><ul class="${liste('gm-olanak', o.sutun === 2 && 'is-iki', o.sinif)}">${g.map(x => `<li class="${x.dogrulandi ? 'is-dogru' : ''}">${ik(x.ikon)}<span>${esc(x.ad)}</span>${x.dogrulandi ? `<small>${ik('dogrulandi')}Doğrulandı</small>` : ''}</li>`).join('')}</ul>${l.length > n || o.tumu ? GM.btn({metin: o.tumuMetin || `${l.length} özelliğin tümünü göster`, tur: 'secondary', tam: o.sutun !== 2, veri: {eylem: 'mk-olanak'}}) : ''}</div>`; };
   GM.olanakSheet = (l = [], o = {}) => GM.sheet({baslik: o.baslik || 'Özellikler', html: GM.olanakListe(l)});
-  // Etiket bulutu (GM.ozellik çip görünümü, sarmalı; The Infatuation/OpenTable "Şunun için ideal"): bilgi etiketi, dokunulmaz.
-  GM.etiketBulut = (l = [], o = {}) => (l.length ? `<ul class="${liste('gm-etiket-bulut', o.sinif)}">${l.map(x => `<li>${x.ikon ? ik(x.ikon) : ''}<span>${esc(x.ad ?? x)}</span></li>`).join('')}</ul>` : '');
+  // Etiket şeridi (GM.ozellik çip görünümü; The Infatuation/OpenTable "Şunun için ideal"): bilgi etiketi, dokunulmaz; tek satır, sığmazsa yatay kayar (yığılma kuralı 1).
+  GM.etiketBulut = (l = [], o = {}) => (l.length ? `<ul class="${liste('gm-etiket-bulut gm-tek-satir', o.sinif)}">${l.map(x => `<li>${x.ikon ? ik(x.ikon) : ''}<span>${esc(x.ad ?? x)}</span></li>`).join('')}</ul>` : '');
   // Kişisel not (Michelin "Notes"; webde yok, mobil ekstra): cihazda saklanır, kimse görmez.
   GM.notSheet = (m, degisti) => { const k = GM.mekanKayit.al('not', m.slug); return GM.sheet({baslik: 'Notun', html: `<div class="gm-yigin">${GM.p('Yalnız **sen** görürsün. Ne yemek istediğini, kiminle gideceğini yaz.', {ton: 'ikincil'})}${GM.input({ad: 'not-metin', cokSatir: true, deger: k?.metin || '', yer: 'Ör. Teras masası iste, tadım menüsünü dene'})}</div>`, altBar: GM.btnIkili(k ? {metin: 'Notu sil', tur: 'yikici-ikincil', veri: {eylem: 'not-sil'}} : {metin: 'Vazgeç', attrs: 'data-sheet-kapat'}, {metin: 'Kaydet', veri: {eylem: 'not-kaydet'}}), sonra: d => { const a = GM.eylem(d, 'not-kaydet', () => { const t = d.querySelector('[name="not-metin"]').value.trim(); GM.mekanKayit.yaz('not', m.slug, t ? {metin: t} : false); d.kapat(); degisti?.(); GM.toast(t ? 'Notun **kaydedildi**' : 'Not boş, kaydedilmedi', {ikon: 'duzenle'}); }); const b = GM.eylem(d, 'not-sil', () => { GM.mekanKayit.yaz('not', m.slug, false); d.kapat(); degisti?.(); GM.toast('Not silindi'); }); return () => { a(); b(); }; }}); };
 
@@ -380,13 +417,13 @@
     GM.sheet({baslik: 'Kaç kişi?', html: GM.alan({etiket: 'Masa', html: `<div class="gm-yigin-12">${GM.stepper({ad: 'rk-kisi', deger: +k.dataset.kisi, min: 1, max: 12, birim: 'kişi', aria: 'Kişi sayısı'})}</div>`}), altBar: GM.btn({metin: 'Tamam', tam: true, attrs: 'data-sheet-kapat'}), sonra: s => GM.on(s, 'rk-kisi', v => { k.dataset.kisi = v; k.querySelector('[data-rk-kisi]').textContent = `${v} kişi`; })});
   });
 
-  // Vitrin başlığı (Tock mekân sayfası; GM.detay banner ailesi): fotoğraf, üstüne binen kare logo karosu, ad, şehir, fiyat · mutfak satırı.
-  GM.vitrinBas = (o = {}) => `<header class="${liste('gm-vitrin', o.sinif)}"><div class="gm-vitrin-foto"><span class="gm-photo"${bg(o.gorsel)}></span></div><div class="gm-vitrin-govde"><span class="gm-vitrin-logo" aria-hidden="true">${o.logo ? `<span class="gm-photo"${bg(o.logo)}></span>` : `<b>${esc(String(o.baslik || '?').charAt(0))}</b>`}</span>${o.sag ? `<span class="gm-vitrin-sag">${o.sag}</span>` : ''}<h1 class="gm-t-display">${esc(o.baslik)}</h1>${o.alt ? `<p class="gm-vitrin-alt">${esc(o.alt)}</p>` : ''}${o.meta ? `<p class="gm-vitrin-meta">${o.meta}</p>` : ''}</div></header>`;
+  // Vitrin başlığı (Tock mekân sayfası; GM.detay banner ailesi): fotoğraf, üstüne binen kare logo karosu, ad, tek meta satırı (o.metaHtml: GM.mekanMeta).
+  GM.vitrinBas = (o = {}) => `<header class="${liste('gm-vitrin', o.sinif)}"><div class="gm-vitrin-foto"><span class="gm-photo"${bg(o.gorsel)}></span></div><div class="gm-vitrin-govde"><span class="gm-vitrin-logo" aria-hidden="true">${o.logo ? `<span class="gm-photo"${bg(o.logo)}></span>` : `<b>${esc(String(o.baslik || '?').charAt(0))}</b>`}</span>${o.sag ? `<span class="gm-vitrin-sag">${o.sag}</span>` : ''}<h1 class="gm-t-display">${esc(o.baslik)}</h1>${o.alt ? `<p class="gm-vitrin-alt">${esc(o.alt)}</p>` : ''}${o.metaHtml || (o.meta ? `<p class="gm-vitrin-meta gm-tek-satir">${o.meta}</p>` : '')}</div></header>`;
   // Deneyim bileti (Tock "experience" kartı; GM.kart ailesi): üst kısımda tür + başlık + metin, delikli ayraç, alt koçanda meta ve eylem.
-  GM.deneyimBilet = (o = {}) => `<article class="${liste('gm-bilet-d', o.tarih && 'has-tarih', o.gorsel && 'has-foto', o.sinif)}">${o.tarih ? `<div class="gm-bilet-d-tarih">${GM.tarihBlok(o.tarih)}</div>` : ''}${o.gorsel ? `<div class="gm-bilet-d-foto"><span class="gm-photo"${bg(o.gorsel)}></span>${o.rozet ? `<span class="gm-bilet-d-rozet">${esc(o.rozet)}</span>` : ''}</div>` : ''}<div class="gm-bilet-d-ust">${o.etiket ? `<small class="gm-card__category">${o.ikon ? ik(o.ikon) : ''}${esc(o.etiket)}</small>` : ''}<h3>${esc(o.baslik)}</h3>${o.metin ? `<p>${vurgu(o.metin)}</p>` : ''}</div><div class="gm-bilet-d-ayrac" aria-hidden="true"></div><div class="gm-bilet-d-alt"><span class="gm-bilet-d-meta">${(o.meta || []).map(x => `<span>${ik(x.ikon)}${esc(x.metin)}</span>`).join('')}</span>${o.eylem ? GM.btn({boyut: 'sm', ...o.eylem}) : ''}</div></article>`;
+  GM.deneyimBilet = (o = {}) => `<article class="${liste('gm-bilet-d', o.tarih && 'has-tarih', o.gorsel && 'has-foto', o.sinif)}">${o.tarih ? `<div class="gm-bilet-d-tarih">${GM.tarihBlok(o.tarih)}</div>` : ''}${o.gorsel ? `<div class="gm-bilet-d-foto"><span class="gm-photo"${bg(o.gorsel)}></span>${o.rozet ? `<span class="gm-bilet-d-rozet">${esc(o.rozet)}</span>` : ''}</div>` : ''}<div class="gm-bilet-d-ust">${o.etiket ? `<small class="gm-card__category">${o.ikon ? ik(o.ikon) : ''}${esc(o.etiket)}</small>` : ''}<h3>${esc(o.baslik)}</h3>${o.metin ? `<p>${vurgu(o.metin)}</p>` : ''}</div><div class="gm-bilet-d-ayrac" aria-hidden="true"></div><div class="gm-bilet-d-alt"><span class="gm-bilet-d-meta gm-tek-satir">${(o.meta || []).map(x => `<span>${ik(x.ikon)}${esc(x.metin)}</span>`).join('')}</span>${o.eylem ? GM.btn({boyut: 'sm', ...o.eylem}) : ''}</div></article>`;
 
-  // Orta başlık (Airbnb ilan başlığı; GM.metinBlok ailesi): ortalı ad, alt satır, meta satırı.
-  GM.ortaBaslik = (o = {}) => `<header class="gm-orta-bas"><h1 class="gm-t-page">${esc(o.baslik)}</h1>${o.alt ? `<p>${esc(o.alt)}</p>` : ''}${o.meta ? `<p class="gm-orta-bas-meta">${o.meta}</p>` : ''}</header>`;
+  // Orta başlık (Airbnb ilan başlığı; GM.metinBlok ailesi): ortalı ad + tek meta satırı (o.metaHtml: GM.mekanMeta, ortalı; sığmazsa kayar).
+  GM.ortaBaslik = (o = {}) => `<header class="gm-orta-bas"><h1 class="gm-t-page">${esc(o.baslik)}</h1>${o.alt ? `<p>${esc(o.alt)}</p>` : ''}${o.metaHtml || (o.meta ? `<p class="gm-orta-bas-meta gm-tek-satir">${o.meta}</p>` : '')}</header>`;
   // Öne çıkanlar (Airbnb ikonlu üç madde; GM.satir ailesi, kartsız): büyük ikon + kalın başlık + açıklama.
   GM.oneCikanlar = (l = []) => `<ul class="gm-one-cikan">${l.map(x => `<li>${ik(x.ikon)}<span><b>${esc(x.baslik)}</b>${x.metin ? `<small>${esc(x.metin)}</small>` : ''}</span></li>`).join('')}</ul>`;
   // Kişi satırı (Airbnb "ev sahibi"; GM.satir + GM.avatar): avatar, ad, alt, sağda rozet.

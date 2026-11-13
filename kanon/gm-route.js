@@ -141,10 +141,12 @@
       : [{ikon: 'map', baslik: 'Google Haritalar', alt: 'Tek bağlantıda en çok 9 ara durak; telefonda 3, fazlası etaplara bölünür', id: 'google', sag: n > 3 ? rozet(`${etap} etap`, 'uyari') : rozet('Tek bağlantı', 'basari')},
         {ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Çok duraklı rota iOS 18.4 ve sonrasında; öncesinde yalnız varış', id: 'apple', sag: rozet('Uygun', 'basari')},
         {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Yalnız kalkış ve varış; ara duraklar aktarılmaz', id: 'yandex', sag: n ? rozet('Duraklar düşer', 'uyari') : rozet('Uygun', 'basari')},
+        // Web rota-katman-panel.js "Tek rota bağlantısı" (R3.6d): bütün duraklar tek adreste, açan kişi uygulamayı seçer.
+        {ikon: 'link', baslik: 'Tek rota bağlantısı', alt: 'Bütün duraklar tek adreste; açan kişi Google, Apple ya da Yandex’i seçer', id: 'bag', sag: rozet('Kopyala', 'notr')},
         {ikon: 'file-export', baslik: 'GPX dosyası', alt: 'Rota çizgisi ve duraklar; Garmin ve diğer uygulamalar için', id: 'gpx', sag: rozet('Dosya', 'notr')}];
     const html = `<div class="gm-yigin">${GM.p(tek ? `**${o.hedef.ad}** için yol tarifi harita uygulamasında açılır.` : `**${R.kalkis} → ${R.varis}** · ${n ? `${n} ara durak` : 'ara durak yok'}. Navigasyon harita uygulamasında sürer; Co-Pilot durak uyarılarını vermeye devam eder.`, {ton: 'ikincil'})}
       ${GM.satirlar(satirlar.map(x => ({sol: GM.ikonKutu({ikon: x.ikon, boyut: 'md', ton: 'notr'}), baslik: x.baslik, alt: x.alt, sag: x.sag || '', ok: !x.sag, veri: {eylem: 'aktar-hedef', id: x.id}, sinif: 'gm-ak-satir'})))}</div>`;
-    return GM.sheet({baslik: tek ? 'Yol tarifi' : 'Navigasyona aktar', html, sonra: (k, h) => GM.eylem(k, 'aktar-hedef', el => { const x = satirlar.find(s => s.id === el.dataset.id); h.kapat(); GM.toast(x.id === 'gpx' ? `**${R ? R.ad : ''}.gpx** hazırlandı · paylaşım açılıyor` : `**${x.baslik}** açılıyor${!tek && x.id === 'google' && n > 3 ? ` · ${etap} etap` : ''}`, {ikon: x.id === 'gpx' ? 'file-export' : 'navigasyon'}); })});
+    return GM.sheet({baslik: tek ? 'Yol tarifi' : 'Navigasyona aktar', html, sonra: (k, h) => GM.eylem(k, 'aktar-hedef', el => { const x = satirlar.find(s => s.id === el.dataset.id); h.kapat(); GM.toast(x.id === 'bag' ? '**Tek rota bağlantısı** kopyalandı' : x.id === 'gpx' ? `**${R ? R.ad : ''}.gpx** hazırlandı · paylaşım açılıyor` : `**${x.baslik}** açılıyor${!tek && x.id === 'google' && n > 3 ? ` · ${etap} etap` : ''}`, {ikon: x.id === 'gpx' ? 'file-export' : 'navigasyon'}); })});
   };
 
   // ---------- Rota haritası bağlayıcısı (rota.js tek satırla çağırır) ----------

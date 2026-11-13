@@ -94,7 +94,7 @@
   let B = null;
   const HIZLI = [['acik', 'simdi', 'Şimdi açık', 'saat'], ['acik', 'rezervasyon', 'Rezervasyon alıyor', 'rezervasyon'], ['fiyat', '3', 'Üst orta', 'fiyat'], ['fiyat', '4', 'Lüks', 'fiyat'], ['konsept', 'sef-restorani', 'Şef restoranı', 'sef'], ['konsept', 'deniz-kenari', 'Deniz kenarı', 'teras'], ['konsept', 'manzarali', 'Manzaralı', 'harita']];
   const hizliSecili = d => HIZLI.filter(([g, v]) => d.secili[g]?.includes(v)).map(([g, v]) => `${g}:${v}`);
-  const bPinler = l => l.map(m => ({id: m.slug, lng: m.lng, lat: m.lat, aria: m.ad}));
+  const bPinler = l => l.map(m => ({id: m.slug, lng: m.lng, lat: m.lat, ad: m.ad}));
   const bHarita = l => GM.harita({ad: 'b-harita', tam: true, kume: true, kontroller: false, etiket: 'Mekân haritası', pinler: bPinler(l), dolgu: {top: 136, bottom: 400, left: 40, right: 40}});
   const bSatir = (m, ks, sec) => { const b = GM.mekanRotada(m.slug); return GM.mekanKart(m, {tur: 'satir', kayitli: ks.has(m.slug), secili: m.slug === sec, sapma: b ? {dk: b.sapma, km: b.km} : null}); };
   const bOzet = d => (d.alan ? ['Harita alanında', SIRA_AD[d.sira].toLocaleLowerCase('tr') + ' sırada'].join(' · ') : ozetMetin(d));
@@ -195,7 +195,7 @@
     return GM.rehberManset({etiket: k[0] ? 'Dada rehberi · Mekân konsepti' : 'Dada rehberi', baslik: k[1], metin: k[2], ozet: [`<b>${GM.sayi(l.length)}</b> mekân`, `<b>${alan[0]}</b> ${alan[1]}`, rotada ? `<b>${rotada}</b> Dada Route’ta` : '', fiyat].filter(Boolean)});
   };
   // Harita kipi: numaralı pinler (liste sırası), ≤ 40 mekânda kümesiz; sağda araç sütunu, altta pinle senkron kart şeridi.
-  const cPinler = (l, sec) => l.map((m, i) => ({id: m.slug, lng: m.lng, lat: m.lat, aria: `${i + 1}. ${m.ad}`, ...(l.length <= 40 ? {sira: i + 1} : {}), secili: m.slug === sec, ad: m.slug === sec ? m.ad : null}));
+  const cPinler = (l, sec) => l.map((m, i) => ({id: m.slug, lng: m.lng, lat: m.lat, aria: `${i + 1}. ${m.ad}`, ...(l.length <= 40 ? {sira: i + 1} : {}), secili: m.slug === sec, ad: m.ad}));
   const cHaritaKip = d => {
     const l = sonuc(d, kolKaynak(d)), ks = kayitli();
     return GM.haritaEkran({altEkran: true,

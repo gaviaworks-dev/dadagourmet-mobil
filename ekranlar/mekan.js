@@ -38,7 +38,6 @@
   const ozellikler = v => (v.ozellik.length || v.m.nitelik?.length ? `<section>${bas('Mekân Özellikleri', 'Bu mekânda neler var')}${GM.ozellikSerit({on: (v.m.nitelik || []).map(x => ({ikon: x.ikon, metin: x.ad})), ogeler: v.ozellik.map(x => ({ikon: 'onay', metin: x})), etiket: v.m.nitelik?.length ? 'Hizmetler' : false})}</section>` : '');
   const rotaKart = v => (v.rota ? `<section class="gm-yigin-12">${bas('Dada Route durağı', 'Bu mekân hazır bir rotanın üstünde')}${GM.rotaKart(GM.rotaKartVeri(v.rota.R, {etiket: v.rota.d.uzak <= 1 ? 'Yol üstü' : `+${v.rota.d.sapma} dk sapma`}), {tur: 'satir'})}</section>` : '');
   const adres = v => `<section class="gm-yigin-16">${bas('Adres & Saatler', v.acik.metin || '')}${GM.adresKart(v.m, v.d)}${v.d.saatler ? GM.saatTablo(v.d.saatler) : GM.veriYok('Çalışma saatleri **henüz girilmedi**.')}</section>`;
-  const tazelik = v => GM.tazelik(v.d.dogrulama);
   const menu = v => `${GM.bos({ikon: 'menu', baslik: 'Menü henüz girilmedi', metin: 'İşletme menüsünü eklediğinde **fiyat, rozet ve alerjenleriyle** burada görünür.'})}${GM.bant({ton: 'uyari', ikon: 'gizlilik', baslik: 'Alerjen bilgilendirmesi', metin: 'Bu mekân henüz alerjen bilgisi paylaşmadı; hassasiyetin varsa **siparişten önce** mutlaka sor.'})}${v.d.tarifler ? tarif(v) : ''}`;
   const tarif = v => `<section class="gm-yigin-12">${bas('Bu Mutfaktan Tarifler', 'Evde dene · DadaGastro')}${GM.satirlar([{ikon: 'neYenir', baslik: v.d.tarifler.metin, alt: 'dadagastro.com’da açılır', veri: {eylem: 'mk-tarif'}}])}</section>`;
   const lezzet = (v, tur) => { const l = tur === 'alinir' ? v.d.neAlinir : v.d.neYenir; if (!l?.length) return ''; const yen = tur !== 'alinir'; return `<section class="gm-yigin-12">${bas(yen ? 'Ne Yenir?' : 'Ne Alınır?', yen ? 'Bu mekânda denenmesi önerilen imza tabaklar' : 'Mekândan paketli alınabilecek yerel ürünler; satış yok, bilgi var')}${v.d.ornek ? `<div class="gm-sira">${GM.rozet({metin: 'Örnek içerik', ton: 'notr', ikon: 'bilgi'})}</div>` : ''}${GM.yatay(l.map(x => GM.lezzetKart({ad: x.ad, alt: x.kaynak || x.alt, tur: x.tur})))}</section>`; };
@@ -49,14 +48,14 @@
     o.rota === false ? '' : GM.teaser({ikon: 'rota', baslik: 'Bu mekân yol üstünde mi?', metin: 'Nereden nereye gittiğini yaz; güzergâhın boyunca **uğrayabileceğin mekânları** haritada gör.', btn: {metin: 'Güzergâhını planla', ikon: 'rota', tur: 'secondary', git: `#/rota/planla?durak=${v.m.slug}`}}),
     o.reklam === false ? '' : GM.reklamYeri({kod: 'MD-END'}),
     v.benzer.length ? `<section>${GM.bas('Benzer mekânlar', {metin: 'Tümü', git: '#/mekanlar'})}${GM.yatay(v.benzer.map(x => GM.mekanKart(x, {kayitli: GM.mekanKayit.var('favori', x.slug)})))}</section>` : '',
-    `<div class="gm-sira">${GM.btn({metin: 'Bilgi hatası bildir', ikon: 'flag', tur: 'text', veri: {eylem: 'mk-hata'}})}</div>`
+    o.hata === false ? '' : GM.tazelik(v.d.dogrulama, {hata: true})
   ].join('');
   const fotolar = v => (v.galeri.length > 1 ? `<section class="gm-yigin-12">${bas(`Fotoğraflar (${v.galeri.length})`, 'Dokun, tümünü gör')}${GM.fotoSerit(v.galeri)}</section>` : '');
   // Resy "Need to Know": rezervasyon koşulu, alerjen, saatler; her satır kendi sheet'ini açar.
   const bilgiSatir = v => `<section class="gm-yigin-12">${bas('Bilmen gerekenler', 'Gitmeden önce üç kısa not')}${GM.satirlar([v.m.rezervasyon ? {ikon: 'rezervasyon', baslik: 'Rezervasyon koşulları', alt: 'Talep · onayla kesinleşir', veri: {eylem: 'mk-bilgi', id: 'rez'}} : null, {ikon: 'gizlilik', baslik: 'Alerjen ve beslenme', alt: v.d.alerjen ? 'Mekân bilgi paylaştı' : 'Henüz paylaşılmadı, sormayı unutma', veri: {eylem: 'mk-bilgi', id: 'alerjen'}}, {ikon: 'saat', baslik: 'Çalışma saatleri', alt: v.acik.metin || 'Henüz girilmedi', veri: {eylem: 'mk-bilgi', id: 'saat'}}].filter(Boolean))}</section>`;
   // Roadtrippers "along the route": bu mekândan sonra gelen rota durakları (gerçek rota verisi, sapma ve km ile).
   const sonrakiDuraklar = v => { if (!v.rota) return ''; const l = GM.rotaDuraklari(v.rota.R).filter(x => x.km > v.rota.d.km && x.mekan.kapak).sort((a, b) => a.km - b.km).slice(0, 3); return l.length ? `<section class="gm-yigin-12">${bas(`${v.rota.R.ad} · sonraki duraklar`, 'Bu duraktan sonra güzergâhta seni bekleyenler')}<div class="gm-yigin-8">${l.map(x => GM.durakKart({...x, mekan: x.mekan}, {eylem: false, sapma: {dk: x.sapma, km: x.km}})).join('')}</div></section>` : ''; };
-  const genel = (v, o = {}) => [o.fotolar ? fotolar(v) : '', o.aciklama === false ? '' : aciklama(v), o.editor === false ? '' : editor(v), deneyim(v), uygun(v), ozellikler(v), o.bilgi ? bilgiSatir(v) : '', o.adres ? adres(v) : '', rotaKart(v), o.il ? ilLezzet(v) : '', tazelik(v)].filter(Boolean).join('');
+  const genel = (v, o = {}) => [o.fotolar ? fotolar(v) : '', o.aciklama === false ? '' : aciklama(v), o.editor === false ? '' : editor(v), deneyim(v), uygun(v), ozellikler(v), o.bilgi ? bilgiSatir(v) : '', o.adres ? adres(v) : '', rotaKart(v), o.il ? ilLezzet(v) : ''].filter(Boolean).join('');
   const kaydetBtn = v => ({ikon: 'favori', ad: 'Kaydet', basili: v.fav, veri: {eylem: 'mk-kaydet'}});
   const ortak = {
     iskelet: 'detay', ust: '#/mekanlar',
@@ -81,8 +80,8 @@
         ...(d.tarifler ? [{ad: 'Tarifler', deger: 'tarifler', html: tarif(v)}] : [])
       ];
       return GM.detay({
-        gorsel: v.galeri[0]?.src || m.kapak, etiket: [m.kategori, m.mutfak?.[0]].filter(Boolean).join(' · '), baslik: m.ad, alt: GM.konumMetin(m, 'uzun'),
-        caps: [{ikon: 'yildiz', metin: m.puan == null ? 'Değerlendirme yok' : String(m.puan).replace('.', ',')}, {ikon: 'fiyat', metin: FIYAT[m.fiyat] || ''}, v.rota ? {ikon: 'rota', metin: 'Rota durağı'} : null].filter(x => x && x.metin),
+        gorsel: v.galeri[0]?.src || m.kapak, etiket: [m.kategori, m.mutfak?.[0]].filter(Boolean).join(' · '), baslik: m.ad,
+        caps: [m.puan == null ? null : {ikon: 'yildiz', metin: String(m.puan).replace('.', ',')}, {ikon: 'pin', metin: GM.konumMetin(m)}, v.rota ? {ikon: 'rota', metin: 'Rota durağı'} : null].filter(x => x && x.metin),
         bas: GM.ozetSerit([
           {ikon: 'yildiz', etiket: 'Puan', deger: m.puan == null ? '–' : String(m.puan).replace('.', ','), alt: m.puan == null ? 'Henüz yok' : null},
           {ikon: 'fiyat', etiket: 'Fiyat', deger: FIYAT[m.fiyat] || '–'},
@@ -136,7 +135,7 @@
         GM.btnIkili({metin: 'Yol tarifi', ikon: 'yon', veri: {eylem: 'mk-yol'}}, {metin: durak ? 'Rotada' : durakAd, ikon: durak ? 'onay' : 'ekle', veri: {eylem: 'mk-durak'}, sinif: durak ? 'gm-btn--tonlu' : '', attrs: `aria-pressed="${durak}" data-metin-basili="Rotada" data-metin-normal="${durakAd}" data-ikon-basili="onay" data-ikon-normal="ekle"`}),
         GM.eylemCipleri([m.rezervasyon ? GM.cip({metin: 'Rezervasyon', ikon: 'rezervasyon', veri: {eylem: 'mk-rez'}}) : '', GM.cip({metin: 'Ziyaret Ettim', ikon: 'ziyaret', veri: {eylem: 'mk-ziyaret'}, attrs: `aria-pressed="${v.ziyaret}"`}), d.tel ? GM.cip({metin: 'Ara', ikon: 'telefon', veri: {eylem: 'mk-ara'}}) : '', GM.cip({metin: 'Listeye ekle', ikon: 'list-ul', veri: {eylem: 'mk-liste'}}), GM.cip({metin: 'Değerlendir', ikon: 'yildiz', veri: {eylem: 'mk-degerlendir'}})]),
         GM.fotoSerit(v.galeri),
-        GM.tazelik(d.dogrulama)
+        GM.tazelik(d.dogrulama, {hata: true})
       ].join('');
       const sekme = [
         {ad: 'Genel', deger: 'genel', html: genel(v)},
@@ -150,9 +149,9 @@
         harita: {ad: 'mkc-harita', kume: true, koridor: !!R, rota: R ? {cizgi: R.cizgi} : null, pinler, sinir: [[m.lng - kd, m.lat - kd * .6], [m.lng + kd, m.lat + kd * .6]], dolgu: {top: 72, bottom: 400, left: 32, right: 32}, etiket: `${m.ad} çevresi haritası`},
         sol: GM.ikonBtn({ikon: 'geri', etiket: 'Geri', geri: true}),
         sag: GM.ikonBtn({ikon: 'harita', etiket: 'Haritada aç', veri: {eylem: 'mk-harita'}}) + GM.ikonBtn({ikon: 'more', etiket: 'Daha fazla', veri: {eylem: 'mk-daha'}}),
-        bas: GM.haritaSheetBas(GM.mekanKimlik(m, d, {kompakt: true}), GM.ikonBtn({ikon: 'favori', etiket: 'Favorilere ekle', tur: 'kutu', secili: v.fav, veri: {eylem: 'mk-kaydet'}}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Paylaş', tur: 'kutu', veri: {eylem: 'mk-paylas'}})),
+        bas: GM.haritaSheetBas(GM.mekanKimlik(m, d, {kompakt: true, meta: {mutfak: false, goz: false}}), GM.ikonBtn({ikon: 'favori', etiket: 'Favorilere ekle', tur: 'kutu', secili: v.fav, veri: {eylem: 'mk-kaydet'}}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Paylaş', tur: 'kutu', veri: {eylem: 'mk-paylas'}})),
         ozet,
-        icerik: GM.detaySekmeler({ad: 'mkc', kaydir: true, ogeler: sekme}) + GM.detayKuyruk(sonrakiDuraklar(v) + kuyruk(v, {rota: !R, reklam: false}))
+        icerik: GM.detaySekmeler({ad: 'mkc', kaydir: true, ogeler: sekme}) + GM.detayKuyruk(sonrakiDuraklar(v) + kuyruk(v, {rota: !R, reklam: false, hata: false}))
       });
     },
     sonra: (kok, ctx) => {

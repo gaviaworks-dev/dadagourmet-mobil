@@ -161,12 +161,6 @@
 .gm-kr-yon-alt .gm-seg{min-height:var(--gm-size-chip-sm)}
 .gm-kl-hekran-ust:has(.gm-kr-yon) > .gm-serit{margin-top:calc(-1 * var(--gm-s-2))}
 
-/* ===================== Rota süre balonu (GM.pin sinif gm-kr-balon) — GM.pin etiket kafası; Google/Yandex rota balonu ===================== */
-.gm-pin.gm-kr-balon .gm-pin-kafa{height:var(--gm-size-chip-sm);padding:0 var(--gm-s-12) 0 var(--gm-s-8);border-radius:var(--gm-r-control) var(--gm-r-control) var(--gm-r-control) var(--gm-r-choice);background:var(--gm-paper);color:var(--gm-slate);box-shadow:0 0 0 var(--gm-size-border) var(--gm-line),var(--gm-sh-md);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font-bold);white-space:nowrap}
-.gm-pin.gm-kr-balon .gm-pin-kafa > .icon{color:var(--gm-rota-alt)}
-.gm-pin.gm-kr-balon.is-secili .gm-pin-kafa{min-width:0;height:var(--gm-size-chip-sm);background:var(--gm-primary);color:var(--gm-paper);box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),var(--gm-sh-md)}
-.gm-pin.gm-kr-balon.is-secili .gm-pin-kafa > .icon{color:var(--gm-paper)}
-.gm-pin.gm-kr-balon .gm-pin-ad,.gm-pin.gm-kr-balon::after{display:none}
 
 /* ===================== Yön özeti (GM.yonOzet) — GM.cekmece başlık dizgesi ===================== */
 .gm-kr-yonozet{display:grid;gap:var(--gm-s-2);flex:1;min-width:0;margin:0}
@@ -250,14 +244,12 @@
 .gm-kr-za-surus .icon{font-size:var(--gm-size-icon-check)}
 .gm-kr-za-oge.is-simdi .gm-kr-za-ray > i{box-shadow:0 0 0 calc(var(--gm-size-border2) * 3) var(--gm-primary-tint)}
 
-/* Küme pini (GM.pin sinif gm-kr-grup): numara beyaz dairede, yanında durak sayısı — komoot A·1·2·B işaretleri */
-.gm-pin.gm-kr-grup .gm-pin-kafa{padding:0 var(--gm-s-12) 0 var(--gm-s-4)}
-.gm-pin.gm-kr-grup .gm-pin-sira{display:grid;place-items:center;width:calc(var(--gm-size-map-pin) - var(--gm-s-8));height:calc(var(--gm-size-map-pin) - var(--gm-s-8));border-radius:var(--gm-r-round);background:var(--gm-paper);color:var(--gm-primary)}
 
 /* ===================== Keşif kartı (GM.kesifKart) — GM.mekanKart harita türü; Roadtrippers yer kartı + sağda dikey "Ekle" ===================== */
 .gm-mk-harita.gm-kr-kk,.gm-kl-hkart > .gm-mk-harita.gm-kr-kk{grid-template-columns:var(--gm-size-venue-thumb) minmax(0,1fr) auto;gap:var(--gm-s-12)}
 .gm-kr-kk .gm-mk-satir-metin{display:grid;gap:var(--gm-s-4);min-width:0}
-.gm-kr-kk .gm-mk-meta{flex-wrap:nowrap;white-space:nowrap;overflow:hidden}
+/* Yığılma kuralı 3: ad + tek meta satırı (.gm-tek-satir yatay kayar, solar); sapma · açık · ₺ · puan aynı satırda */
+.gm-kr-kk .gm-mk-meta{min-width:0}
 .gm-kr-kk-ekle{display:grid;justify-items:center;align-content:center;gap:var(--gm-s-4);min-width:var(--gm-size-touch);min-height:var(--gm-size-touch);padding:0;border:0;background:none;color:var(--gm-primary);font:var(--gm-t-nav-weight) var(--gm-t-nav-size)/1 var(--gm-font-bold);cursor:pointer}
 .gm-kr-kk-ekle > span{display:grid;place-items:center;width:var(--gm-size-box-md);height:var(--gm-size-box-md);border-radius:var(--gm-r-round);background:var(--gm-primary-tint);color:var(--gm-primary);box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-primary-line);transition:transform var(--gm-m-press) var(--gm-e-standard),background var(--gm-m-fast) var(--gm-e-standard)}
 .gm-kr-kk-ekle .icon{font-size:var(--gm-size-icon-md)}
@@ -275,3 +267,19 @@
 .gm-kr-pano-nabiz{display:inline-block;width:var(--gm-s-8);height:var(--gm-s-8);margin-right:var(--gm-s-8);border-radius:var(--gm-r-round);background:var(--gm-on-dark-accent);vertical-align:middle;animation:gm-kr-nabiz calc(var(--gm-m-nabiz) / 3) var(--gm-e-standard) infinite}
 @keyframes gm-kr-nabiz{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--gm-primary) 45%,transparent)}70%{box-shadow:0 0 0 var(--gm-s-8) transparent}100%{box-shadow:0 0 0 0 transparent}}
 @media (prefers-reduced-motion:reduce){.gm-kr-za-oge.is-simdi .gm-kr-za-ray > i,.gm-kr-pano-nabiz{animation:none}}
+
+/* ===================== Web paritesi (Görev 11) ===================== */
+/* Rotadaki mekânlar sheet'i (GM.rotaMekanlarSheet): sonuç sayacı tek meta satırı (yığılma kuralı 1, .gm-tek-satir) — GM.mekanMetaSatir ritmi */
+.gm-kr-rm-meta{margin:0 0 var(--gm-s-8);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kr-rm-meta b{font-family:var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kr-rm-sheet .gm-serit{flex-wrap:nowrap}
+/* Eylem şeridi (Google Maps yol tarifi sheet'i: Başlat · Kaydet · Paylaş · Aktar): GM.cipler gm-serit, tek satır yatay kaydırma */
+.gm-kr-eylem-serit{margin-top:var(--gm-s-12)}
+/* Liste başlığı sağ eylemi (GM.krListe o.eylem): başlık satırının sağı boş kalmaz (yığılma kuralı 2) */
+.gm-kr-liste-bas > span:first-of-type{flex:1 1 auto}
+.gm-kr-liste-eylem{flex:0 0 auto;margin-left:auto}
+/* Zaman çizelgesi mola düğmesi (GM.zamanAkis x.farkEylem): web "Önerilen mola" seçimi; saat sütunu ölçüsünde, kesik alt çizgi = dokunulabilir */
+.gm-kr-za-fark{display:inline-flex;align-items:center;justify-content:flex-end;gap:var(--gm-s-2);min-height:var(--gm-size-touch);margin:calc(var(--gm-s-12) * -1) 0;padding:0;border:0;background:none;font:var(--gm-t-nav-weight) var(--gm-t-nav-size)/1.2 var(--gm-font);color:var(--gm-primary);text-decoration:underline dotted;text-underline-offset:var(--gm-s-2);cursor:pointer}
+.gm-kr-za-fark .gm-ikon,.gm-kr-za-fark svg,.gm-kr-za-fark i{font-size:var(--gm-t-nav-size);width:auto;height:1em}
+/* Sheet gövdesi ızgarası: tek satır çip şeridinin içerik genişliği sütunu büyütmesin (arama ve kartlar sheet'ten taşmasın) */
+.gm-kr-rm-sheet .gm-yigin,.gm-kr-rm-sheet [data-rm-cip],.gm-kr-rm-sheet [data-rm-liste]{min-width:0;grid-template-columns:minmax(0,1fr)}

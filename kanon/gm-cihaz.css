@@ -1796,3 +1796,41 @@ button.gm-ada-dugme{width:100%;border:0;cursor:pointer}
 .gm-wy.is-l:not(.is-durak) .gm-wy-siluet{height:auto;min-height:24cqi}
 .gm-wy.is-l:not(.is-durak) .gm-wy-sayilar{grid-template-columns:minmax(0,1fr);gap:1.2cqi}
 .gm-wy.is-l:not(.is-durak) .gm-wy-sayi{grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;gap:1.6cqi;padding:1.6cqi 2.4cqi}
+
+/* ---------- Görev 10 (temizlik turu): seçili widget, Ada geniş boşluğu, sade ana ekran widget'ları, dolu kilit widget'ları ---------- */
+/* Ana ekranda seçili widget: ızgarada 1. satır 1. sütun, ince halka; öteki widget'lar ikincil */
+.gm-wy-izgara>.gm-wy.is-secili.is-s{grid-area:1 / 1 / span 2 / span 2}
+.gm-wy-izgara>.gm-wy.is-secili.is-m{grid-area:1 / 1 / span 2 / span 4}
+.gm-wy-izgara>.gm-wy.is-secili.is-l{grid-area:1 / 1 / span 4 / span 4}
+.gm-wy-izgara>.gm-wy.is-secili{outline:0.9cqi solid color-mix(in srgb,var(--gm-paper) 90%,transparent);outline-offset:1.1cqi}
+.gm-wy-izgara:has(>.gm-wy.is-secili)>.gm-wy:not(.is-secili){opacity:0.9}
+/* Dinamik Ada geniş: ana ekran içeriği Ada'nın altından başlar (çakışma yok) */
+.gm-tel.is-wy.is-ada-genis .gm-wy-ana{padding-top:var(--wy-ada-bosluk,27cqi)}
+/* Sıradaki Durak büyük: kahraman kalan alanı doldurur (şerit + Önce + tek eylem altında) */
+.gm-wy.is-durak.is-l .gm-wy-kahraman{flex:1 1 auto;height:auto;min-height:0}
+.gm-wy.is-durak.is-l .gm-wy-ic{gap:1.8cqi}
+.gm-wy.is-durak.is-m .gm-wy-sutun{justify-content:flex-start;gap:1cqi}
+.gm-wy.is-durak.is-m .gm-wy-dev.is-orta{margin-top:auto;font-size:7.6cqi}
+/* Yolculuk büyük: rota silueti tam genişlik */
+.gm-wy.is-yolculuk .gm-wy-siluet{flex:1 1 auto;height:auto;min-height:0}
+.gm-wy.is-yolculuk .gm-wy-siluet svg{display:block;width:100%;height:100%}
+/* Sofra büyük: kapak kalan alanı doldurur */
+.gm-wy.is-sofra.is-l .gm-wy-kapak{flex:1 1 auto;height:auto;min-height:0}
+/* Kilit ekranı widget'ları (iOS accessory): dikdörtgen üç satır dolu (ikonlu başlık, büyük değer, kısa etiket), daire değer + birim */
+.gm-tel.is-wy .gm-kw.is-dikdortgen{gap:0.5cqi;padding:0 2.2cqi}
+.gm-tel.is-wy .gm-kw.is-dikdortgen>b{gap:1cqi;font-size:3.1cqi;font-weight:600;color:color-mix(in srgb,currentColor 88%,transparent)}
+.gm-tel.is-wy .gm-kw.is-dikdortgen>span{font-size:4.7cqi;font-weight:700;letter-spacing:-0.01em}
+.gm-tel.is-wy .gm-kw.is-dikdortgen>small{font-size:3.05cqi}
+.gm-tel.is-wy .gm-kw .gm-chalka-orta{gap:0.2cqi}
+.gm-tel.is-wy .gm-kw .gm-chalka-orta .icon{font-size:2.6cqi}
+.gm-tel.is-wy .gm-kw .gm-chalka-orta b{font-size:4.2cqi;letter-spacing:-0.02em}
+.gm-tel.is-wy .gm-kw .gm-chalka-orta small{font-size:2.3cqi;font-weight:600;color:color-mix(in srgb,currentColor 85%,transparent)}
+.gm-tel.is-wy .gm-wy-kilit-aks{gap:2cqi}
+.gm-tel.is-wy .gm-kw.is-dikdortgen>b{min-width:0;white-space:nowrap}
+.gm-tel.is-wy .gm-kw.is-dikdortgen>b>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* Dinamik Ada kısa hali: baş ve son içerik kamera alanının (≈126 pt) iki yanında; karar sayfası çerçevesinin sabit adası içeriği örtmez. Kısa Ada açıkken saat kulakta, sağda yalnız pil (iOS da yer açar). */
+.gm-tel.is-wy .gm-ada2.is-kompakt{width:auto;gap:1.2cqi;padding:0 2cqi 0 1cqi}
+.gm-tel.is-wy .gm-ada2.is-kompakt>i{flex:none;width:40cqi}
+.gm-tel.is-wy .gm-ada2.is-kompakt b{flex:none;font-size:3.3cqi;white-space:nowrap}
+.gm-tel.is-wy:has(.gm-ada2.is-kompakt) .gm-wy-sistem>:not(.gm-wy-pil){display:none}
+.gm-tel.is-wy.is-ios:has(.gm-ada2.is-kompakt) .gm-wy-durum{padding-inline:3.6cqi 4.6cqi}

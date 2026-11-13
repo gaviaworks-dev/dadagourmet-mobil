@@ -1,21 +1,31 @@
 /* Harita ve rota (Gourmet'e özgü; Gastro/Diet'te karşılığı yok). Pin, küme, seçili pin, rota çizgisi, yol üstü koridoru, konum noktası.
    İki katman: önce aynı veriden SVG şema çizilir (anında, ağsız; çevrimdışı paket görünümü de budur), MapLibre yüklenince üstüne gerçek harita solar.
    Altlık: OpenFreeMap positron (web dadagourmet-prototip ile aynı), renkleri Gourmet token'larına çevrilir. Veri © OpenStreetMap katkıcıları.
-   API: GM.harita(o) → HTML · GM.pin(o) · GM.kume(o) · GM.konumNokta() · GM.rotaCizgi(o) (statik SVG) · GM.haritaOdak(el, id) · olay gm-degisim {ad, deger: pinId}. */
+   API: GM.harita(o) → HTML · GM.pin(o) · GM.kume(o) · GM.rotaSure(o) · GM.konumNokta() · GM.rotaCizgi(o) (statik SVG) · GM.haritaOdak(el, id) · olay gm-degisim {ad, deger: pinId}. */
 (() => {
   const esc = s => GM.esc(s), ik = GM.ik, TK = GM.TK, liste = (...a) => a.filter(Boolean).join(' ');
   const STIL = 'https://tiles.openfreemap.org/styles/positron';
   const MLJS = 'assets/vendor/maplibre/maplibre-gl.js';
   const KATMAN_IKON = {mekan: 'mekan', neYenir: 'neYenir', neAlinir: 'neAlinir', yakit: 'yakit', sarj: 'sarj', ibadet: 'ibadet', dinlenme: 'dinlenme', karavan: 'karavan', cografi: 'cografi', durak: 'durak', baslangic: 'baslangic', varis: 'varis'};
 
-  // ---------- Pinler (HTML; haritada da, katalogda da aynı işaretleme) ----------
-  // tur: mekan | neYenir | neAlinir | yakit | sarj | ibadet | dinlenme | karavan | cografi · etiket: kısa değer (puan, fiyat, mesafe) · sira: rota durak numarası · secili · ad: seçili pin altındaki ad
+  // ---------- İşaretler (HTML; haritada da, katalogda da aynı işaretleme) — kanon işaret dili: docs/HARITA-ISARET.md ----------
+  // Her işaret YUVARLAKTIR; hap/balon yoktur. Pin kafası ikon, sıra numarası ya da küçük fotoğraf taşır, metin taşımaz.
+  // tur: mekan | baslangic | varis | katman türleri (neYenir, neAlinir, yakit, sarj, ibadet, dinlenme, karavan, cografi → küçük, katman rengi)
+  // sira: rota durak numarası (yuvarlak numaralı pin) · gorsel: küçük fotoğraf pini · secili: büyür + ad etiketi · soluk · kucuk
+  // ad: pinin altındaki etiket; YALNIZ seçiliyken ya da harita yakınlaşınca (size.mapLabelZoom) görünür, tek satır.
+  // etiket: süre/sapma/puan gibi değer haritada GÖSTERİLMEZ (seçili kartta ya da alt sayfada yazılır); yalnız erişilebilir ada eklenir.
+  const KATMAN_TUR = new Set(['neYenir', 'neAlinir', 'yakit', 'sarj', 'ibadet', 'dinlenme', 'karavan', 'cografi']);
   GM.pin = (o = {}) => {
     const tur = o.tur || 'mekan', sira = o.sira != null;
-    const ic = sira ? `<b class="gm-pin-sira">${esc(o.sira)}</b>` : ik(o.ikon || KATMAN_IKON[tur] || 'pin');
-    return `<span class="${liste('gm-pin', `is-${tur}`, o.etiket && 'has-etiket', o.secili && 'is-secili', o.soluk && 'is-soluk', o.kucuk && 'is-kucuk', o.sinif)}"${o.id ? ` data-pin="${esc(o.id)}"` : ''} role="img" aria-label="${esc(o.aria || o.ad || tur)}"><span class="gm-pin-kafa">${ic}${o.etiket ? `<span class="gm-pin-etiket">${esc(o.etiket)}</span>` : ''}</span>${o.secili && o.ad ? `<span class="gm-pin-ad">${esc(o.ad)}</span>` : ''}</span>`;
+    const ic = o.gorsel ? `<img src="${esc(o.gorsel)}" alt="" loading="lazy" decoding="async">` : sira ? `<b class="gm-pin-sira">${esc(o.sira)}</b>` : ik(o.ikon || KATMAN_IKON[tur] || 'pin');
+    const aria = o.aria || [sira ? `${o.sira}. durak` : '', o.ad, o.etiket].filter(Boolean).join(' · ') || tur;
+    return `<span class="${liste('gm-pin', `is-${tur}`, KATMAN_TUR.has(tur) && 'is-katman', sira && 'has-sira', o.gorsel && 'has-gorsel', o.secili && 'is-secili', o.soluk && 'is-soluk', o.kucuk && 'is-kucuk', o.sinif)}"${o.id ? ` data-pin="${esc(o.id)}"` : ''} role="img" aria-label="${esc(aria)}"><span class="gm-pin-kafa">${ic}</span>${o.ad ? `<span class="gm-pin-ad">${esc(o.ad)}</span>` : ''}</span>`;
   };
+  // Küme: sayılı yuvarlak; her haritada aynı (üç boy, sayıya göre).
   GM.kume = (o = {}) => `<span class="${liste('gm-kume', o.n >= 50 ? 'is-lg' : o.n >= 10 ? 'is-md' : 'is-sm', o.sinif)}" role="img" aria-label="${esc(o.n)} mekân"><b>${esc(o.n)}</b></span>`;
+  // Rota süre etiketi: rota başına EN ÇOK BİR, rota çizgisinin orta noktasında küçük kart (köşe chip-sm, ince kenar, gölgesiz). Sapma (+N dk) buraya yazılmaz.
+  // o: {id, metin, secili, alt (alternatif rota → ikincil ton)}
+  GM.rotaSure = (o = {}) => `<span class="${liste('gm-rota-sure', o.secili && 'is-secili', o.alt && 'is-alt', o.sinif)}"${o.id ? ` data-pin="${esc(o.id)}"` : ''} role="img" aria-label="${esc(o.aria || o.metin)}">${esc(o.metin)}</span>`;
   GM.konumNokta = (o = {}) => `<span class="${liste('gm-konum', o.yon != null && 'has-yon', o.sinif)}" style="${o.yon != null ? `--yon:${+o.yon}deg` : ''}" role="img" aria-label="Konumun"><i></i></span>`;
 
   // ---------- Web Mercator ve SVG şema ----------
@@ -54,7 +64,7 @@
   };
 
   // ---------- Harita bileşeni ----------
-  // o: {ad, merkez, zoom, sinir, dolgu, pinler, kume, rota:{cizgi, alternatif, gecilen}, koridor, konum, yon, stil:'acik'|'koyu', etkilesim, yukseklik, kontroller, sinif, etiket}
+  // o: {ad, merkez, zoom, sinir, dolgu, pinler, kume, rota:{cizgi, alternatif, gecilen}, rotaSure:[{id, cizgi | lng+lat, metin, secili, alt}] (rota başına en çok bir; cizgi verilirse çizginin boş yerine oturur, işarete binmez), koridor, konum, yon, stil:'acik'|'koyu', etkilesim, yukseklik, kontroller, sinif, etiket}
   GM.harita = (o = {}) => {
     const veri = {...o}; delete veri.sinif;
     const h = o.yukseklik || '240px';
@@ -66,21 +76,78 @@
     const k = el.querySelector('.gm-harita-sema'), w = el.clientWidth || 342, h = el.clientHeight || 240;
     const f = izdusum(o, w, h);
     const pin = p => { const [x, y] = f([p.lng, p.lat]); return `<span class="gm-harita-isaret" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-pin-id="${esc(p.id || '')}">${GM.pin(p)}</span>`; };
-    const pinler = kumele(o.pinler || [], o.kume ? 44 : 0, f).map(p => p.n ? `<span class="gm-harita-isaret" style="left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px">${GM.kume({n: p.n})}</span>` : pin(p.p));
+    const sec = el._gmSecili, pl = (o.pinler || []).map(p => (sec != null && p.id != null ? {...p, secili: p.id === sec} : p));
+    const km = kumele(pl, o.kume ? 44 : 0, f), pinler = km.map(p => p.n ? `<span class="gm-harita-isaret" style="left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px">${GM.kume({n: p.n})}</span>` : pin(p.p));
     const kon = o.konum ? (() => { const [x, y] = f(o.konum); return `<span class="gm-harita-isaret" style="left:${x}px;top:${y}px">${GM.konumNokta({yon: o.yon})}</span>`; })() : '';
-    k.innerHTML = `${GM.rotaCizgi({...o, w, h, pinler: [], sinif: o.stil === 'koyu' ? 'is-koyu' : ''})}${pinler.join('')}${kon}`;
+    const ret = sureYerles(o.rotaSure, km, f).map(e => { const [x, y] = e.px; return `<span class="gm-harita-isaret is-rota-sure" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-pin-id="${esc(e.id || '')}">${GM.rotaSure(e)}</span>`; }).join('');
+    k.innerHTML = `${GM.rotaCizgi({...o, w, h, pinler: [], sinif: o.stil === 'koyu' ? 'is-koyu' : ''})}${ret}${pinler.join('')}${kon}`;
+    etiketYerlestir(el);
   };
-  // Basit ızgara kümeleme (px): aynı hücredeki mekân pinleri sayıya dönüşür; seçili ve katman pinleri kümelenmez.
+  // Rota süre etiketi yeri (px): e.cizgi verilirse çizginin %10–90 kesiminde pinlerden ve öteki süre etiketlerinden en uzak nokta; yoksa e.lng/lat.
+  // Yine de bir işarete binerse (kısa kol üstünde küme), etiket o işaretten dışarı itilir: işaret haritada her zaman görünür kalır.
+  const sureYerles = (l, km, f) => {
+    const dolu = km.map(x => (x.n ? [x.x, x.y] : f([x.p.lng, x.p.lat]))), YW = 48, YH = 13, R = 26;
+    return (l || []).map(e => {
+      let q = e.cizgi?.length ? null : f([e.lng, e.lat]);
+      if (!q) {
+        const c = e.cizgi, n = c.length, a = Math.floor(n * .1), b = Math.max(a + 1, Math.ceil(n * .9)), adim = Math.max(1, Math.floor((b - a) / 60));
+        let enD = -1; q = f(c[Math.floor(n / 2)]);
+        for (let i = a; i < b; i += adim) { const t = f(c[i]), d = dolu.length ? Math.min(...dolu.map(r => Math.hypot(t[0] - r[0], t[1] - r[1]))) : 0; if (d > enD) { enD = d; q = t; } }
+      }
+      const yakin = dolu.map(r => ({r, d: Math.hypot(q[0] - r[0], q[1] - r[1])})).sort((x, y) => x.d - y.d)[0];
+      if (yakin) { const [dx, dy] = yakin.d > .5 ? [(q[0] - yakin.r[0]) / yakin.d, (q[1] - yakin.r[1]) / yakin.d] : [0, -1], gerek = Math.abs(dx) * (YW + R) + Math.abs(dy) * (YH + R); if (yakin.d < gerek) q = [yakin.r[0] + dx * gerek, yakin.r[1] + dy * gerek]; }
+      dolu.push(q);
+      return {...e, px: q};
+    });
+  };
+  // Pin adı etiketleri: seçili pinin adı her zaman; yakınlaşınca (zoom ≥ size.mapLabelZoom) bütün pinlerin adı. Çakışan etiket gizlenir (seçili önce, sonra soldan sağa).
+  const ETIKET_ZOOM = TK?.size?.mapLabelZoom || 14;
+  const etiketYerlestir = el => {
+    const yuklu = el.classList.contains('is-yuklendi'), sec = yuklu ? '.gm-harita-ml' : '.gm-harita-isaret';
+    const l = [...el.querySelectorAll(`${sec} .gm-pin-ad`)];
+    l.forEach(e => e.classList.remove('is-cakisik'));
+    const gorunur = l.filter(e => e.offsetParent).map(e => ({e, r: e.getBoundingClientRect(), s: e.closest('.gm-pin').classList.contains('is-secili')}));
+    gorunur.sort((a, b) => b.s - a.s || a.r.left - b.r.left);
+    const tut = [];
+    gorunur.forEach(x => { if (tut.some(r => !(x.r.right < r.left || x.r.left > r.right || x.r.bottom < r.top || x.r.top > r.bottom))) x.e.classList.add('is-cakisik'); else tut.push(x.r); });
+  };
+  GM.haritaEtiketYerlestir = el => { if (!el || el._gmEtiketBekle) return; el._gmEtiketBekle = requestAnimationFrame(() => { el._gmEtiketBekle = 0; etiketYerlestir(el); }); };
+  // Seçim başka yardımcıdan da değişebilir (GM.haritaSec): pin sınıfı değişince etiketler yeniden yerleşir.
+  const secimIzle = el => new MutationObserver(r => { if (r.some(x => x.target.classList?.contains('gm-pin'))) GM.haritaEtiketYerlestir(el); }).observe(el, {subtree: true, attributes: true, attributeFilter: ['class']});
+  // Kümeleme ve çarpışma (px, Google/Apple kalıbı) — bütün haritalarda aynı kural, sonuçta görünür küme/pin kutuları kesişmez:
+  // 1) ızgara (hucre px; kume:true haritalarda), 2) birleştirme: kutuları (boy/2 + pay) kesişen iki mekân öğesi (pin ya da küme) tek kümede toplanır,
+  // 3) çarpışma: küme sabit işaretten dışarı kaydırılır; kalan kesişmede düşük öncelikli işaret o yakınlıkta gizlenir (yakınlaşınca döner). Öncelik: seçili > sıra > kalkış/varış > küme > mekân > katman > soluk katman.
+  const SZ = TK?.size || {};
+  const boyut = q => (q.n ? (q.n >= 50 ? SZ.mapClusterLg || 56 : q.n >= 10 ? SZ.mapClusterMd || 44 : SZ.mapCluster || 36)
+    : q.p.secili ? (q.p.gorsel ? SZ.mapPinFotoLg || 52 : SZ.mapPinLg || 44) : q.p.gorsel ? SZ.mapPinFoto || 40 : (KATMAN_TUR.has(q.p.tur) || q.p.kucuk) ? SZ.mapPinSm || 26 : SZ.mapPin || 32);
+  const pay = q => boyut(q) / 2 + (q.n ? 6 : 3); // küme halesi + kenar
+  const carpar = (a, b) => { const r = pay(a) + pay(b); return Math.abs(a.x - b.x) < r && Math.abs(a.y - b.y) < r; };
+  const oncelik = q => (q.n ? 3 : q.p.secili ? 6 : q.p.sira != null ? 5 : q.p.tur === 'baslangic' || q.p.tur === 'varis' ? 4 : KATMAN_TUR.has(q.p.tur) ? (q.p.soluk ? 0 : 1) : 2);
+  // Küme yaklaşık bir ağırlık merkezidir: sabit işarete binerse gizlenmez, en kısa eksende dışarı kaydırılır (en çok 6 deneme).
+  const kaydir = (q, kabul) => { for (let t = 0; t < 6; t++) { const k = kabul.find(x => carpar(x, q)); if (!k) return true; const dx = q.x - k.x, dy = q.y - k.y, r = pay(q) + pay(k), sx = r - Math.abs(dx) + 1, sy = r - Math.abs(dy) + 1; if (sx < sy) q.x += dx >= 0 ? sx : -sx; else q.y += dy > 0 ? sy : -sy; } return !kabul.some(x => carpar(x, q)); };
   const kumele = (pinler, hucre, f) => {
-    if (!hucre) return pinler.map(p => ({p}));
-    const kova = new Map(), cikti = [];
-    pinler.forEach(p => {
-      if (p.secili || (p.tur && p.tur !== 'mekan') || p.sira != null) { cikti.push({p}); return; }
-      const [x, y] = f([p.lng, p.lat]), a = `${Math.floor(x / hucre)}:${Math.floor(y / hucre)}`;
+    const kova = new Map(), sabit = [];
+    pinler.forEach((p, sira) => {
+      const [x, y] = f([p.lng, p.lat]);
+      if (!hucre || p.secili || (p.tur && p.tur !== 'mekan') || p.sira != null) { sabit.push({p, x, y, sira}); return; }
+      const a = `${Math.floor(x / hucre)}:${Math.floor(y / hucre)}`;
       (kova.get(a) || kova.set(a, []).get(a)).push({p, x, y});
     });
-    kova.forEach(l => { if (l.length === 1) cikti.unshift({p: l[0].p}); else cikti.unshift({n: l.length, x: l.reduce((s, q) => s + q.x, 0) / l.length, y: l.reduce((s, q) => s + q.y, 0) / l.length}); });
-    return cikti;
+    // Öğe: tek pinli = pin, çok pinli = küme ({n, l, x, y}).
+    const og = [...kova.values()].map(l => (l.length === 1 ? l[0] : {n: l.length, l: l.map(q => q.p), x: l.reduce((t, q) => t + q.x, 0) / l.length, y: l.reduce((t, q) => t + q.y, 0) / l.length}));
+    for (let birlesti = true; birlesti;) {
+      birlesti = false;
+      for (let i = 0; i < og.length && !birlesti; i++) for (let k = i + 1; k < og.length; k++) {
+        const a = og[i], b = og[k];
+        if (!carpar(a, b)) continue;
+        const la = a.n ? a.l : [a.p], lb = b.n ? b.l : [b.p], na = la.length, nb = lb.length;
+        og[i] = {n: na + nb, l: [...la, ...lb], x: (a.x * na + b.x * nb) / (na + nb), y: (a.y * na + b.y * nb) / (na + nb)}; og.splice(k, 1); birlesti = true; break;
+      }
+    }
+    const kabul = [];
+    [...og, ...sabit].map((q, i) => ({q, i})).sort((a, b) => oncelik(b.q) - oncelik(a.q) || (a.q.sira ?? a.i) - (b.q.sira ?? b.i)).forEach(({q}) => { if (q.n ? kaydir(q, kabul) : !kabul.some(k => carpar(k, q))) kabul.push(q); });
+    // Çizim sırası: mekân/küme altta, sabit (seçili, sıra, uç, katman) üstte.
+    return [...kabul.filter(q => !sabit.includes(q)), ...kabul.filter(q => sabit.includes(q))].map(q => (q.n ? {n: q.n, x: q.x, y: q.y} : {p: q.p}));
   };
 
   // MapLibre bir kez, ilk haritada yüklenir.
@@ -113,6 +180,9 @@
       if (l.type === 'symbol') { set('text-color', R.yazi); set('text-halo-color', R.hale); if (/poi/.test(id)) { try { m.setLayoutProperty(id, 'visibility', 'none'); } catch { /* yok */ } } }
     });
   };
+  // Yedek altlık: OSM standart raster karosu (tile.openstreetmap.org; atıf "© OpenStreetMap" haritada zaten yazılı). Renkleri sakinleştirilir, koyu kipte karartılır.
+  const yedekStil = koyu => ({version: 8, sources: {osm: {type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 19, attribution: '© OpenStreetMap'}},
+    layers: [{id: 'gm-zemin', type: 'background', paint: {'background-color': koyu ? '#1E1A20' : '#F5F4F2'}}, {id: 'osm', type: 'raster', source: 'osm', paint: koyu ? {'raster-saturation': -1, 'raster-brightness-max': .38, 'raster-contrast': .1} : {'raster-saturation': -.7, 'raster-contrast': -.08, 'raster-brightness-min': .06}}]});
   const rotaKatman = (m, o, koyu) => {
     const r = o.rota || {}, p = renk('primary') || '#742982', alt = renk('rota-alt') || '#B9A5BE', ince = (o.etkilesim === false ? .7 : 1);
     const ekle = (id, koord) => { if (!koord?.length) return; m.addSource(id, {type: 'geojson', data: {type: 'Feature', geometry: {type: 'LineString', coordinates: koord}}}); };
@@ -128,19 +198,28 @@
   // İşaretler: kümeleme açıksa her hareket sonunda ekran px ızgarasıyla yeniden kurulur (şemadaki kumele ile aynı kural).
   const isaretler = (ml, m, el, o) => {
     let liste = [];
-    const ekle = (html, ll, id) => { const d = document.createElement('div'); d.className = 'gm-harita-ml'; if (id) d.dataset.pinId = id; d.innerHTML = html; liste.push(new ml.Marker({element: d, anchor: 'center'}).setLngLat(ll).addTo(m)); };
+    const ekle = (html, ll, id, sinif) => { const d = document.createElement('div'); d.className = liste2('gm-harita-ml', sinif); if (id) d.dataset.pinId = id; d.innerHTML = html; liste.push(new ml.Marker({element: d, anchor: 'center'}).setLngLat(ll).addTo(m)); };
+    const yakin = () => el.classList.toggle('is-yakin', m.getZoom() >= ETIKET_ZOOM);
     const kur = () => {
       liste.forEach(x => x.remove()); liste = [];
       const f = ll => { const q = m.project(ll); return [q.x, q.y]; };
-      kumele(o.pinler || [], o.kume ? 44 : 0, f).forEach(x => x.n ? ekle(GM.kume({n: x.n}), m.unproject([x.x, x.y])) : ekle(GM.pin(x.p), [x.p.lng, x.p.lat], x.p.id));
+      // Seçili pin (GM.haritaOdak) yeniden kurulumda korunur ve kümeye girmez.
+      const sec = el._gmSecili, pl = (o.pinler || []).map(p => (sec != null && p.id != null ? {...p, secili: p.id === sec} : p)), km = kumele(pl, o.kume ? 44 : 0, f);
+      sureYerles(o.rotaSure, km, f).forEach(e => ekle(GM.rotaSure(e), m.unproject(e.px), e.id, 'is-rota-sure'));
+      km.forEach(x => x.n ? ekle(GM.kume({n: x.n}), m.unproject([x.x, x.y])) : ekle(GM.pin(x.p), [x.p.lng, x.p.lat], x.p.id));
       if (o.konum) ekle(GM.konumNokta({yon: o.yon}), o.konum);
+      yakin(); requestAnimationFrame(() => etiketYerlestir(el));
     };
-    kur(); if (o.kume) m.on('moveend', kur);
+    kur(); m.on('zoom', yakin);
+    // Kümeli haritada her hareket, kümesiz haritada her yakınlaşma sonunda yeniden kurulur (çarpışmada gizlenen işaret yakınlaşınca döner).
+    m.on(o.kume ? 'moveend' : 'zoomend', kur);
   };
+  const liste2 = (...a) => a.filter(Boolean).join(' ');
   GM._haritaKur = el => {
     let o; try { o = JSON.parse(el.dataset.harita); } catch { return; }
     const sema = () => semaCiz(el, o);
-    sema(); new ResizeObserver(() => { if (!el.classList.contains('is-yuklendi')) sema(); }).observe(el);
+    el.classList.toggle('is-yakin', (o.zoom || 0) >= ETIKET_ZOOM);
+    sema(); secimIzle(el); new ResizeObserver(() => { if (!el.classList.contains('is-yuklendi')) sema(); }).observe(el);
     // Pin dokunuşu: şema ve gerçek haritada aynı olay.
     el.addEventListener('click', ev => { const p = ev.target.closest('[data-pin-id]'); if (p && p.dataset.pinId) { GM.haritaOdak(el, p.dataset.pinId); GM.degisim(el, o.ad || 'harita', p.dataset.pinId); } });
     if (o.cevrimdisi || GM.durum.oku('harita-cevrimdisi', false)) { el.classList.add('is-cevrimdisi'); const d = el.querySelector('.gm-harita-durum'); if (d) d.innerHTML = `${GM.ik('cevrimdisi')}<span>Çevrimdışı · indirilen rota</span>`; return; }
@@ -151,11 +230,21 @@
       if (o.merkez && o.zoom) Object.assign(ayar, {center: o.merkez, zoom: o.zoom}); else Object.assign(ayar, {bounds: b, fitBoundsOptions: {padding: dl}});
       const m = new ml.Map(ayar);
       el._harita = m;
-      m.on('styledata', () => { if (!m._gmBoya) { m._gmBoya = 1; boya(m, koyu); } });
-      m.on('load', () => { boya(m, koyu); rotaKatman(m, o, koyu); isaretler(ml, m, el, o); });
-      m.once('idle', () => { clearTimeout(el._gmGecikme); el.classList.remove('is-gecikti'); el.classList.add('is-yuklendi'); });
-      // Karo sunucusu yavaşsa: 6 sn'de rota şeması üstünde "Harita yükleniyor" çipi; 12 sn'de karolar yeniden istenir (şema altlık olarak kalır, ekran boş görünmez).
-      el._gmGecikme = setTimeout(() => { if (el.classList.contains('is-yuklendi')) return; el.classList.add('is-gecikti'); el._gmGecikme = setTimeout(() => { if (!el.classList.contains('is-yuklendi')) { try { m.style?.sourceCaches && Object.values(m.style.sourceCaches).forEach(c => c.reload?.()); m.triggerRepaint(); } catch { /* yok */ } } }, 6000); }, 6000);
+      // Altlık: OpenFreeMap (vektör). Stil ya da karo gelmezse (hata ya da 6 sn) OSM raster yedeğine geçilir; ızgara şema yalnız ikisi de gelmezse (gerçekten çevrimdışı) kalır.
+      let yedek = false, hata = 0, yedekHata = 0, isaretVar = false, bitti = false;
+      const katmanlar = () => { if (!yedek) boya(m, koyu); try { rotaKatman(m, o, koyu); } catch { /* zaten var */ } if (!isaretVar) { isaretVar = true; isaretler(ml, m, el, o); } };
+      const yuklendi = () => { if (bitti) return; bitti = true; clearTimeout(el._gmGecikme); el.classList.remove('is-gecikti', 'is-cevrimdisi'); el.classList.add('is-yuklendi'); el.dataset.altlik = yedek ? 'osm' : 'openfreemap'; GM.haritaEtiketYerlestir(el); };
+      const yedegeGec = neden => { if (yedek || bitti) return; yedek = true; console.info('[harita] yedek altlık (OSM raster):', neden); m.setStyle(yedekStil(koyu), {diff: false}); };
+      m.on('styledata', () => { if (!m._gmBoya && !yedek) { m._gmBoya = 1; boya(m, koyu); } });
+      m.on('style.load', katmanlar);
+      m.on('error', e => {
+        if (bitti) return;
+        if (yedek) { if (e.sourceId === 'osm' && ++yedekHata >= 4) { el.classList.add('is-cevrimdisi'); const d = el.querySelector('.gm-harita-durum'); if (d) d.innerHTML = `${GM.ik('cevrimdisi')}<span>Harita karoları yüklenemedi</span>`; } return; }
+        if (!m.isStyleLoaded()) yedegeGec('stil yüklenemedi'); else if (e.sourceId) hata++;
+      });
+      m.on('idle', () => { if (bitti) return; if (!yedek && hata) { yedegeGec(`${hata} karo hatası`); return; } if (yedek && yedekHata >= 4) return; yuklendi(); });
+      // 6 sn: "Harita yükleniyor" çipi + yedek altlığa geç; 12 sn: yedek karolar yeniden istenir (şema altlık olarak kalır, ekran boş görünmez).
+      el._gmGecikme = setTimeout(() => { if (bitti) return; el.classList.add('is-gecikti'); yedegeGec('6 sn içinde yüklenmedi'); el._gmGecikme = setTimeout(() => { if (!bitti) { try { m.style?.sourceCaches && Object.values(m.style.sourceCaches).forEach(c => c.reload?.()); m.triggerRepaint(); } catch { /* yok */ } } }, 6000); }, 6000);
     }).catch(h => { console.warn('[harita]', h?.message || h); el.classList.add('is-cevrimdisi'); });
     // Görünür olunca kur (uzun listede yüzlerce harita açılmasın).
     const g = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { g.disconnect(); kur(); } }, {rootMargin: '200px'});
@@ -163,7 +252,9 @@
   };
   // Seçili pini değiştir: şemada ve gerçek haritada aynı.
   GM.haritaOdak = (el, id) => {
-    el.querySelectorAll('.gm-harita-isaret .gm-pin, .gm-harita-ml .gm-pin').forEach(p => p.classList.toggle('is-secili', p.dataset.pin === id));
+    el._gmSecili = id;
+    el.querySelectorAll('.gm-harita-isaret :is(.gm-pin,.gm-rota-sure), .gm-harita-ml :is(.gm-pin,.gm-rota-sure)').forEach(p => p.classList.toggle('is-secili', p.dataset.pin === id));
+    GM.haritaEtiketYerlestir(el);
     const m = el._harita, o = JSON.parse(el.dataset.harita), p = (o.pinler || []).find(x => x.id === id);
     if (m && p && o.etkilesim !== false) m.easeTo({center: [p.lng, p.lat], duration: GM.azHareket() ? 0 : TK.motion.page});
   };

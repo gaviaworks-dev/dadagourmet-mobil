@@ -1,7 +1,7 @@
 /* Widget'lar · iOS ve Android (#/widget/yuzey; karar sayfası "Widget’lar" kaydı: telefon üstte, seçenekler altında). Araştırma: docs/WIDGET-ARASTIRMA.md (§1 platform, §4 G1–G11, §5 yönler, §6 kaçınılacaklar).
    Sorgu: yon a|b|c · platform ios|android · yuzey ana|kilit|standby|canli · boy kucuk|orta|buyuk · saat aksam|sabah|ogle|sonra (yalnız yön B) · tema acik|koyu|renkli|seffaf
           · durum dolu|bos|giris|cevrimdisi · konum tahmini|kesin. İlk değer varsayılan.
-   gorunum (yalnız yuzey=ana) tekil|ana · wg durak|yolculuk|rotalar (A) · sofra|masam|takvim (B) · lezzet|defter|kaydedilen (C); yönle uyuşmayan wg → yönün ilk widget'ı.
+   gorunum (yalnız yuzey=ana) ana|tekil · wg durak|yolculuk|rotalar (A) · sofra|masam|takvim (B) · lezzet|defter|kaydedilen (C); yönle uyuşmayan wg → yönün ilk widget'ı (adreste yon yoksa wg yönü belirler).
    tekil: iOS "Widget Ekle" / Android widget seçici önizlemesi (bulanık duvar kâğıdı, tek widget seçili boyda, ad, açıklama, boy noktaları); ana: o widget gerçek ızgarada, diğer ikisi ikincil.
    Sayfa TEK telefon ekranıdır: 390×844 (StandBy 844×390 yatay sayfa). Stil ve parçalar kanonda: kanon/gm-cihaz.js "Widget yüzeyi (Görev 9)" ve rota bloğu (GM.rotaIlerleme ortak yolculuk çubuğu).
    boy: ana ekranda yönün baş widget'ının boyu (iOS 2×2 / 4×2 / 4×4 gerçek ızgara, boşluk öteki widget ve simgelerle dolu).
@@ -12,7 +12,7 @@
    Dada Puan 580 + 40 bekleyen (rütbe eşikleri web prototipinden); kaydedilenler boşsa yakındaki örnekler. */
 (() => {
   const KONUM = [29.0275, 40.9903], AY = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
-  const SECENEK = {yon: ['a', 'b', 'c'], platform: ['ios', 'android'], yuzey: ['ana', 'kilit', 'standby', 'canli'], gorunum: ['tekil', 'ana'], wg: ['durak', 'yolculuk', 'rotalar', 'sofra', 'masam', 'takvim', 'lezzet', 'defter', 'kaydedilen'], boy: ['kucuk', 'orta', 'buyuk'], saat: ['aksam', 'sabah', 'ogle', 'sonra'],
+  const SECENEK = {yon: ['a', 'b', 'c'], platform: ['ios', 'android'], yuzey: ['ana', 'kilit', 'standby', 'canli'], gorunum: ['ana', 'tekil'], wg: ['durak', 'yolculuk', 'rotalar', 'sofra', 'masam', 'takvim', 'lezzet', 'defter', 'kaydedilen'], boy: ['kucuk', 'orta', 'buyuk'], saat: ['aksam', 'sabah', 'ogle', 'sonra'],
     tema: ['acik', 'koyu', 'renkli', 'seffaf'], durum: ['dolu', 'bos', 'giris', 'cevrimdisi'], konum: ['tahmini', 'kesin']};
   const ESKI = {1: 'a', 2: 'b', 3: 'c', 4: 'a'};
   const sorgu = no => {
@@ -20,6 +20,7 @@
     Object.entries(SECENEK).forEach(([k, l]) => { s[k] = l.includes(q.get(k)) ? q.get(k) : l[0]; });
     if (ESKI[no] && !q.get('yon')) s.yon = ESKI[no];
     if (no === '4' && !q.get('platform')) s.platform = 'android';
+    if (q.get('wg') && !q.get('yon')) s.yon = Object.keys(KATALOG).find(y => KATALOG[y].some(k => k.id === s.wg)) || s.yon;   // doğrudan adres: wg yönü belirler
     return s;
   };
   const dk = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
@@ -92,8 +93,8 @@
     {ad: 'Posta', ikon: 'envelope', renk: 'bilgi'}, {ad: 'Podcast', ikon: 'podcast', renk: 'karavan'}, {ad: 'Cüzdan', ikon: 'wallet', renk: 'ink'}, {ad: 'Sağlık', ikon: 'heart', renk: 'tehlike'}];
   const DOCK = [{ikon: 'phone', renk: 'basari'}, {ikon: 'compass', renk: 'bilgi'}, {ikon: 'message', renk: 'basari'}, {ikon: 'music', renk: 'tehlike'}];
   const HUCRE = {kucuk: 4, orta: 8, buyuk: 16};
-  const ana = (q, ws) => {
-    const top = 24, dolu = ws.reduce((t, w) => t + HUCRE[w[1]], 0);
+  const ana = (q, ws, top = 24) => {   // top: ızgara hücresi (Ada genişken bir satır az: 20)
+    const dolu = ws.reduce((t, w) => t + HUCRE[w[1]], 0);
     const uyg = [DADA, ...UYG].slice(0, Math.max(0, top - dolu)).map(GM.wyUyg);
     return GM.wyAna({platform: q.platform, hucreler: [...ws.map(w => w[0]), ...uyg], dock: DOCK, tarih: 'Cuma, 13 Kas'});
   };
@@ -103,7 +104,7 @@
   const KATALOG = {
     a: [{id: 'durak', ad: 'Sıradaki Durak', aciklama: 'Yolculukta sıradaki Dada durağı, kalan yol ve varış saati', boylar: ['kucuk', 'orta', 'buyuk']},
       {id: 'yolculuk', ad: 'Yolculuk', aciklama: 'Yolun ne kadarı geçti, ne kadar kaldı, ne zaman varırsın', boylar: ['kucuk', 'orta', 'buyuk']},
-      {id: 'rotalar', ad: 'Rotalarım', aciklama: 'Kaydettiğin rotayı tek dokunuşla başlat', boylar: ['kucuk', 'orta', 'buyuk']}],
+      {id: 'rotalar', ad: 'Rotalarım', aciklama: 'Kaydettiğin rotayı tek dokunuşla başlat', boylar: ['kucuk', 'orta']}],
     b: [{id: 'sofra', ad: 'Sofra Saati', aciklama: 'Günün saatine göre yakında açık Dada mekânları', boylar: ['kucuk', 'orta', 'buyuk']},
       {id: 'masam', ad: 'Masam', aciklama: 'Rezervasyonuna kalan süre; saat geçince “nasıldı?”', boylar: ['kucuk', 'orta']},
       {id: 'takvim', ad: 'Lezzet Takvimi', aciklama: 'Etkinliğe kalan gün ve tek dokunuşla Hatırlat', boylar: ['kucuk', 'orta']}],
@@ -137,29 +138,50 @@
       defter: b => GM.wyDefter({boy: b, ...d, hal: o.hal === 'giris' ? 'giris' : null, eski: o.eski}),
       kaydedilen: b => GM.wyKoleksiyon({boy: b, baslik: 'Kaydettiklerim', sayi: v.kayitliSayi, ogeler: o.hal ? [] : v.kayitli, hal: o.hal === 'giris' ? 'giris' : null, eski: o.eski})};
   };
-  // Ana ekran yerleşimi: seçili widget seçili boyda başta; diğer ikisi ikincil (küçük: s+s+m, orta: m+s+s, büyük: yalnız l), kalan hücreler simge.
-  const yerlesim = (q, v, wg = secili(q), boy = q.boy) => {
+  // Ana ekran yerleşimi: seçili widget seçili boyda başta (.is-secili: ızgarada 1. satır 1. sütun, belirgin); diğer ikisi ikincil (küçük: s+s+m, orta: m+s+s, büyük: yalnız l), kalan hücreler simge.
+  const yerlesim = (q, v, wg = secili(q), boy = q.boy, isaret = true) => {
     const f = W(q, v), b = boyUy(wg, boy), digerleri = KATALOG[q.yon].filter(k => k.id !== wg.id), tercih = b === 'kucuk' ? ['kucuk', 'orta'] : b === 'orta' ? ['kucuk', 'kucuk'] : [];
-    return [[f[wg.id](b), b], ...tercih.map((t, i) => { const k = digerleri[i], bb = boyUy(k, t); return [f[k.id](bb), bb]; })];
+    const bas = f[wg.id](b);
+    return [[isaret ? bas.replace('class="gm-wy ', 'class="gm-wy is-secili ') : bas, b], ...tercih.map((t, i) => { const k = digerleri[i], bb = boyUy(k, t); return [f[k.id](bb), bb]; })];
   };
   const SAYFA_SAATI = (q, v) => (q.yon === 'a' ? '12:46' : q.yon === 'b' ? v.S.saat : '08:30');
 
   // ---------- Kilit ekranı widget'ları (iOS accessory: tek ton, saat renginde; kişi sayısı ve ad gibi hassas bilgi yok) ----------
+  // Dört yuva dolu (iOS: daire + dikdörtgen + daire). Dikdörtgen seçili widget'ın kilit hali (ikon + başlık, büyük değer, kısa etiket); daireler yönün öteki iki widget'ı (değer + birim).
+  const bol = m => { const x = String(m || '').match(/^(~?[\d.,%]+)\s*(\S*)/); return x ? [x[1], x[2]] : [String(m || ''), '']; };
   const kilitSeti = (q, v) => {
-    const h = hal(q), kw = GM.kilitWidget, e = v.etkinlik, y = v.yol;
-    const etkDaire = e && kw({tur: 'daire', ikon: 'calendar-days', deger: e.kalanGun, oran: 1 - Math.min(1, +e.kalanGun / 30), aria: `${e.ad}: ${e.kalanGun} gün`});
+    const h = hal(q), kw = GM.kilitWidget, e = v.etkinlik, y = v.yol, wg = secili(q);
+    const etkDaire = e && kw({tur: 'daire', ikon: 'calendar-days', deger: e.kalanGun, birim: 'gün', oran: 1 - Math.min(1, +e.kalanGun / 30), aria: `${e.ad}: ${e.kalanGun} gün`});
+    const dizi = (yuvalar, satir) => { const d = KATALOG[q.yon].filter(k => k.id !== wg.id).map(k => yuvalar[k.id]?.daire).filter(Boolean);
+      return {satir, aksesuar: [d[0] && kw({tur: 'daire', ...d[0]}), kw({tur: 'dikdortgen', ...yuvalar[wg.id].kutu}), d[1] && kw({tur: 'daire', ...d[1]})].filter(Boolean)}; };
     if (q.yon === 'a') {
       if (h) return {aksesuar: [kw({tur: 'dikdortgen', ikon: 'route', baslik: 'Dada Route', metin: h === 'giris' ? 'Giriş yap' : 'Rotanı çiz', alt: h === 'giris' ? 'Rotaların burada' : 'Kayıtlı rota yok'})]};
-      return {satir: kw({tur: 'satir', ikon: 'route', metin: `Sıradaki durak ${y.durak.uzak}`}), aksesuar: [kw({tur: 'daire', ikon: 'route', deger: `%${Math.round(y.oran * 100)}`, oran: y.oran, aria: 'Yolculuğun yüzde kaçı geçti'}), kw({tur: 'dikdortgen', ikon: 'utensils', baslik: 'Sıradaki durak', metin: `${y.durak.ad} · ${y.durak.uzak}`, alt: `Önce ${y.once.ad} ${y.once.uzak}`, oran: y.oran})]};
+      const [dk_, db] = bol(y.durak.uzak), r = v.kayitlilar.find(x => !x.aktif) || v.kayitlilar[0];
+      return dizi({
+        durak: {daire: {ikon: 'utensils', deger: dk_, birim: db, aria: `Sıradaki durak ${y.durak.ad} ${y.durak.uzak}`}, kutu: {ikon: 'utensils', baslik: 'Sıradaki durak', metin: y.durak.uzak, alt: `${y.durak.ad} · ${y.durak.varis}`}},
+        yolculuk: {daire: {ikon: 'flag-checkered', deger: `%${Math.round(y.oran * 100)}`, oran: y.oran, aria: 'Yolculuğun yüzde kaçı geçti'}, kutu: {ikon: 'flag-checkered', baslik: `${y.rota.kalkis} → ${y.rota.varis}`, metin: `${y.rota.varis} ${y.varis}`, alt: `${y.kalan} kaldı`, oran: y.oran}},
+        rotalar: {daire: {ikon: 'bookmark', deger: String(v.kayitlilar.length), birim: 'rota', aria: `${v.kayitlilar.length} kayıtlı rota`}, kutu: {ikon: 'bookmark', baslik: 'Rotalarım', metin: r.ad, alt: r.kisa}}
+      }, kw({tur: 'satir', ikon: 'flag-checkered', metin: `Varış ${y.rota.varis} ${y.varis}`}));
     }
     if (q.yon === 'b') {
-      const z = v.rez, kalan = z.saatDk - dk(v.S.saat);
+      const z = v.rez, kalan = z.saatDk - dk(v.S.saat), m = v.sofra[0];
       if (h) return {aksesuar: [etkDaire, kw({tur: 'dikdortgen', ikon: 'calendar-check', baslik: 'Masam', metin: h === 'giris' ? 'Giriş yap' : 'Rezervasyon yok', alt: h === 'giris' ? 'Rezervasyonun burada' : 'Mekânlardan masa ayırt'})].filter(Boolean)};
-      if (q.saat === 'sonra') return {aksesuar: [etkDaire, kw({tur: 'dikdortgen', ikon: 'calendar-check', baslik: 'Masam', metin: `${z.ad} nasıldı?`, alt: 'Ziyaret Ettim için dokun'})].filter(Boolean)};
-      return {satir: kw({tur: 'satir', ikon: 'calendar-check', metin: `${z.ad} ${z.saat}`}), aksesuar: [kw({tur: 'daire', ikon: 'utensils', deger: kalan >= 60 ? `${Math.round(kalan / 60)} sa` : `${kalan} dk`, oran: 1 - Math.min(1, kalan / 720), aria: `${z.ad} rezervasyonuna ${GM.sure(kalan)}`}), kw({tur: 'dikdortgen', ikon: 'calendar-check', baslik: 'Masam · Bugün', metin: `${z.ad} ${z.saat}`, alt: z.durum === 'onay' ? 'Onaylandı' : 'Onay bekleniyor'}), etkDaire].filter(Boolean)};
+      const sonra = q.saat === 'sonra', [md, mb] = bol(m?.mesafe), durum = z.durum === 'onay' ? 'Onaylandı' : 'Onay bekleniyor';
+      return dizi({
+        sofra: {daire: m && {ikon: v.S.ogun.ikon, deger: md, birim: mb, aria: `${v.S.ogun.ad}: ${m.ad} ${m.mesafe}`}, kutu: m ? {ikon: v.S.ogun.ikon, baslik: v.S.ogun.ad, metin: m.ad, alt: [m.mesafe, m.acik ? 'Açık' : 'Kapalı'].join(' · ')} : {ikon: v.S.ogun.ikon, baslik: v.S.ogun.ad, metin: 'Açık mekân yok', alt: 'Mekânlar’a bak'}},
+        masam: {daire: !sonra && {ikon: 'calendar-check', deger: kalan >= 60 ? String(Math.round(kalan / 60)) : String(kalan), birim: kalan >= 60 ? 'sa' : 'dk', oran: 1 - Math.min(1, kalan / 720), aria: `${z.ad} rezervasyonuna ${GM.sure(kalan)}`},
+          kutu: sonra ? {ikon: 'calendar-check', baslik: 'Masam', metin: `${z.ad} nasıldı?`, alt: 'Ziyaret Ettim için dokun'} : {ikon: 'calendar-check', baslik: 'Masam · Bugün', metin: `${z.saat} · ${z.ad}`, alt: `${durum} · ${GM.sure(kalan)} sonra`}},
+        takvim: {daire: e && {ikon: 'calendar-days', deger: e.kalanGun, birim: 'gün', oran: 1 - Math.min(1, +e.kalanGun / 30), aria: `${e.ad}: ${e.kalanGun} gün`}, kutu: e ? {ikon: 'calendar-days', baslik: 'Lezzet Takvimi', metin: `${e.kalanGun} gün · ${e.gun} ${e.ay}`, alt: e.ad} : {ikon: 'calendar-days', baslik: 'Lezzet Takvimi', metin: 'Etkinlik yok', alt: 'Yakında burada'}}
+      }, wg.id === 'masam' || sonra ? e && kw({tur: 'satir', ikon: 'calendar-days', metin: `Lezzet Takvimi · ${e.kalanGun} gün`}) : kw({tur: 'satir', ikon: 'calendar-check', metin: `${z.ad} ${z.saat}`}));
     }
     const d = defter(h === 'bos' ? 0 : 580, h === 'bos' ? 0 : 40);
-    return {satir: e && kw({tur: 'satir', ikon: 'calendar-days', metin: `Lezzet Takvimi · ${e.kalanGun} gün`}), aksesuar: [etkDaire, h === 'giris' ? kw({tur: 'dikdortgen', ikon: 'medal', baslik: 'Gurme Defterim', metin: 'Giriş yap', alt: 'Puanın burada'}) : kw({tur: 'dikdortgen', ikon: 'medal', baslik: 'Gurme Defterim', metin: `${d.hedef} ${d.kalan}`, alt: `${d.rutbe} · ${d.puan} puan`, oran: d.oran})].filter(Boolean)};
+    if (h === 'giris') return {satir: e && kw({tur: 'satir', ikon: 'calendar-days', metin: `Lezzet Takvimi · ${e.kalanGun} gün`}), aksesuar: [etkDaire, kw({tur: 'dikdortgen', ikon: 'medal', baslik: 'Gurme Defterim', metin: 'Giriş yap', alt: 'Puanın burada'})].filter(Boolean)};
+    const yz = v.yazi, [sd, sb] = bol(yz?.sure), ks = h === 'bos' ? 0 : v.kayitliSayi;
+    return dizi({
+      lezzet: {daire: yz && {ikon: 'book-open', deger: sd, birim: sb, aria: `Günün Gurme Lezzeti: ${yz.ad}, ${yz.sure}`}, kutu: {ikon: 'book-open', baslik: 'Günün lezzeti', metin: yz?.ad || '', alt: [yz?.kategori, yz?.sure].filter(Boolean).join(' · ')}},
+      defter: {daire: {ikon: 'medal', deger: String(d.kalan), birim: 'puan', oran: d.oran, aria: `${d.hedef} ${d.kalan} puan`}, kutu: {ikon: 'medal', baslik: 'Gurme Defterim', metin: `${d.kalan} puan kaldı`, alt: `Sıradaki: ${d.sonraki}`, oran: d.oran}},
+      kaydedilen: {daire: {ikon: 'bookmark', deger: String(ks), birim: 'mekân', aria: `${ks} kayıtlı mekân`}, kutu: {ikon: 'bookmark', baslik: 'Kaydettiklerim', metin: `${ks} mekân`, alt: ks ? v.kayitli.slice(0, 2).map(x => x.ad).join(', ') : 'Beğendiğini kaydet'}}
+    }, e && kw({tur: 'satir', ikon: 'calendar-days', metin: `Lezzet Takvimi · ${e.kalanGun} gün`}));
   };
   const TARIH = {ios: 'Cuma 13 Kasım', android: 'Cum, 13 Kas'}, TARIH_KISA = 'Cum 13';   // iOS: satır içi widget varken tarih kısalır
 
@@ -171,11 +193,11 @@
   const ETIKET = {a: 'Yön A · Co-Pilot', b: 'Yön B · Sofra Saati', c: 'Yön C · Gurme Defter'};
 
   const anaYuzey = (q, v) => {
-    const w = secili(q), boy = boyUy(w, q.boy), saat = SAYFA_SAATI(q, v);
+    const w = secili(q), boy = boyUy(w, q.boy), saat = SAYFA_SAATI(q, v), BA = {kucuk: 'küçük', orta: 'orta', buyuk: 'büyük'}, dus = boy !== q.boy ? ` (${BA[q.boy]} boyu yok, en yakın boy)` : '';
     if (q.gorunum === 'tekil') return telefon(q, {saat, sinif: 'is-wy-galeri', icerik: GM.wyGaleri({platform: q.platform, widget: W(q, v)[w.id](boy), boy, boylar: w.boylar, ad: w.ad, aciklama: w.aciklama}),
-      etiket: `${q.platform === 'ios' ? 'iPhone widget galerisi' : 'Android widget seçici'}: ${w.ad}, ${{kucuk: 'küçük', orta: 'orta', buyuk: 'büyük'}[boy]} boy`});
+      etiket: `${q.platform === 'ios' ? 'iPhone widget galerisi' : 'Android widget seçici'}: ${w.ad}, ${BA[boy]} boy${dus}`});
     return telefon(q, {saat, ada: q.yon === 'a' && q.platform === 'ios' && !hal(q) ? GM.adaRota({tur: 'kompakt', ...v.yol}) : '', durumCip: q.yon === 'a' && q.platform === 'android' && !hal(q) ? GM.androidCip({tur: 'rota', metin: v.yol.durak.uzak}) : '',
-      icerik: ana(q, yerlesim(q, v)), etiket: `${q.platform === 'ios' ? 'iPhone' : 'Android'} ana ekranı, ${ETIKET[q.yon]}: ${w.ad} ${{kucuk: 'küçük', orta: 'orta', buyuk: 'büyük'}[boy]} boy`});
+      icerik: ana(q, yerlesim(q, v)), etiket: `${q.platform === 'ios' ? 'iPhone' : 'Android'} ana ekranı, ${ETIKET[q.yon]}: ${w.ad} ${BA[boy]} boy${dus}`});
   };
 
   const kilitYuzey = (q, v) => {
@@ -228,7 +250,7 @@
       const kart = GM.canliRotaKarti({...y, durak: {...y.durak, sapma: y.durak.sapma}, eylem: {kod: 'rota-gec'}, ac: y.ac, eski: eski ? '12.21' : ''});
       if (ios) {
         if (q.boy === 'kucuk') return telefon(q, {saat: '12:46', kilit: {tarih: TARIH.ios}, icerik: GM.kilitAlt([kart]), etiket: 'iPhone kilit ekranı: Dada Route Canlı Etkinliği (sıradaki durak, yolculuk çubuğu, Geç)'});
-        return telefon(q, {saat: '12:46', ada: GM.adaRota({tur: q.boy === 'orta' ? 'kompakt' : 'genis', ...y, eylem: {kod: 'rota-gec'}}), icerik: ana(q, yerlesim(q, v, KATALOG.a[0], 'orta')), etiket: `Dinamik Ada ${q.boy === 'orta' ? 'kısa hali: durak simgesi ve kalan mesafe' : 'geniş hali: sıradaki durak, yolculuk çubuğu ve Geç'}`});
+        return telefon(q, {saat: '12:46', sinif: q.boy === 'buyuk' ? 'is-ada-genis' : '', ada: GM.adaRota({tur: q.boy === 'orta' ? 'kompakt' : 'genis', ...y, eylem: {kod: 'rota-gec'}}), icerik: ana(q, yerlesim(q, v, secili(q), 'orta', false), q.boy === 'buyuk' ? 20 : 24), etiket: `Dinamik Ada ${q.boy === 'orta' ? 'kısa hali: durak simgesi ve kalan mesafe' : 'geniş hali: sıradaki durak, yolculuk çubuğu ve Geç'}`});
       }
       if (q.boy === 'kucuk') return telefon(q, {saat: '12:46', durumCip: GM.androidCip({tur: 'rota', metin: y.durak.uzak}), icerik: GM.androidPerde({saat: '12:46', tarih: TARIH.android, icerik: liveUpdate(v)}), etiket: 'Android 16 bildirim perdesi: Dada Route canlı güncellemesi (ProgressStyle), durum çipi'});
       if (q.boy === 'orta') return kilitYuzey(q, v);
@@ -238,8 +260,8 @@
       const sonra = q.saat === 'sonra', saat = sonra ? '21:40' : q.saat === 'aksam' ? '19:00' : '18:10', kalanSn = Math.max(0, (z.saatDk - dk(saat)) * 60);
       if (ios) {
         if (q.boy === 'kucuk') return telefon(q, {saat, kilit: {tarih: TARIH.ios}, icerik: GM.kilitAlt([sonra ? GM.wyBildirim({baslik: `${z.ad} nasıldı?`, metin: `${z.gunAd} ${z.saat} · Ziyaret Ettim için dokun`, zaman: '21.35', gorsel: z.gorsel}) : GM.wyMasaKarti({rez: z, kalanSn, eski: eski ? nokta(dk(saat) - 25) : ''})]), etiket: sonra ? `iPhone kilit ekranı: ${z.ad} nasıldı? bildirimi` : `iPhone kilit ekranı: rezervasyon Canlı Etkinliği (iOS 26 zamanlanmış, saatten yaklaşık 2 saat önce başlar): ${z.ad} ${z.saat}`});
-        if (sonra) return telefon(q, {saat, icerik: ana(q, yerlesim(q, v, KATALOG.b[0], 'orta')), etiket: 'Rezervasyon saati geçti: Canlı Etkinlik bitti, Masam widget’ı “nasıldı?” soruyor'});
-        return telefon(q, {saat, ada: GM.wyAdaMasa({tur: q.boy === 'orta' ? 'kompakt' : 'genis', rez: z, kalanSn}), icerik: ana(q, yerlesim(q, v, KATALOG.b[0], 'orta')), etiket: `Dinamik Ada ${q.boy === 'orta' ? 'kısa hali: rezervasyona kalan süre' : 'geniş hali: Mikla, saat, durum ve Yol tarifi'}`});
+        if (sonra) return telefon(q, {saat, icerik: ana(q, yerlesim(q, v, secili(q), 'orta', false)), etiket: 'Rezervasyon saati geçti: Canlı Etkinlik bitti, Masam widget’ı “nasıldı?” soruyor'});
+        return telefon(q, {saat, sinif: q.boy === 'buyuk' ? 'is-ada-genis' : '', ada: GM.wyAdaMasa({tur: q.boy === 'orta' ? 'kompakt' : 'genis', rez: z, kalanSn}), icerik: ana(q, yerlesim(q, v, secili(q), 'orta', false), q.boy === 'buyuk' ? 20 : 24), etiket: `Dinamik Ada ${q.boy === 'orta' ? 'kısa hali: rezervasyona kalan süre' : 'geniş hali: Mikla, saat, durum ve Yol tarifi'}`});
       }
       // Android: yaklaşan rezervasyon Live Update olmaz; "Yola çıktım" deyince (orta) Live Update, Android 15 ve altında (büyük) sürekli bildirim.
       const yolKm = GM.km(KONUM, [z.lng, z.lat]) * 1.3, yolDk = Math.round(yolKm * 3), uzak = mesafe(yolKm, v.tahmini);
@@ -285,16 +307,23 @@
     referans: 'Flighty (Canlı Etkinlik, Dinamik Ada), Apple ve Google Haritalar (yolculuk), Structured (sıradaki iş), (Not Boring) Weather ve Widgetsmith (dev rakam, geri sayım), Android Glance ve Live Updates kılavuzları',
     alinan: 'Gerçek iOS 18/26 ve Pixel ızgarası (küçük 2×2, orta 4×2, büyük 4×4), tek tonlu kilit ekranı widget’ları, StandBy, Canlı Etkinlik ve Dinamik Ada kısa/geniş, Android 16 ProgressStyle canlı güncelleme ve durum çipi; uçta halka olmayan tek yolculuk çubuğu.',
     gerekce: 'Üç yön aynı telefonda karşılaştırılır: A yolculuk (rakipsiz Dada Route), B her gün işe yarayan öğün ve masa, C marka sesi. Prototip örneği: rezervasyon kaydı yoksa bugün 20.00 Mikla (2 kişi, onaylandı); yolculuk İstanbul → İzmir 229. km, sıradaki Dada durağı LAST (İzmir, ~242 km, ~2 sa 22 dk), önce Total yakıt ~3 km; Dada Puan 580 + 40 bekleyen (eşikler web prototipinden); puan, yorum, sponsor yok.',
+    // Karar sayfası sözleşmesi: bolum (üç başlık), diger (katlanan "Diğer"), öğe/grup yon (yalnız o yönde görünür); ilk öğe varsayılan. Sunum: seçtirilecek hazır birleşimler.
+    sunumlar: [
+      {ad: 'Yolda · Canlı Etkinlik + Ada', aciklama: 'İstanbul → İzmir yolculuğu: Dinamik Ada geniş hali, altında Sıradaki Durak', secim: {yon: 'a', platform: 'ios', yuzey: 'canli', wg: 'durak', boy: 'buyuk', gorunum: 'ana', tema: 'acik', durum: 'dolu'}},
+      {ad: 'Ana ekran · Co-Pilot', aciklama: 'Sıradaki Durak orta boy, iPhone ana ekranında', secim: {yon: 'a', platform: 'ios', yuzey: 'ana', wg: 'durak', boy: 'orta', gorunum: 'ana', tema: 'acik', durum: 'dolu'}},
+      {ad: 'Akşam · Sofra Saati', aciklama: '19.00, yakında açık Dada mekânları', secim: {yon: 'b', platform: 'ios', yuzey: 'ana', wg: 'sofra', boy: 'orta', gorunum: 'ana', saat: 'aksam', tema: 'acik', durum: 'dolu'}},
+      {ad: 'Android · Material You', aciklama: 'Pixel ana ekranı, temalı renkler', secim: {yon: 'b', platform: 'android', yuzey: 'ana', wg: 'sofra', boy: 'orta', gorunum: 'ana', saat: 'aksam', tema: 'renkli', durum: 'dolu'}}
+    ],
     secenekler: [
-      {ad: 'Yön', anahtar: 'yon', ogeler: [{ad: 'A · Co-Pilot', deger: 'a'}, {ad: 'B · Sofra Saati', deger: 'b'}, {ad: 'C · Gurme Defter', deger: 'c'}]},
-      {ad: 'Telefon', anahtar: 'platform', ogeler: [{ad: 'iPhone', deger: 'ios', ikon: 'apple'}, {ad: 'Android', deger: 'android', ikon: 'android'}]},
-      {ad: 'Yüzey', anahtar: 'yuzey', ogeler: [{ad: 'Ana ekran', deger: 'ana'}, {ad: 'Kilit ekranı', deger: 'kilit'}, {ad: 'StandBy', deger: 'standby'}, {ad: 'Canlı', deger: 'canli'}]},
-      {ad: 'Görünüm', anahtar: 'gorunum', ogeler: [{ad: 'Tek widget', deger: 'tekil'}, {ad: 'Ana ekranda', deger: 'ana'}]},
-      {ad: 'Widget', anahtar: 'wg', ogeler: Object.values(KATALOG).flat().map(k => ({ad: k.ad, deger: k.id}))},
-      {ad: 'Boy', anahtar: 'boy', ogeler: [{ad: 'Küçük', deger: 'kucuk'}, {ad: 'Orta', deger: 'orta'}, {ad: 'Büyük', deger: 'buyuk'}]},
-      {ad: 'Saat (B)', anahtar: 'saat', ogeler: [{ad: 'Akşam 19.00', deger: 'aksam'}, {ad: 'Sabah 08.10', deger: 'sabah'}, {ad: 'Öğle 12.30', deger: 'ogle'}, {ad: 'Sonra 21.40', deger: 'sonra'}]},
-      {ad: 'Tema', anahtar: 'tema', ogeler: [{ad: 'Açık', deger: 'acik'}, {ad: 'Koyu', deger: 'koyu'}, {ad: 'Renklendirilmiş', deger: 'renkli'}, {ad: 'Şeffaf', deger: 'seffaf'}]},
-      {ad: 'Durum', anahtar: 'durum', ogeler: [{ad: 'Dolu', deger: 'dolu'}, {ad: 'İlk gün', deger: 'bos'}, {ad: 'Giriş yok', deger: 'giris'}, {ad: 'Çevrimdışı', deger: 'cevrimdisi'}]},
-      {ad: 'Mesafe', anahtar: 'konum', ogeler: [{ad: 'Tahmini', deger: 'tahmini'}, {ad: 'Kesin (izinli)', deger: 'kesin'}]}
+      {ad: 'Yön', anahtar: 'yon', bolum: 'Ne gösterilsin', ogeler: [{ad: 'A · Co-Pilot', deger: 'a'}, {ad: 'B · Sofra Saati', deger: 'b'}, {ad: 'C · Gurme Defter', deger: 'c'}]},
+      {ad: 'Widget', anahtar: 'wg', bolum: 'Ne gösterilsin', ogeler: Object.entries(KATALOG).flatMap(([yon, l]) => l.map(k => ({ad: k.ad, deger: k.id, yon})))},
+      {ad: 'Boy', anahtar: 'boy', bolum: 'Ne gösterilsin', ogeler: [{ad: 'Küçük', deger: 'kucuk'}, {ad: 'Orta', deger: 'orta'}, {ad: 'Büyük', deger: 'buyuk'}]},
+      {ad: 'Telefon', anahtar: 'platform', bolum: 'Nerede', ogeler: [{ad: 'iPhone', deger: 'ios', ikon: 'apple'}, {ad: 'Android', deger: 'android', ikon: 'android'}]},
+      {ad: 'Yüzey', anahtar: 'yuzey', bolum: 'Nerede', ogeler: [{ad: 'Ana ekran', deger: 'ana'}, {ad: 'Kilit ekranı', deger: 'kilit'}, {ad: 'StandBy', deger: 'standby'}, {ad: 'Canlı', deger: 'canli'}]},
+      {ad: 'Görünüm', anahtar: 'gorunum', bolum: 'Nerede', ogeler: [{ad: 'Ana ekranda', deger: 'ana'}, {ad: 'Yalnız bu widget', deger: 'tekil'}]},
+      {ad: 'Saat (B)', anahtar: 'saat', bolum: 'Durum', diger: true, yon: 'b', ogeler: [{ad: 'Akşam 19.00', deger: 'aksam'}, {ad: 'Sabah 08.10', deger: 'sabah'}, {ad: 'Öğle 12.30', deger: 'ogle'}, {ad: 'Sonra 21.40', deger: 'sonra'}]},
+      {ad: 'Tema', anahtar: 'tema', bolum: 'Durum', diger: true, ogeler: [{ad: 'Açık', deger: 'acik'}, {ad: 'Koyu', deger: 'koyu'}, {ad: 'Renklendirilmiş', deger: 'renkli'}, {ad: 'Şeffaf', deger: 'seffaf'}]},
+      {ad: 'Durum', anahtar: 'durum', bolum: 'Durum', diger: true, ogeler: [{ad: 'Dolu', deger: 'dolu'}, {ad: 'İlk gün', deger: 'bos'}, {ad: 'Giriş yok', deger: 'giris'}, {ad: 'Çevrimdışı', deger: 'cevrimdisi'}]},
+      {ad: 'Mesafe', anahtar: 'konum', bolum: 'Durum', diger: true, ogeler: [{ad: 'Tahmini', deger: 'tahmini'}, {ad: 'Kesin (izinli)', deger: 'kesin'}]}
     ]});
 })();

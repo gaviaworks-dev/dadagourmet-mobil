@@ -20,9 +20,9 @@
         GM.modulKart({ikon: 'bul', baslik: 'Mekân Bul', alt: '4 soruda sana uygun mekân', fiil: 'Başla', git: '#/mekan-bul'}),
         GM.modulKart({ikon: 'mekan', baslik: 'Mekânlar', alt: `${M.length} mekân, harita ve liste`, fiil: 'Gözat', git: '#/mekanlar', gorsel: M.filter(m => m.kapakB)[4]?.kapakB}),
         GM.modulKart({ikon: 'lezzet', baslik: 'Gurme Lezzetler', alt: 'Yöresel tatlar ve hikâyeleri', fiil: 'Keşfet', git: '#/lezzetler', gorsel: lez[0]?.gorsel})])},
-      etkinlik: {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.yatay(etk.map(e => GM.etkinlikKart(e)))},
-      lezzet: {baslik: 'Gurme Lezzetler', eylem: 'Tamamını Gör', git: '#/lezzetler', html: GM.yatay(lez.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`})))},
-      teaser: GM.teaser({ikon: 'bul', baslik: 'Ne aradığını bilmiyor musun?', metin: 'Bütçeni, ortamı ve mutfağı seç; **sana uygun mekânları** sıralayalım.', cipler: [['Kebap', 'kebap'], ['Deniz', 'deniz'], ['Kahvaltı', 'kahvalti'], ['Esnaf Lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`})), btn: {metin: 'Mekân Bul', ikon: 'bul', git: '#/mekan-bul'}})
+      etkinlik: {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.yatay(etk.map(e => GM.etkinlikKart(e)), {sinif: 'gm-ka-iki'})},
+      lezzet: {baslik: 'Gurme Lezzetler', eylem: 'Tamamını Gör', git: '#/lezzetler', html: GM.yatay(lez.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`, sinif: 'gm-ka-puf'})))},
+      teaser: GM.teaser({ikon: 'bul', baslik: 'Ne aradığını bilmiyor musun?', metin: 'Bütçeni, ortamı ve mutfağı seç; **sana uygun mekânları** sıralayalım.', cipler: [['Kebap', 'kebap'], ['Deniz', 'deniz'], ['Kahvaltı', 'kahvalti'], ['Esnaf Lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`})), btn: {metin: 'Mekân Bul', ikon: 'bul', git: '#/mekan-bul'}, sinif: 'gm-ka-teaser'})
     };
     return {R, M, D, n, konsept, etk, lez, ozet, pinUc, B};
   };
@@ -63,9 +63,9 @@
             {ikon: 'download', ad: 'Çevrimdışı', alt: 'Haritayı indir', git: '#/rota/cevrimdisi'}]));
       return ust + GM.bolumler([
         {id: 'ref1-liste', baslik: 'Yol üstü duraklar', eylem: 'Haritada', git: `#/rota/${R.id}`, html: karakterListe(R, sec)},
-        {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.seritKartlar(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
+        {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.konseptSerit(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
         GM.reklamYeri({kod: 'AS-T1'}), B.modul, GM.reklamYeri({kod: 'AS-M1'}),
-        {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.mekanSatirlar(etk.map(e => GM.etkinlikKart(e, {tur: 'satir'})))},
+        {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.anaSatirlar(etk.map(e => GM.etkinlikKart(e, {tur: 'satir'})))},
         B.lezzet, B.teaser, GM.reklamYeri({kod: 'AS-B1'})
       ]);
     },
@@ -88,10 +88,10 @@
       const secki = GMV.mekanSecenek.seckiler?.find(s => s.deger === 'rota')?.ad || 'Dada Route Durağı';
       const kapak = D.slice(8).find(d => d.mekan.kapakB)?.mekan.kapakB || D.find(d => d.mekan.kapakB)?.mekan.kapakB;
       return GM.buyukBaslik({ust: 'Dada Gourmet rehberi', baslik: 'Bugün ne yesek?', metin: `Dada editörlerinin yol üstü seçkisi: **${GM.sayi(M.length)} mekân** ve **${GMV.rotalar.length} pilot rota**. Kartlardaki rozet, mekânın bir Dada Route durağı olduğunu gösterir.`, html: GM.aramaKapsul({alan: true, baslik: 'Mekân, rota ya da lezzet ara', git: '#/ara'})}) + GM.bolumler([
-        {baslik: 'Yakınımda', eylem: 'Haritada', git: '#/mekanlar', html: GM.yakinKart({harita: {ad: 'ref2-yakin', kume: true, sinir: [[q(lng, .05), q(lat, .05)], [q(lng, .95), q(lat, .95)]], pinler: yakin.map(m => ({id: m.slug, lng: m.lng, lat: m.lat, tur: 'mekan'})), etiket: `${il} mekânları haritada`}, metin: `${il}’da ${yakin.length} mekân`, alt: 'Konumun kapalı · şehir seçimine göre', git: '#/mekanlar'})},
+        {baslik: 'Yakınımda', eylem: 'Haritada', git: '#/mekanlar', html: GM.yakinKart({harita: {ad: 'ref2-yakin', kume: true, sinir: [[q(lng, .05), q(lat, .05)], [q(lng, .95), q(lat, .95)]], pinler: yakin.map(m => ({id: m.slug, lng: m.lng, lat: m.lat, tur: 'mekan', ad: m.ad})), etiket: `${il} mekânları haritada`}, metin: `${il}’da ${yakin.length} mekân`, alt: 'Konumun kapalı · şehir seçimine göre', git: '#/mekanlar'})},
         {baslik: 'Bugünün Rotası', eylem: 'Rotayı aç', git: `#/rota/${R.id}`, html: GM.seckiKapak({gorsel: kapak, rozet: {ikon: 'rota', metin: 'Pilot rota · Dada Route'}, baslik: R.ad, alt: ozet, git: `#/rota/${R.id}`, sema: GM.rotaCizgi({rota: {cizgi: R.cizgi}, pinler: pinUc, w: 120, h: 96, dolgu: {top: 8, right: 8, bottom: 8, left: 8}, sinif: 'is-kapak'})})
-          + GM.yatay(D.slice(0, 8).map(d => GM.seckiKart({gorsel: d.mekan.kapak, ikon: 'rota', rozet: d.uzak <= 1 ? `${secki} · Yol üstü` : secki, baslik: d.mekan.ad, alt: `${d.km < 1 ? 'Çıkışta' : `${d.km}. km`} · ${GM.konumMetin(d.mekan)}`, git: `#/mekan/${d.slug}`, id: d.slug})))},
-        {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.yatay(konsept.map(x => GM.seckiKart({gorsel: x.m.kapak, ikon: GM.konseptIkon(x.k.deger), rozet: 'Mekân konsepti', baslik: x.k.ad, alt: `${x.k.sayi} mekân`, git: `#/mekanlar?konsept=${x.k.deger}`})))},
+          + GM.yatay(D.slice(0, 8).map(d => GM.seckiKart({gorsel: d.mekan.kapak, ikon: 'rota', rozet: secki, baslik: d.mekan.ad, alt: [d.km < 1 ? 'Çıkışta' : `${d.km}. km`, d.uzak <= 1 ? 'Yol üstü' : '', GM.konumMetin(d.mekan)].filter(Boolean).join(' · '), git: `#/mekan/${d.slug}`, id: d.slug})))},
+        {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.yatay(konsept.map(x => GM.seckiKart({gorsel: x.m.kapak, ikon: GM.konseptIkon(x.k.deger), baslik: x.k.ad, alt: `${x.k.sayi} mekân`, git: `#/mekanlar?konsept=${x.k.deger}`})))},
         GM.reklamYeri({kod: 'AS-T1'}), B.modul, GM.reklamYeri({kod: 'AS-M1'}), B.etkinlik, B.lezzet, B.teaser, GM.reklamYeri({kod: 'AS-B1'})
       ]);
     },
@@ -111,7 +111,7 @@
       const {R, M, konsept, etk, B} = ortak(), K = konsept.map(x => x.k);
       return GM.ustSabit(GM.aramaKapsul({baslik: 'Nereye gidiyorsun?', alt: 'Mekân · Rota · Etkinlik · Lezzet', git: '#/ara'}) + GM.ikonSekme({ad: 'konsept', etiket: 'Konseptler', secili: K[0].deger, ogeler: K.map(k => ({deger: k.deger, metin: k.ad, ikon: GM.konseptIkon(k.deger)}))}))
         + GM.bolumler([
-          GM.yolculukKart({ust: 'Bugünün Rotası · Pilot rota', baslik: `${R.kalkis} → ${R.varis}`, alt: `${GM.sayi(R.km)} km · ${GM.sure(R.dk)} · ${GM.rotaSayiMetin(R)} · şimdi çıkarsan varış ${GM.varisSaati(R.dk)}`, git: `#/rota/${R.id}`, sema: GM.rotaCizgi({rota: {cizgi: R.cizgi}, pinler: [{lng: R.cizgi[0][0], lat: R.cizgi[0][1], uc: true}, {lng: R.cizgi.at(-1)[0], lat: R.cizgi.at(-1)[1], uc: true}], w: 96, h: 96, dolgu: {top: 12, right: 12, bottom: 12, left: 12}})}),
+          {baslik: 'Bugünün Rotası', eylem: 'Rotayı aç', git: `#/rota/${R.id}`, html: GM.yolculukKart({rozet: 'Pilot rota', baslik: `${R.kalkis} → ${R.varis}`, alt: `${GM.sayi(R.km)} km · ${GM.sure(R.dk)} · ${GM.rotaSayiMetin(R)} · varış ${GM.varisSaati(R.dk)}`, git: `#/rota/${R.id}`, sema: GM.rotaCizgi({rota: {cizgi: R.cizgi}, pinler: [{lng: R.cizgi[0][0], lat: R.cizgi[0][1], uc: true}, {lng: R.cizgi.at(-1)[0], lat: R.cizgi.at(-1)[1], uc: true}], w: 96, h: 96, dolgu: {top: 12, right: 12, bottom: 12, left: 12}})})},
           {id: 'ref3-akis', html: akis(M, K[0])},
           GM.reklamYeri({kod: 'AS-T1'}),
           {baslik: 'Nasıl keşfetmek istersin?', html: GM.hizmetIzgara([{ikon: 'rota', ad: 'Dada Route', alt: 'Rota çiz', git: '#/rota', ana: true}, {ikon: 'bul', ad: 'Mekân Bul', alt: 'Başla', git: '#/mekan-bul'}, {ikon: 'mekan', ad: 'Mekânlar', alt: 'Gözat', git: '#/mekanlar'}, {ikon: 'lezzet', ad: 'Lezzetler', alt: 'Keşfet', git: '#/lezzetler'}])},
@@ -133,10 +133,10 @@
   const koleksiyonlar = () => {
     const kullanilan = new Set(), R = GMV.rotalar.filter(r => r.cizgi?.length), bolge = r => new Set((r.iller || []).map(i => i.bolge));
     return [
-      {ust: 'Koleksiyon', baslik: 'Uzun yol sofraları', l: R.filter(r => r.km >= 400 && r.id !== 'paris-lyon')},
-      {ust: 'Koleksiyon', baslik: 'Ege ve Akdeniz’e', l: R.filter(r => bolge(r).has('Ege') || bolge(r).has('Akdeniz'))},
-      {ust: 'Koleksiyon', baslik: 'Kısa kaçamaklar', l: R.filter(r => r.km < 200)},
-      {ust: 'Koleksiyon', baslik: 'Yurt dışı', l: R.filter(r => r.id === 'paris-lyon')}
+      {baslik: 'Uzun yol sofraları', l: R.filter(r => r.km >= 400 && r.id !== 'paris-lyon')},
+      {baslik: 'Ege ve Akdeniz’e', l: R.filter(r => bolge(r).has('Ege') || bolge(r).has('Akdeniz'))},
+      {baslik: 'Kısa kaçamaklar', l: R.filter(r => r.km < 200)},
+      {baslik: 'Yurt dışı', l: R.filter(r => r.id === 'paris-lyon')}
     ].filter(k => k.l.length).map(k => {
       // Mozaik: her rotadan sırayla bir durak fotoğrafı; aynı görsel iki kez kullanılmaz.
       const f = [], havuz = k.l.map(r => GM.rotaOneri(r).filter(d => d.mekan.kapak).map(d => d.mekan.kapak).reverse());
@@ -155,7 +155,7 @@
       const DILIM = 32, dilim = Array(DILIM).fill(0); GM.rotaDuraklari(R).forEach(d => { dilim[Math.min(DILIM - 1, Math.floor(d.km / R.km * DILIM))]++; });
       const ilSay = Object.entries(D.reduce((t, d) => ({...t, [d.mekan.il]: (t[d.mekan.il] || 0) + 1}), {})).sort((a, b) => b[1] - a[1]).slice(0, 2);
       const profil = GM.turProfil({km: R.km, dilim, iller: R.iller, katman: GM.rotaKatmani(R).filter(k => !k.ornek && ['yakit', 'sarj', 'ibadet', 'dinlenme'].includes(k.tur)), kalkis: R.kalkis, varis: R.varis, etiket: `${R.ad} lezzet yoğunluğu profili`,
-        alt: `Lezzet yoğunluğu · en çok ${ilSay.map(([i, v]) => `<b>${GM.esc(i)}</b> (${v} durak)`).join(' ve ')} · çentikler yakıt ve mola`});
+        alt: `En yoğun: ${ilSay.map(([i, v]) => `<b>${GM.esc(i)}</b> ${v}`).join(' · ')} durak · çentik: yakıt, mola`});
       const tur = GM.turKart({ust: 'Bugünün Rotası', rozet: 'Pilot rota', baslik: R.ad, alt: `${R.tema} · ${R.kalkis} → ${R.varis}`, git: `#/rota/${R.id}`,
         sema: GM.rotaCizgi({rota: {cizgi: R.cizgi}, pinler: [...D.map(d => ({lng: d.lng, lat: d.lat})), {lng: R.cizgi[0][0], lat: R.cizgi[0][1], uc: true}, {lng: R.cizgi.at(-1)[0], lat: R.cizgi.at(-1)[1], uc: true}], w: 210, h: 192, dolgu: {top: 18, right: 18, bottom: 18, left: 18}}),
         fotolar: [foto[0]?.mekan.kapakB, foto.at(-1)?.mekan.kapakB],
@@ -175,8 +175,8 @@
   });
 })();
 [
-  {ekran: 'ana', kod: 'ref-ana-1', sira: 4, ad: 'Ana · Citymapper kalıbı', referans: 'Citymapper (The Europas 2015 Grand Prix)', alinan: 'A→B paneli en üstte, altında süre farklı "rota karakteri" ızgarası (Lezzet yolu, Şef masası, Sahil…) ve kayıtlı yer kısayolları.', gerekce: 'Gourmet’in asıl sorusu "bu yolda nerede yerim?"; karakter seçmek rotayı tek dokunuşta lezzete çevirir.', iyilesti: 'Her karakterde Citymapper gibi varış saati; duraklar artık yolun başına yığılmıyor, rotanın üç dilimine yayılıyor; konseptler web sırasında, boş hâl metni.', git: '#/ref/ana-1'},
-  {ekran: 'ana', kod: 'ref-ana-2', sira: 5, ad: 'Ana · Michelin Guide kalıbı', referans: 'The MICHELIN Guide (kategoride küresel referans)', alinan: 'Sade büyük başlık + arama, "Yakınımda" mini harita kartı, editoryal seçki kapağı ve ad üstünde ödül satırlı kartlar.', gerekce: 'Gourmet bir seçki rehberi; rozet dili gerçek "Dada Route Durağı" seçkisinden gelir, uydurma ödül yok.', iyilesti: 'Editoryal giriş paragrafı (gerçek sayılar, iki yana yaslı, kalın vurgu); rozet satırı yol üstü durağı ayırıyor; Yakınımda haritası kümeler okunsun diye geniş kadraj; konseptler web sırasında.', git: '#/ref/ana-2'},
-  {ekran: 'ana', kod: 'ref-ana-3', sira: 6, ad: 'Ana · Airbnb kalıbı', referans: 'Airbnb (kategori lideri; Core77 Design Award 2011 Notable — Apple Design Award doğrulanamadı)', alinan: 'Yapışkan arama kapsülü + ikonlu kategori sekmeleri, yaklaşan yolculuk kartı, büyük fotoğraflı ilan akışı, deneyim kartları.', gerekce: 'Konseptler Gourmet’in kategorisi; sekme akışı süzünce fotoğraf karar verdirir, etkinlikler deneyim gibi okunur.', iyilesti: 'Sekme değişince akış kademeli belirerek geliyor, kartlarda basılı hâl; yolculuk kartında şimdi çıkarsan varış saati; sekmeler web konsept sırasında.', git: '#/ref/ana-3'},
-  {ekran: 'ana', kod: 'ref-ana-4', sira: 7, ad: 'Ana · Komoot kalıbı', referans: 'Komoot (Garmin Connect IQ App of the Year 2023; Walkers’ App of the Year 2022)', alinan: 'Tur kartı (harita + foto, 4’lü sayı ızgarası, yol türü bileşim çubukları), bölge kartları, koleksiyonlar, spor türü ızgarası.', gerekce: 'Dada Route bir tur ürünü; rotanın km, il ve durak bileşimini tek kartta ölçülü gösterir.', iyilesti: 'Komoot yükselti profilinin karşılığı eklendi: km cetvelli lezzet yoğunluğu profili (A/B, il sınırları, yakıt-mola çentikleri); konseptler web sırasında.', git: '#/ref/ana-4'}
+  {ekran: 'ana', kod: 'ref-ana-1', sira: 4, ad: 'Ana · Citymapper kalıbı', referans: 'Citymapper (The Europas 2015 Grand Prix)', alinan: 'A→B paneli en üstte, altında süre farklı "rota karakteri" ızgarası (Lezzet yolu, Şef masası, Sahil…) ve kayıtlı yer kısayolları.', gerekce: 'Gourmet’in asıl sorusu "bu yolda nerede yerim?"; karakter seçmek rotayı tek dokunuşta lezzete çevirir.', iyilesti: 'Her karakterde Citymapper gibi varış saati; duraklar artık yolun başına yığılmıyor, rotanın üç dilimine yayılıyor; konseptler web sırasında, boş hâl metni. Yığılma turu: süre kartları iki satır (ad · süre + fark); varış saati seçili karakterin özet satırında.', git: '#/ref/ana-1'},
+  {ekran: 'ana', kod: 'ref-ana-2', sira: 5, ad: 'Ana · Michelin Guide kalıbı', referans: 'The MICHELIN Guide (kategoride küresel referans)', alinan: 'Sade büyük başlık + arama, "Yakınımda" mini harita kartı, editoryal seçki kapağı ve ad üstünde ödül satırlı kartlar.', gerekce: 'Gourmet bir seçki rehberi; rozet dili gerçek "Dada Route Durağı" seçkisinden gelir, uydurma ödül yok.', iyilesti: 'Editoryal giriş paragrafı (gerçek sayılar, iki yana yaslı, kalın vurgu); rozet satırı yol üstü durağı ayırıyor; Yakınımda haritası kümeler okunsun diye geniş kadraj; konseptler web sırasında. Yığılma turu: seçki rozeti foto üstünde, kartta ad · konum; kapakta ad · tek satır özet.', git: '#/ref/ana-2'},
+  {ekran: 'ana', kod: 'ref-ana-3', sira: 6, ad: 'Ana · Airbnb kalıbı', referans: 'Airbnb (kategori lideri; Core77 Design Award 2011 Notable — Apple Design Award doğrulanamadı)', alinan: 'Yapışkan arama kapsülü + ikonlu kategori sekmeleri, yaklaşan yolculuk kartı, büyük fotoğraflı ilan akışı, deneyim kartları.', gerekce: 'Konseptler Gourmet’in kategorisi; sekme akışı süzünce fotoğraf karar verdirir, etkinlikler deneyim gibi okunur.', iyilesti: 'Sekme değişince akış kademeli belirerek geliyor, kartlarda basılı hâl; yolculuk kartında şimdi çıkarsan varış saati; sekmeler web konsept sırasında. Yığılma turu: yolculuk kartında ad + Pilot rota hapı · tek satır özet; ilan kartı ad + açık durumu · semt · ₺ (boş puan gösterilmez); deneyim kartı ad · kısa tarih · şehir.', git: '#/ref/ana-3'},
+  {ekran: 'ana', kod: 'ref-ana-4', sira: 7, ad: 'Ana · Komoot kalıbı', referans: 'Komoot (Garmin Connect IQ App of the Year 2023; Walkers’ App of the Year 2022)', alinan: 'Tur kartı (harita + foto, 4’lü sayı ızgarası, yol türü bileşim çubukları), bölge kartları, koleksiyonlar, spor türü ızgarası.', gerekce: 'Dada Route bir tur ürünü; rotanın km, il ve durak bileşimini tek kartta ölçülü gösterir.', iyilesti: 'Komoot yükselti profilinin karşılığı eklendi: km cetvelli lezzet yoğunluğu profili (A/B, il sınırları, yakıt-mola çentikleri); konseptler web sırasında. Yığılma turu: profil açıklaması tek satır; koleksiyon kartında ad · özet.', git: '#/ref/ana-4'}
 ].forEach(GM.alternatifKaydet);

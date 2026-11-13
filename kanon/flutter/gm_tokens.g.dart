@@ -284,6 +284,10 @@ abstract final class GMSize {
   static const double mapHSm = 168;
   static const double mapHLg = 360;
   static const double mapTail = 8;
+  static const double mapPinFoto = 40;
+  static const double mapPinFotoLg = 52;
+  static const double mapLabelMax = 140;
+  static const double mapLabelZoom = 14;
   static const double venueThumb = 88;
   static const double venueRow = 112;
   static const double venueCardW = 280;

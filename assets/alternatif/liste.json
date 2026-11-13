@@ -7,7 +7,7 @@
   "referans": "Dada Gastro \"Ne pişirsem?\" + Dada Diet Bugün",
   "alinan": "Fotoğraf slayt hero, vurgulu başlık, sekmeli arama paneli, popüler çipler, sayı şeridi, gülücük alt kenar.",
   "gerekce": "Gastro ve Diet ile birebir aile; kullanıcı üç uygulamada aynı ana sayfayı tanır.",
-  "iyilesti": "Bugünün Rotası kartında şimdi çıkarsan varış saati; konseptler web sırasında; ekranda ham sınıf kalmadı (GM.yigin, GM.modulIzgara); boş hâl metni.",
+  "iyilesti": "Bugünün Rotası kartında şimdi çıkarsan varış saati; konseptler web sırasında; ekranda ham sınıf kalmadı (GM.yigin, GM.modulIzgara); boş hâl metni. Yığılma turu: slaytta tür ve konum tek satır, rota kartında etiket foto üstü rozet, etkinlik ve lezzet kartlarında tür foto üstünde + ad tek satır, sayı şeridi ve Mekân Bul çipleri hiçbir genişlikte kırılmaz.",
   "git": "#/alt/ana-a"
  },
  {
@@ -51,11 +51,72 @@
   "git": "#/widget/yuzey?cerceve=yok&uye=1",
   "referans": "Flighty (Canlı Etkinlik, Dinamik Ada), Apple ve Google Haritalar (yolculuk), Structured (sıradaki iş), (Not Boring) Weather ve Widgetsmith (dev rakam, geri sayım), Android Glance ve Live Updates kılavuzları",
   "alinan": "Gerçek iOS 18/26 ve Pixel ızgarası (küçük 2×2, orta 4×2, büyük 4×4), tek tonlu kilit ekranı widget’ları, StandBy, Canlı Etkinlik ve Dinamik Ada kısa/geniş, Android 16 ProgressStyle canlı güncelleme ve durum çipi; uçta halka olmayan tek yolculuk çubuğu.",
-  "gerekce": "Üç yön aynı telefonda karşılaştırılır: A yolculuk (rakipsiz Dada Route), B her gün işe yarayan öğün ve masa, C marka sesi. Prototip örneği: rezervasyon kaydı yoksa bugün 20.00 Mikla (2 kişi, onaylandı); yolculuk İstanbul → İzmir, sıradaki durak Total yakıt molası 3,2 km (tahmini “~3 km”); Dada Puan 580 + 40 bekleyen (eşikler web prototipinden); puan, yorum, sponsor yok.",
+  "gerekce": "Üç yön aynı telefonda karşılaştırılır: A yolculuk (rakipsiz Dada Route), B her gün işe yarayan öğün ve masa, C marka sesi. Prototip örneği: rezervasyon kaydı yoksa bugün 20.00 Mikla (2 kişi, onaylandı); yolculuk İstanbul → İzmir 229. km, sıradaki Dada durağı LAST (İzmir, ~242 km, ~2 sa 22 dk), önce Total yakıt ~3 km; Dada Puan 580 + 40 bekleyen (eşikler web prototipinden); puan, yorum, sponsor yok.",
+  "sunumlar": [
+   {
+    "ad": "Yolda · Canlı Etkinlik + Ada",
+    "aciklama": "İstanbul → İzmir yolculuğu: Dinamik Ada geniş hali, altında Sıradaki Durak",
+    "secim": {
+     "yon": "a",
+     "platform": "ios",
+     "yuzey": "canli",
+     "wg": "durak",
+     "boy": "buyuk",
+     "gorunum": "ana",
+     "tema": "acik",
+     "durum": "dolu"
+    }
+   },
+   {
+    "ad": "Ana ekran · Co-Pilot",
+    "aciklama": "Sıradaki Durak orta boy, iPhone ana ekranında",
+    "secim": {
+     "yon": "a",
+     "platform": "ios",
+     "yuzey": "ana",
+     "wg": "durak",
+     "boy": "orta",
+     "gorunum": "ana",
+     "tema": "acik",
+     "durum": "dolu"
+    }
+   },
+   {
+    "ad": "Akşam · Sofra Saati",
+    "aciklama": "19.00, yakında açık Dada mekânları",
+    "secim": {
+     "yon": "b",
+     "platform": "ios",
+     "yuzey": "ana",
+     "wg": "sofra",
+     "boy": "orta",
+     "gorunum": "ana",
+     "saat": "aksam",
+     "tema": "acik",
+     "durum": "dolu"
+    }
+   },
+   {
+    "ad": "Android · Material You",
+    "aciklama": "Pixel ana ekranı, temalı renkler",
+    "secim": {
+     "yon": "b",
+     "platform": "android",
+     "yuzey": "ana",
+     "wg": "sofra",
+     "boy": "orta",
+     "gorunum": "ana",
+     "saat": "aksam",
+     "tema": "renkli",
+     "durum": "dolu"
+    }
+   }
+  ],
   "secenekler": [
    {
     "ad": "Yön",
     "anahtar": "yon",
+    "bolum": "Ne gösterilsin",
     "ogeler": [
      {
       "ad": "A · Co-Pilot",
@@ -72,8 +133,80 @@
     ]
    },
    {
+    "ad": "Widget",
+    "anahtar": "wg",
+    "bolum": "Ne gösterilsin",
+    "ogeler": [
+     {
+      "ad": "Sıradaki Durak",
+      "deger": "durak",
+      "yon": "a"
+     },
+     {
+      "ad": "Yolculuk",
+      "deger": "yolculuk",
+      "yon": "a"
+     },
+     {
+      "ad": "Rotalarım",
+      "deger": "rotalar",
+      "yon": "a"
+     },
+     {
+      "ad": "Sofra Saati",
+      "deger": "sofra",
+      "yon": "b"
+     },
+     {
+      "ad": "Masam",
+      "deger": "masam",
+      "yon": "b"
+     },
+     {
+      "ad": "Lezzet Takvimi",
+      "deger": "takvim",
+      "yon": "b"
+     },
+     {
+      "ad": "Günün Gurme Lezzeti",
+      "deger": "lezzet",
+      "yon": "c"
+     },
+     {
+      "ad": "Gurme Defterim",
+      "deger": "defter",
+      "yon": "c"
+     },
+     {
+      "ad": "Kaydettiklerim",
+      "deger": "kaydedilen",
+      "yon": "c"
+     }
+    ]
+   },
+   {
+    "ad": "Boy",
+    "anahtar": "boy",
+    "bolum": "Ne gösterilsin",
+    "ogeler": [
+     {
+      "ad": "Küçük",
+      "deger": "kucuk"
+     },
+     {
+      "ad": "Orta",
+      "deger": "orta"
+     },
+     {
+      "ad": "Büyük",
+      "deger": "buyuk"
+     }
+    ]
+   },
+   {
     "ad": "Telefon",
     "anahtar": "platform",
+    "bolum": "Nerede",
     "ogeler": [
      {
       "ad": "iPhone",
@@ -90,6 +223,7 @@
    {
     "ad": "Yüzey",
     "anahtar": "yuzey",
+    "bolum": "Nerede",
     "ogeler": [
      {
       "ad": "Ana ekran",
@@ -110,26 +244,26 @@
     ]
    },
    {
-    "ad": "Boy",
-    "anahtar": "boy",
+    "ad": "Görünüm",
+    "anahtar": "gorunum",
+    "bolum": "Nerede",
     "ogeler": [
      {
-      "ad": "Küçük",
-      "deger": "kucuk"
+      "ad": "Ana ekranda",
+      "deger": "ana"
      },
      {
-      "ad": "Orta",
-      "deger": "orta"
-     },
-     {
-      "ad": "Büyük",
-      "deger": "buyuk"
+      "ad": "Yalnız bu widget",
+      "deger": "tekil"
      }
     ]
    },
    {
     "ad": "Saat (B)",
     "anahtar": "saat",
+    "bolum": "Durum",
+    "diger": true,
+    "yon": "b",
     "ogeler": [
      {
       "ad": "Akşam 19.00",
@@ -152,6 +286,8 @@
    {
     "ad": "Tema",
     "anahtar": "tema",
+    "bolum": "Durum",
+    "diger": true,
     "ogeler": [
      {
       "ad": "Açık",
@@ -174,6 +310,8 @@
    {
     "ad": "Durum",
     "anahtar": "durum",
+    "bolum": "Durum",
+    "diger": true,
     "ogeler": [
      {
       "ad": "Dolu",
@@ -196,6 +334,8 @@
    {
     "ad": "Mesafe",
     "anahtar": "konum",
+    "bolum": "Durum",
+    "diger": true,
     "ogeler": [
      {
       "ad": "Tahmini",
@@ -261,7 +401,7 @@
   "referans": "Roadtrippers + Any Distance + Flighty + AllTrails",
   "alinan": "Rota hikâye kapakları, canlı yolculuk kartı, km eksenli lezzet profili.",
   "gerekce": "Rotayı hikâye gibi anlatır; yolculuk sürerken canlı durum öne çıkar.",
-  "iyilesti": "Canlı kartta sabit yazılmış süre ve +dk çipleri kalktı: kalan süre, varış, sıradaki yakıt/mescit rotadan hesaplanıyor; ilk kapak Bugünün Rotası etiketli; eksik AS-T1/AS-B1 yerleri eklendi.",
+  "iyilesti": "Canlı kartta sabit yazılmış süre ve +dk çipleri kalktı: kalan süre, varış, sıradaki yakıt/mescit rotadan hesaplanıyor; ilk kapak Bugünün Rotası etiketli; eksik AS-T1/AS-B1 yerleri eklendi. Yığılma turu: hikâye kapaklarında etiket rozet, özet tek satır; canlı kart iki satır (durak + kalan süre · km, ilçe, varış, yakıt çipi); kartlarda en çok iki satır.",
   "git": "#/alt/ana-c"
  },
  {
@@ -305,7 +445,7 @@
   "referans": "Citymapper (The Europas 2015 Grand Prix)",
   "alinan": "A→B paneli en üstte, altında süre farklı \"rota karakteri\" ızgarası (Lezzet yolu, Şef masası, Sahil…) ve kayıtlı yer kısayolları.",
   "gerekce": "Gourmet’in asıl sorusu \"bu yolda nerede yerim?\"; karakter seçmek rotayı tek dokunuşta lezzete çevirir.",
-  "iyilesti": "Her karakterde Citymapper gibi varış saati; duraklar artık yolun başına yığılmıyor, rotanın üç dilimine yayılıyor; konseptler web sırasında, boş hâl metni.",
+  "iyilesti": "Her karakterde Citymapper gibi varış saati; duraklar artık yolun başına yığılmıyor, rotanın üç dilimine yayılıyor; konseptler web sırasında, boş hâl metni. Yığılma turu: süre kartları iki satır (ad · süre + fark); varış saati seçili karakterin özet satırında.",
   "git": "#/ref/ana-1"
  },
  {
@@ -336,7 +476,7 @@
   "sira": 4,
   "ad": "Route · Google Maps kalıbı",
   "referans": "Google Maps (navigasyonda global kategori lideri)",
-  "alinan": "Yol tarifi paneli, haritada süre balonlu alternatif rota, “Rota boyunca ara” çipleri ve sağ kolonda +dk ek süreli sonuç listesi.",
+  "alinan": "Yol tarifi paneli, haritada rota başına tek süre etiketli alternatif rota, “Rota boyunca ara” çipleri ve sağ kolonda +dk ek süreli sonuç listesi.",
   "gerekce": "Kullanıcının zaten bildiği dil: “bu durak bana kaç dakikaya mal olur” sorusunu her satırda aynı hizada cevaplar.",
   "iyilesti": "Sheet başı Google imzasıyla süre · mesafe · varış saati; boş/yükleniyor/hata halleri; boş rotada Dada’ya özgü boş durum.",
   "git": "#/ref/route-3"
@@ -349,7 +489,7 @@
   "referans": "The MICHELIN Guide (kategoride küresel referans)",
   "alinan": "Sade büyük başlık + arama, \"Yakınımda\" mini harita kartı, editoryal seçki kapağı ve ad üstünde ödül satırlı kartlar.",
   "gerekce": "Gourmet bir seçki rehberi; rozet dili gerçek \"Dada Route Durağı\" seçkisinden gelir, uydurma ödül yok.",
-  "iyilesti": "Editoryal giriş paragrafı (gerçek sayılar, iki yana yaslı, kalın vurgu); rozet satırı yol üstü durağı ayırıyor; Yakınımda haritası kümeler okunsun diye geniş kadraj; konseptler web sırasında.",
+  "iyilesti": "Editoryal giriş paragrafı (gerçek sayılar, iki yana yaslı, kalın vurgu); rozet satırı yol üstü durağı ayırıyor; Yakınımda haritası kümeler okunsun diye geniş kadraj; konseptler web sırasında. Yığılma turu: seçki rozeti foto üstünde, kartta ad · konum; kapakta ad · tek satır özet.",
   "git": "#/ref/ana-2"
  },
  {
@@ -393,7 +533,7 @@
   "referans": "Airbnb (kategori lideri; Core77 Design Award 2011 Notable — Apple Design Award doğrulanamadı)",
   "alinan": "Yapışkan arama kapsülü + ikonlu kategori sekmeleri, yaklaşan yolculuk kartı, büyük fotoğraflı ilan akışı, deneyim kartları.",
   "gerekce": "Konseptler Gourmet’in kategorisi; sekme akışı süzünce fotoğraf karar verdirir, etkinlikler deneyim gibi okunur.",
-  "iyilesti": "Sekme değişince akış kademeli belirerek geliyor, kartlarda basılı hâl; yolculuk kartında şimdi çıkarsan varış saati; sekmeler web konsept sırasında.",
+  "iyilesti": "Sekme değişince akış kademeli belirerek geliyor, kartlarda basılı hâl; yolculuk kartında şimdi çıkarsan varış saati; sekmeler web konsept sırasında. Yığılma turu: yolculuk kartında ad + Pilot rota hapı · tek satır özet; ilan kartı ad + açık durumu · semt · ₺ (boş puan gösterilmez); deneyim kartı ad · kısa tarih · şehir.",
   "git": "#/ref/ana-3"
  },
  {
@@ -426,7 +566,7 @@
   "referans": "Komoot (Garmin Connect IQ App of the Year 2023; Walkers’ App of the Year 2022)",
   "alinan": "Tur kartı (harita + foto, 4’lü sayı ızgarası, yol türü bileşim çubukları), bölge kartları, koleksiyonlar, spor türü ızgarası.",
   "gerekce": "Dada Route bir tur ürünü; rotanın km, il ve durak bileşimini tek kartta ölçülü gösterir.",
-  "iyilesti": "Komoot yükselti profilinin karşılığı eklendi: km cetvelli lezzet yoğunluğu profili (A/B, il sınırları, yakıt-mola çentikleri); konseptler web sırasında.",
+  "iyilesti": "Komoot yükselti profilinin karşılığı eklendi: km cetvelli lezzet yoğunluğu profili (A/B, il sınırları, yakıt-mola çentikleri); konseptler web sırasında. Yığılma turu: profil açıklaması tek satır; koleksiyon kartında ad · özet.",
   "git": "#/ref/ana-4"
  },
  {
