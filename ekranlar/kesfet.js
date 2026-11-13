@@ -23,17 +23,18 @@
     eylem: GM.btn({metin: 'Rotayı aç', ikon: 'harita', git: `#/rota/${r.id}`}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Rotayı paylaş', tur: 'kutu', veri: {eylem: 'rota-paylas', rota: r.id}})});
   // Sayfa başlığı (harita konumunda da görünen tek satır): rota · km · yol üstü durak sayısı (GM.rotaSayi, tek kaynak).
   const ozet = (r, bugun) => GM.cekmeceOzet({baslik: bugun ? 'Bugünün Rotası' : r.ad, alt: `${GM.esc(bugun ? r.ad : r.tema)} · ${GM.sayi(r.km)} km · ${GM.rotaSayi(r).yolUstu} yol üstü`});
-  const durakBolum = r => GM.bas('Rotadaki duraklar', {metin: 'Haritada', git: `#/rota/${r.id}`}) + GM.yatay(GM.rotaOneri(r).slice(0, 8).map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})));
+  const durakBolum = r => GM.bas('Rotadaki duraklar', {metin: 'Haritada', git: `#/rota/${r.id}`}) + GM.yatay(GM.rotaOneri(r).slice(0, 8).map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})), {sinif: 'gm-ka-durak'});
+  // Seçim alanı (rota hâli): önce rotadaki durak kartları, ardından bilet — orta konumda (hero görünürken) sayfa başlığının hemen altında kart görselleri görünür.
+  const rotaSecim = (r, bugun) => durakBolum(r) + bilet(r, bugun);
 
   GM.ekran('kesfet', {
     tur: 'sekme', nav: 'kesfet', baslik: 'Keşfet',
     bos: {ikon: 'rota', baslik: 'Bugünün rotası hazırlanıyor', metin: 'Pilot rota yayına girince burada görünür. Şimdilik **mekânlara** göz atabilirsin.', eylem: {metin: 'Mekânları keşfet', ikon: 'mekan', git: '#/mekanlar'}},
     ciz: () => {
       const {R, M, konsept, etk, lez, rotalar} = veri();
-      const govde = GM.uberSecim(bilet(R, true))
+      const govde = GM.uberSecim(rotaSecim(R, true))
         + GM.guvenSerit([{ikon: 'mekan', metin: `<b>${M.length}</b> mekân yayında`}, {ikon: 'rota', metin: 'Lezzet rotası planlama'}, {ikon: 'etkinlik', metin: 'Haftalık festival takvimi'}])
         + GM.bolumler([
-          {id: 'kesfet-duraklar', html: durakBolum(R)},
           {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.konseptSerit(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
           GM.reklamYeri({kod: 'AS-T1'}),
           {baslik: 'Nasıl keşfetmek istersin?', html: GM.modulIzgara([
@@ -60,14 +61,13 @@
       const {R, M} = veri();
       let rota = R, U = null;
       // Rotaya dön: seçili mekân kartı / alan listesi kapanır, bilet geri gelir, harita rotaya yeniden oturur.
-      const rotayaDon = u => { u.pinKart?.(null); u.secimYaz(bilet(rota, rota === R)); u.ozetYaz(ozet(rota, rota === R)); u.kapatGoster(false); GM.haritaSec(u.el, ''); };
+      const rotayaDon = u => { u.pinKart?.(null); u.secimYaz(rotaSecim(rota, rota === R)); u.ozetYaz(ozet(rota, rota === R)); u.kapatGoster(false); GM.haritaSec(u.el, ''); };
       const t = GM.uberBagla(kok, {
         hazir: u => { U = u; },
         kapat: () => uDon(),
         ilk: u => u.ciz(R.cizgi),
         rotaSec: (id, u) => {
           U = u; rota = GM.rotaBul(id) || R; rotayaDon(u);
-          const s = kok.querySelector('#kesfet-duraklar'); if (s) s.innerHTML = durakBolum(rota);
           u.ciz(rota.cizgi); u.git('orta');
         },
         pinSec: (id, u) => {

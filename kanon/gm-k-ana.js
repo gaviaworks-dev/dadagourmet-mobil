@@ -152,8 +152,10 @@
       // Alt sınır: alt menü kabının (gm-dock, kâğıt zemin) üst kenarı; sayfa başlığının metni bunun üstünde biter, alttaki boşluğu dock'un kâğıdı verir (yarım satır asla kalmaz).
       const dk = (kok.closest('.gm-kok') || document).querySelector('.gm-dock'), dr = dk && getComputedStyle(dk).visibility !== 'hidden' ? dk.getBoundingClientRect() : null, n = nav(), nr = n?.getBoundingClientRect();
       const alt = dr && dr.height ? dr.top - r0.top + GM.TK.space[8] : nr && nr.height ? nr.top - r0.top - GM.TK.space[8] : H;
-      const ustY = hb + GM.TK.space[8], tam = ustY + hapH + GM.TK.space[12], harita = Math.round(alt - tutH), orta = Math.round(kisit(Math.max(bandH + GM.TK.space[64] * 2, H * .6), tam + GM.TK.space[64], harita - GM.TK.space[64]));
-      K = {H, hb, ustY, tam, orta, harita, bandH, cipH, cipOrta: bandH - cipH - GM.TK.space[16], cipHarita: ustY + hapH + GM.TK.space[8]};
+      const ustY = hb + GM.TK.space[8], tam = ustY + hapH + GM.TK.space[12], harita = Math.round(alt - tutH), orta = Math.round(kisit(bandH + GM.TK.space[8], tam + GM.TK.space[64], harita - GM.TK.space[64])); // orta: hero (kavisli alt kenar) tamamı görünür, sayfa hemen altından ~yarı yükseklik
+      // Mor üst bölüm her konumda kanon kavisiyle biter (gm-hh-ust alt köşeleri); harita konumunda çipler kavisin altına iner.
+      const R = parseFloat(getComputedStyle(s).getPropertyValue('--gm-r-surface')) || GM.TK.space[24];
+      K = {H, hb, ustY, tam, orta, harita, bandH, cipH, R, cipOrta: bandH - cipH - GM.TK.space[16], cipHarita: tam + R + GM.TK.space[8]};
       s.style.setProperty('--ka-ust-y', `${ustY}px`); s.style.setProperty('--ka-tam-y', `${tam}px`); s.style.setProperty('--ka-sayfa-h', `${H - tam}px`); s.style.setProperty('--ka-alan-y', `${K.cipHarita + cipH + GM.TK.space[8]}px`); s.style.setProperty('--ka-liste-y', `${harita - GM.TK.space[12]}px`); s.style.setProperty('--ka-pk-alt', `${Math.round(H - (dr && dr.height ? dr.top - r0.top : nr && nr.height ? nr.top - r0.top : H) + GM.TK.space[12])}px`);
       return true;
     };
@@ -279,7 +281,9 @@
     // Haritanın boş yerine dokunmak (sürüklemeden) pin kartını kapatır.
     let hb0 = null; const hBas = ev => { hb0 = [ev.clientX, ev.clientY]; };
     const hTik = ev => { if (!s.classList.contains('is-pin') || !hb0 || Math.hypot(ev.clientX - hb0[0], ev.clientY - hb0[1]) > 6) return; if (ev.target.closest('[data-pin-id],.gm-pin,.gm-kume,button,a')) return; if (ev.target.closest('canvas')) o.kapat?.(u); };
-    hKap.addEventListener('pointerdown', hBas); hKap.addEventListener('click', hTik);
+    // Kümeye dokunmak o kümeye iki kademe yakınlaşır (kümeler açılır, tekil pin görünür).
+    const kTik = ev => { const k = ev.target.closest('.gm-kume'), m = hEl._harita; if (!k || !m || !hb0 || Math.hypot(ev.clientX - hb0[0], ev.clientY - hb0[1]) > 6) return; const r = m.getContainer().getBoundingClientRect(), kr = k.getBoundingClientRect(); odak = null; m.easeTo({center: m.unproject([kr.x + kr.width / 2 - r.x, kr.y + kr.height / 2 - r.y]), zoom: Math.min(m.getZoom() + 2, 16), duration: az() ? 0 : GM.TK.motion.page}); };
+    hKap.addEventListener('pointerdown', hBas); hKap.addEventListener('click', hTik); hKap.addEventListener('click', kTik);
     o.hazir?.(u);
     const ro = new ResizeObserver(() => { if (olc()) { y = K[konum]; uygula(); } });
     ro.observe(s); ro.observe(band);
@@ -300,7 +304,7 @@
     let iptal = false; const bekle = () => { if (iptal || !hEl.isConnected) return; const mm = hEl._harita; if (!mm) { setTimeout(bekle, 300); return; } const bas = () => { if (iptal) return; try { mm.setMinZoom(4.8); mm.setMaxBounds([[14, 22], [56, 56]]); } catch { /* yok */ } o.ilk?.(u); }; if (mm.getSource('gm-rota')) bas(); else mm.once('load', () => setTimeout(bas, 0)); };
     bekle();
     return () => {
-      iptal = true; cancelAnimationFrame(anim); cancelAnimationFrame(momentum); clearTimeout(tekerT); clearTimeout(ziplaT); ro.disconnect(); hrk(); document.removeEventListener('keydown', tus); hKap.removeEventListener('pointerdown', hBas); hKap.removeEventListener('click', hTik);
+      iptal = true; cancelAnimationFrame(anim); cancelAnimationFrame(momentum); clearTimeout(tekerT); clearTimeout(ziplaT); ro.disconnect(); hrk(); document.removeEventListener('keydown', tus); hKap.removeEventListener('pointerdown', hBas); hKap.removeEventListener('click', hTik); hKap.removeEventListener('click', kTik);
       s.removeEventListener('pointerdown', basla); document.removeEventListener('pointermove', hareket); document.removeEventListener('pointerup', birak); document.removeEventListener('pointercancel', birak);
       s.removeEventListener('click', tikYakala, true); s.removeEventListener('click', tik); s.removeEventListener('gm-degisim', degis); s.removeEventListener('wheel', teker);
       if (bar) bar.style.removeProperty('--gm-alfa');

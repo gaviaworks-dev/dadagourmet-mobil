@@ -246,6 +246,9 @@
 .gm-ka-yck-ad{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/1.2 var(--gm-font-bold)}
 .gm-ka-yck-meta{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-size-badge) var(--gm-font);color:color-mix(in srgb,var(--gm-paper) 72%,transparent)}
 .gm-ka-yck-meta .gm-yck-cip{display:inline-flex;margin-left:var(--gm-s-8);vertical-align:top;color:var(--gm-paper)}
+/* Ana · B durak kartları (sayfa içi, orta konumda tamamı görünür): kompakt boy — genişlik ~%60, görsel 4:3. */
+.gm-serit.gm-ka-durak > .gm-mk.is-kompakt{width:calc(var(--gm-size-rail-card) - var(--gm-s-24))}
+.gm-serit.gm-ka-durak > .gm-mk.is-kompakt .gm-card__media{aspect-ratio:4/3}
 /* Ana · B yüzen mekân kartı (GM.pinKart): pin seçilince sayfa gizlenir, kart alt menünün 12 üstünde tamamen görünür (Airbnb harita kartı). */
 .gm-ka-uber.is-pin .gm-ka-u-sayfa,.gm-ka-uber.is-pin .gm-ka-u-liste{opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--gm-m-press) var(--gm-ease),visibility 0s linear var(--gm-m-press)}
 .gm-ka-u-pinkart{position:absolute;left:var(--gm-s-16);right:var(--gm-s-16);bottom:var(--ka-pk-alt,var(--gm-size-box-xxl));z-index:7}
@@ -283,7 +286,8 @@
 .gm-ka-u-bant > .gm-hh-baslik{opacity:calc(1 - var(--ka-m) * 2.2);transform:translateY(calc(var(--ka-m) * var(--gm-s-8) * -1))}
 .gm-ka-u-plan{display:grid;transform:scale(calc(1 - var(--ka-m) * .08));transform-origin:50% 0;opacity:calc(1 - var(--ka-m) * 2.4)}
 /* Arama hapı: bant solarken üstte belirir; tam konumda üst barın devamı olan solid şeridin içinde, harita konumunda harita üstünde yüzer */
-.gm-ka-u-ust{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:flex-start;gap:var(--gm-s-8);height:var(--ka-tam-y,0);padding:var(--ka-ust-y,0) var(--gm-s-16) 0;background:color-mix(in srgb,var(--gm-header-solid,var(--gm-primary)) calc(var(--ka-s1) * 100%),transparent);pointer-events:none;opacity:clamp(0,calc((var(--ka-m) - .55) * 3),1)}
+/* Mor üst bölüm (tam ve harita): bant gibi kanon kavisiyle biter (gm-hh-ust: alt köşe r-surface + primary-deep çentik); kavis sayfanın üstüne biner, sayfa içeriği kavisin altından başlar. */
+.gm-ka-u-ust{position:absolute;left:0;right:0;top:0;z-index:7;display:flex;align-items:flex-start;gap:var(--gm-s-8);height:calc(var(--ka-tam-y,0px) + var(--gm-r-surface));padding:var(--ka-ust-y,0) var(--gm-s-16) 0;background:var(--gm-header-solid,var(--gm-primary));border-radius:0 0 var(--gm-r-surface) var(--gm-r-surface);box-shadow:0 var(--gm-s-4) 0 var(--gm-primary-deep);pointer-events:none;opacity:clamp(0,calc((var(--ka-m) - .55) * 3),1)}
 .gm-ka-uber.is-hap .gm-ka-u-ust{pointer-events:none}
 .gm-ka-uber.is-hap :is(.gm-ka-u-hap,.gm-ka-u-geri){pointer-events:auto}
 .gm-ka-u-hap{flex:1;min-width:0}
@@ -314,7 +318,7 @@
 .gm-ka-uber:not(.is-harita) .gm-kl-alan{opacity:0;pointer-events:none}
 /* Alt sayfa: --ka-y'de durur; tam konumda üst barın altındaki şeride oturur */
 /* Yığılma kuralı 4: en üste yapışınca köşe yarıçapı 0 (tam genişlik); yarıçap sayfa konumuna bağlı, son %30'da yumuşakça sıfırlanır. */
-.gm-ka-u-sayfa{--ka-r:calc(var(--gm-r-sheet) * clamp(0, (1 - var(--ka-s1)) / .3, 1));touch-action:none;position:absolute;left:0;right:0;top:0;z-index:6;display:flex;flex-direction:column;height:var(--ka-sayfa-h,60%);border-radius:var(--ka-r) var(--ka-r) 0 0;background:var(--gm-paper);box-shadow:var(--gm-sh-lg);transform:translateY(var(--ka-y));will-change:transform}
+.gm-ka-u-sayfa{padding-top:calc(var(--ka-s1) * var(--gm-r-surface));--ka-r:calc(var(--gm-r-sheet) * clamp(0, (1 - var(--ka-s1)) / .3, 1));touch-action:none;position:absolute;left:0;right:0;top:0;z-index:6;display:flex;flex-direction:column;height:var(--ka-sayfa-h,60%);border-radius:var(--ka-r) var(--ka-r) 0 0;background:var(--gm-paper);box-shadow:var(--gm-sh-lg);transform:translateY(var(--ka-y));will-change:transform}
 .gm-ka-u-tut{flex:none;min-height:calc(var(--gm-s-64) + var(--gm-s-8));padding:0 var(--gm-gutter) var(--gm-s-8);cursor:pointer}
 .gm-ka-uber.is-surukle .gm-ka-u-tut{cursor:grabbing}
 .gm-ka-u-tutamak{display:flex;align-items:center;justify-content:center;width:100%;height:var(--gm-s-24);padding:0;border:0;background:none;cursor:inherit}
