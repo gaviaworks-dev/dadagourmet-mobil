@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dada Gourmet · Alternatifler</title>
+<link rel="icon" href="../assets/marka/favicon.png">
+<link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="../kanon/gm-tokens.css">
+<link rel="stylesheet" href="../kanon/gm-sifir.css">
+<style>
+/* Masaüstü karar sayfası: her çeşit TAM ve CANLI, ayrı telefon olarak yan yana (iframe 390×844). Renk/yazı Gourmet token'larından. */
+@font-face{font-family:Gilroy;src:url(../assets/fonts/Gilroy-Medium.woff2) format('woff2');font-weight:500}
+@font-face{font-family:GilroyBd;src:url(../assets/fonts/Gilroy-ExtraBold.woff2) format('woff2');font-weight:700}
+body{margin:0;background:var(--gm-bg);color:var(--gm-ink);font:var(--gm-t-body-weight) var(--gm-t-body-size)/var(--gm-t-body-line) var(--gm-font)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;flex-wrap:wrap;gap:var(--gm-s-16) var(--gm-s-24);padding:var(--gm-s-12) var(--gm-s-32);background:var(--gm-primary);color:var(--gm-paper);box-shadow:var(--gm-sh-md)}
+header img{height:28px}
+header h1{margin:0;font:var(--gm-t-sub-weight,700) 18px/1.2 var(--gm-font-bold)}
+nav{display:flex;gap:var(--gm-s-8);flex-wrap:wrap}
+nav button{height:40px;padding:0 var(--gm-s-16);border:1px solid color-mix(in srgb,var(--gm-paper) 40%,transparent);border-radius:var(--gm-r-control);background:transparent;color:var(--gm-paper);font:500 15px/1 var(--gm-font);cursor:pointer}
+nav button[aria-pressed=true]{background:var(--gm-paper);color:var(--gm-primary);border-color:var(--gm-paper);font-family:var(--gm-font-bold)}
+#duzen{display:flex;gap:var(--gm-s-8);margin-left:var(--gm-s-16)}
+nav button b{font-family:var(--gm-font-bold);opacity:.7;margin-left:6px}
+header p{display:none}
+#duzen{margin-left:auto}
+main{padding:var(--gm-s-16) var(--gm-s-32) var(--gm-s-64)}
+.sira{display:grid;grid-template-columns:repeat(var(--kolon,4),minmax(0,1fr));gap:var(--gm-s-24) var(--gm-s-24);padding:var(--gm-s-8) 0 var(--gm-s-24)}
+.cesit{display:grid;gap:var(--gm-s-8);align-content:start;justify-items:center;min-width:0}
+.cesit > *:not(.kap){justify-self:stretch}
+.kap{width:calc(400px * var(--olcek,1));height:calc(854px * var(--olcek,1))}
+.kap .telefon{transform:scale(var(--olcek,1));transform-origin:0 0}
+body.is-iki .cesit{grid-template-columns:auto minmax(0,1fr);grid-auto-flow:row dense;column-gap:var(--gm-s-24);justify-items:start;align-items:start}
+body.is-iki .cesit .ust{grid-column:1 / -1}
+body.is-iki .cesit .kap{grid-column:1;grid-row:2 / span 5}
+body.is-iki .cesit > :not(.kap):not(.ust){grid-column:2}
+body.is-iki .cesit h2{font-size:18px}
+body.is-iki .cesit p{font-size:14px}
+.cesit .ust{display:flex;align-items:baseline;gap:var(--gm-s-8)}
+.cesit .no{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:8px;background:var(--gm-primary);color:var(--gm-paper);font:700 14px/1 var(--gm-font-bold)}
+.cesit h2{margin:0;font:700 16px/1.25 var(--gm-font-bold)}
+.telefon{position:relative;box-sizing:content-box;width:390px;height:844px;border-radius:56px;padding:5px;background:linear-gradient(145deg,#5b5a5f,#2c2c2e 40%,#48474c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),0 0 0 1px rgba(0,0,0,.35),0 24px 48px rgba(33,30,22,.18),0 4px 12px rgba(33,30,22,.12)}
+.telefon::after{content:"";position:absolute;left:50%;top:16px;width:122px;height:35px;margin-left:-61px;border-radius:20px;background:#000;z-index:2;pointer-events:none}
+.telefon iframe{display:block;width:390px;height:844px;border:0;border-radius:51px;background:var(--gm-paper)}
+/* Android çeşidi: Pixel çerçevesi — ince düz kenar, daha küçük köşe, ortada delik kamera (Dinamik Ada yok). */
+.telefon.is-android{border-radius:40px;background:linear-gradient(145deg,#3a3a3c,#1c1c1e 45%,#2e2e30)}
+.telefon.is-android::after{top:14px;width:13px;height:13px;margin-left:-6.5px;border-radius:50%}
+.telefon.is-android iframe{border-radius:35px}
+.cesit .ref{font:700 12px/1.35 var(--gm-font-bold);color:var(--gm-primary);text-transform:none}
+.cesit p{margin:0;font-size:13px;line-height:1.45;color:var(--gm-slate)}
+.cesit p span{font-family:var(--gm-font-bold);color:var(--gm-ink)}
+.cesit .ac{justify-self:start;display:inline-flex;align-items:center;gap:var(--gm-s-8);height:40px;padding:0 var(--gm-s-16);border-radius:var(--gm-r-control);background:var(--gm-paper);border:1px solid var(--gm-line);color:var(--gm-ink);text-decoration:none;font-size:14px}
+.cesit p.iyi{padding:8px 10px;border-radius:10px;background:var(--gm-primary-tint);color:var(--gm-ink)}
+/* Seçenekli tek çeşit (Widget'lar; Dada Diet #/telefon kalıbı): telefon üstte, seçenekler telefonun ALTINDA düğme grupları. */
+.cesit.is-tek{grid-template-columns:auto var(--panel,480px);justify-content:center;align-items:start;column-gap:48px;justify-items:start}
+.cesit.is-tek > .kap{grid-row:1;position:sticky;top:calc(var(--ust-h,72px) + 8px)}
+.cesit.is-tek .panel{display:grid;gap:var(--gm-s-16);align-content:start;min-width:0;padding-top:var(--gm-s-8)}
+body.is-tekli main{padding-top:var(--gm-s-16)}
+body.is-tekli .not{display:none}
+body.is-tekli #duzen{display:none}
+.secim{display:grid;gap:var(--gm-s-16)}
+.secim .bolum{display:grid;gap:var(--gm-s-12);padding:var(--gm-s-16);border:1px solid var(--gm-line);border-radius:var(--gm-r-surface);background:var(--gm-paper)}
+.secim .bolum h3{margin:0;font:700 12px/1 var(--gm-font-bold);letter-spacing:.08em;text-transform:uppercase;color:var(--gm-primary)}
+.secim .is-diger summary{display:flex;align-items:baseline;gap:var(--gm-s-8);cursor:pointer;list-style:none}
+.secim .is-diger summary::-webkit-details-marker{display:none}
+.secim .is-diger summary::after{content:"\f078";margin-left:auto;font:900 12px/1 "Font Awesome 6 Free";color:var(--gm-slate)}
+.secim .is-diger[open] summary::after{content:"\f077"}
+.secim .is-diger small{font-size:12px;color:var(--gm-slate)}
+.secim .is-diger[open]{gap:var(--gm-s-12)}
+.sunumlar{display:grid;grid-template-columns:1fr 1fr;gap:var(--gm-s-8)}
+.sunumlar button{display:grid;gap:2px;justify-items:start;padding:10px 12px;border:1px solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-bg);color:var(--gm-ink);text-align:left;cursor:pointer;font:500 13px/1.3 var(--gm-font)}
+.sunumlar button b{font:700 14px/1.25 var(--gm-font-bold)}
+.sunumlar button small{color:var(--gm-slate);font-size:12px}
+.sunumlar button[aria-pressed=true]{border-color:var(--gm-primary);background:var(--gm-primary-tint);box-shadow:inset 0 0 0 1px var(--gm-primary)}
+.panel details.bilgi summary{cursor:pointer;font:700 13px/1.4 var(--gm-font-bold);color:var(--gm-slate)}
+.panel details.bilgi{display:grid;gap:var(--gm-s-8)}
+.panel .ust{display:flex;align-items:center;gap:var(--gm-s-8)}
+.kap.is-yatay{width:calc(854px * var(--olcek,1));height:calc(400px * var(--olcek,1))}
+.telefon.is-yatay{width:844px;height:390px}
+.telefon.is-yatay iframe{width:844px;height:390px}
+.telefon.is-yatay::after{left:16px;top:50%;width:35px;height:122px;margin:-61px 0 0 0}
+.telefon.is-yatay.is-android::after{left:14px;width:13px;height:13px;margin-top:-6.5px}
+.secim .grup{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:var(--gm-s-8)}
+.secim .grup > span{padding-top:11px}
+.secim .grup > span{font:700 11px/1 var(--gm-font-bold);letter-spacing:.06em;text-transform:uppercase;color:var(--gm-slate)}
+.secim .seg{display:flex;flex-wrap:wrap;gap:2px;justify-self:start;padding:3px;border-radius:var(--gm-r-control);background:var(--gm-line)}
+.secim .seg button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:0;border-radius:calc(var(--gm-r-control) - 3px);background:transparent;color:var(--gm-ink);font:500 13px/1 var(--gm-font);cursor:pointer;white-space:nowrap}
+.secim .seg button[aria-pressed=true]{background:var(--gm-paper);color:var(--gm-primary);font-family:var(--gm-font-bold);box-shadow:var(--gm-sh-sm)}
+.secim .seg button:disabled{opacity:.4;cursor:default}
+.not{display:none;margin:0 0 var(--gm-s-16);font-size:14px;color:var(--gm-slate)}
+</style>
+</head>
+<body>
+<header><img src="../assets/marka/dadagourmet-beyaz.svg" alt="Dada Gourmet"><h1>Tasarım alternatifleri</h1><nav id="sekmeler"></nav><nav id="duzen" aria-label="Düzen"><button type="button" data-d="4" aria-pressed="true"><i class="fa-solid fa-table-columns"></i> Tek satır 4’lü</button><button type="button" data-d="2" aria-pressed="false"><i class="fa-solid fa-border-all"></i> 2×2</button></nav><p>Her çeşit canlı: kaydır, dokun, sheet aç.</p></header>
+<main><p class="not" id="not"></p><div class="sira" id="sira"></div></main>
+<script>
+const AD = {ana: 'Ana sayfa', liste: 'Mekân listesi', detay: 'Mekân detay', route: 'Dada Route ana ekranı', widget: 'Widget’lar'};
+const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+let L = [];
+// Seçenekli kayıt (a.secenekler: [{ad, anahtar, ogeler: [{ad, deger, ikon}]}]): adres = git + seçimler; Android → Pixel çerçevesi, StandBy → yatay.
+const SEC = {};
+// Seçenek görünürlüğü: öğe/grup `yon` taşıyorsa yalnız o yönde görünür. Değer görünür öğeler arasında değilse ilk görünür öğe.
+const yonu = a => { const g = (a.secenekler || []).find(x => x.anahtar === 'yon'); return SEC.yon && g && g.ogeler.some(o => o.deger === SEC.yon) ? SEC.yon : g?.ogeler[0].deger; };
+const gorunurGrup = (a, g) => !g.yon || g.yon === yonu(a);
+const gorunurOge = (a, g) => g.ogeler.filter(o => !o.yon || g.anahtar === 'yon' || o.yon === yonu(a));
+const secDeger = (a, k) => { const g = (a.secenekler || []).find(x => x.anahtar === k); if (!g) return SEC[k]; const l = gorunurOge(a, g); return l.some(o => o.deger === SEC[k]) ? SEC[k] : l[0]?.deger; };
+const secAdres = a => { const q = new URLSearchParams(); (a.secenekler || []).forEach(g => { if (gorunurGrup(a, g)) q.set(g.anahtar, secDeger(a, g.anahtar)); }); return `../index.html${a.git}${a.git.includes('?') ? '&' : '?'}${q}`; };
+let AKTIFA = null;
+const yatay = () => !!AKTIFA && secDeger(AKTIFA, 'yuzey') === 'standby';
+const android = a => a.secenekler ? secDeger(a, 'platform') === 'android' : /android|material you/i.test(a.ad + a.referans);
+const telefonHtml = (a, i) => `<div class="kap${yatay() ? ' is-yatay' : ''}"><div class="telefon${android(a) ? ' is-android' : ''}${yatay() ? ' is-yatay' : ''}"><iframe src="${e(a.secenekler ? secAdres(a) : '../index.html' + a.git)}" title="${e(a.ad)}" loading="${i < 4 ? 'eager' : 'lazy'}"></iframe></div></div>`;
+const grupHtml = (a, g) => `<div class="grup"><span>${e(g.ad.replace(/\s*\(.*\)$/, ''))}</span><div class="seg" role="group" aria-label="${e(g.ad)}">${gorunurOge(a, g).map(o => `<button type="button" data-a="${e(g.anahtar)}" data-d="${e(o.deger)}" aria-pressed="${secDeger(a, g.anahtar) === o.deger}">${o.ikon ? `<i class="fa-brands fa-${e(o.ikon)}"></i>` : ''}${e(o.ad)}</button>`).join('')}</div></div>`;
+const sunumEtkin = (a, s) => Object.entries(s.secim || {}).every(([k, v]) => secDeger(a, k) === v);
+let DIGER_ACIK = false;
+const secimHtml = a => {
+  const gl = a.secenekler.filter(g => gorunurGrup(a, g)), BOL = ['Ne gösterilsin', 'Nerede', 'Durum'];
+  const bolumler = [...new Set(gl.filter(g => !g.diger).map(g => g.bolum || 'Seçenekler'))].sort((x, y) => (BOL.indexOf(x) + 99) % 99 - (BOL.indexOf(y) + 99) % 99);
+  const diger = gl.filter(g => g.diger);
+  return `<div class="secim">${(a.sunumlar || []).length ? `<div class="bolum is-sunum"><h3>Sunum</h3><div class="sunumlar">${a.sunumlar.map((s, i) => `<button type="button" data-sunum="${i}" aria-pressed="${sunumEtkin(a, s)}"><b>${e(s.ad)}</b>${s.aciklama ? `<small>${e(s.aciklama)}</small>` : ''}</button>`).join('')}</div></div>` : ''}${bolumler.map(b => `<div class="bolum"><h3>${e(b)}</h3>${gl.filter(g => !g.diger && (g.bolum || 'Seçenekler') === b).map(g => grupHtml(a, g)).join('')}</div>`).join('')}${diger.length ? `<details class="bolum is-diger"${DIGER_ACIK ? ' open' : ''}><summary><h3>Diğer</h3><small>${e(diger.map(g => g.ad.replace(/\s*\(.*\)$/, '')).join(' · '))}</small></summary>${diger.map(g => grupHtml(a, g)).join('')}</details>` : ''}</div>`;
+};
+let AKTIF = 'ana';
+const ciz = k => {
+  AKTIF = k;
+  history.replaceState(null, '', '#' + k);
+  document.querySelectorAll('#sekmeler button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  const x = L.filter(a => a.ekran === k).sort((a, b) => (a.sira ?? 99) - (b.sira ?? 99)); ADET = x.length;
+  const tek = x.length === 1 && x[0].secenekler;
+  AKTIFA = tek ? x[0] : null;
+  document.body.classList.toggle('is-tekli', !!tek);
+  document.getElementById('not').textContent = `${AD[k]}: ${x.length} çeşit. Her biri ayrı, tam ve çalışan bir telefon ekranı (ekrana sığacak kadar küçültüldü; "Tek başına aç" gerçek boyut).`;
+  document.getElementById('sira').innerHTML = x.map((a, i) => { const ac = `<a class="ac" href="${e(a.secenekler ? secAdres(a) : '../index.html' + a.git)}" target="_blank"><i class="fa-solid fa-up-right-from-square"></i>Tek başına aç</a>`, metin = `<span class="ref">${e(a.referans)}</span><p><span>Alınan:</span> ${e(a.alinan)}</p><p><span>Neden:</span> ${e(a.gerekce)}</p>`;
+    return tek ? `<section class="cesit is-tek">${telefonHtml(a, i)}<div class="panel"><div class="ust"><span class="no">${i + 1}</span><h2>${e(a.ad)}</h2></div>${secimHtml(a)}<details class="bilgi"><summary>Referans ve gerekçe</summary>${metin}</details>${ac}</div></section>`
+      : `<section class="cesit"><div class="ust"><span class="no">${i + 1}</span><h2>${e(a.ad)}</h2></div>${telefonHtml(a, i)}${metin}${ac}</section>`; }).join('');
+};
+document.addEventListener('toggle', ev => { if (ev.target.matches && ev.target.matches('.is-diger')) DIGER_ACIK = ev.target.open; }, true);
+document.addEventListener('click', ev => { const b = ev.target.closest('.secim button'); if (!b) return; if (b.dataset.sunum != null) { const s = AKTIFA?.sunumlar?.[+b.dataset.sunum]; if (s) Object.assign(SEC, s.secim); } else SEC[b.dataset.a] = b.dataset.d; try { localStorage.setItem('karar-secim', JSON.stringify(SEC)); } catch {} ciz(AKTIF); olcekle(); });
+try { Object.assign(SEC, JSON.parse(localStorage.getItem('karar-secim') || '{}')); } catch {}
+// Ölçek: sütun genişliğine ve ekran yüksekliğine sığdır (4'lü: başlık + telefon görünür alana sığar; 2×2: iki satır ekrana sığar).
+let KOLON = +(localStorage.getItem('karar-kolon') || 4), ADET = 4;
+const olcekle = () => {
+  document.documentElement.style.setProperty('--ust-h', document.querySelector('header').offsetHeight + 'px');
+  const sira = document.getElementById('sira'), w = sira.clientWidth, g = 24, h = innerHeight - document.querySelector('header').offsetHeight - 70;
+  // 4'lü: dört telefon tek satırda, telefon ekran yüksekliğine sığar. 2×2: satırda iki çeşit; telefon solda (ekran yüksekliğine sığar), açıklama sağda.
+  // Çeşit sayısı sütundan azsa (ör. Widget'lar 3) telefonlar büyür, hepsi tek satırda ekrana sığar.
+  const k = KOLON === 4 ? Math.max(1, Math.min(4, ADET)) : 2, sw = KOLON === 4 ? (w - g * (k - 1)) / k : (w - g) / 2 - 280, yh = h - 30;
+  document.documentElement.style.setProperty('--kolon', k);
+  let o = Math.max(.3, Math.min(1, sw / 400, yh / 854));
+  if (document.body.classList.contains('is-tekli')) { const Y = yatay(), pw = Math.min(560, Math.max(380, w * .42)); document.documentElement.style.setProperty('--panel', pw + 'px'); o = Math.max(.3, Math.min(1.1, (w - pw - 48) / (Y ? 854 : 400), (innerHeight - document.querySelector('header').offsetHeight - 40) / (Y ? 400 : 854))); document.documentElement.style.setProperty('--kolon', 1); document.body.classList.remove('is-iki'); document.documentElement.style.setProperty('--olcek', o.toFixed(4)); return; }
+  document.body.classList.toggle('is-iki', KOLON === 2);
+  document.documentElement.style.setProperty('--olcek', o.toFixed(4)); if (KOLON !== 4) document.documentElement.style.setProperty('--kolon', 2);
+};
+addEventListener('resize', olcekle);
+document.addEventListener('click', ev => { const b = ev.target.closest('#duzen button'); if (!b) return; KOLON = +b.dataset.d; try { localStorage.setItem('karar-kolon', KOLON); } catch {} document.querySelectorAll('#duzen button').forEach(x => x.setAttribute('aria-pressed', x === b)); olcekle(); });
+fetch('../assets/alternatif/liste.json', {cache: 'no-store'}).then(r => r.json()).then(l => {
+  L = l;
+  document.getElementById('sekmeler').innerHTML = Object.keys(AD).map(k => `<button type="button" data-k="${k}" aria-pressed="false">${AD[k]}<b>${l.filter(a => a.ekran === k).length}</b></button>`).join('');
+  document.getElementById('sekmeler').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { ciz(b.dataset.k); olcekle(); } });
+  document.querySelectorAll('#duzen button').forEach(x => x.setAttribute('aria-pressed', +x.dataset.d === KOLON));
+  ciz(AD[location.hash.slice(1)] ? location.hash.slice(1) : 'ana'); olcekle();
+});
+</script>
+</body>
+</html>

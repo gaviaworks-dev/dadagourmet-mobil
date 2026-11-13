@@ -1,0 +1,41 @@
+/* Gastro ortak/dg-sayac.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* ORTAK SAYAÇ BANDI (yalnız ana ajan yazar; Beyar düzeltmesi 13 Ekim — “sayaç satırı dikeyde ortalı”). Tek bileşen: giriş/kayıt üyelik kartı,
+   profil başı, şef profili, şef kartı (tarif/püf detayı, şefler), Hakkımızda bandı, Dolabım özeti. Uygulama sayfaları üreticiden, kök ekranlar
+   gm-baglanti.js (şef kartıyla birlikte) yükler.
+   Ölçü: iç boşluk bantta değil HÜCREDE ve üst = alt (--gm-sayac-ic) → sayı + etiket hücrede yatayda ortalı dikey yığın, hücreler arası ayırıcı
+   bandın tam yüksekliğinde. Sabit yükseklik / margin yok. Sayı: sheet rolü (18 bold, tabular), etiket: meta rolü.
+   Bağlam: bağımsız bant = üst + alt ince çizgi, iç 12 · kartın son öğesi = alt çizgi yok, kartın alt iç boşluğunu bant taşır (çiftlenmez):
+   iç 16 = kart iç boşluğu → ayırıcı çizgi ile kartın alt kenarı arasında tam ortada · .is-yalin = dış çizgisiz (şef kartı), iç 0.
+   <dl> varsayılan boşluğu :where() ile sıfırlanır (özgüllük 0): sayfadaki [data-mt] (bölüm başlığı → içerik 16) ezilmez
+   (15 Ekim: Hakkımızda "Sayılarla" başlığı ile bant çizgisi arası 0'dı). */
+:where(.gm-istatistik){margin:0}
+.gm-istatistik{--gm-sayac-ic:var(--gm-s-12);display:grid;width:100%;grid-template-columns:repeat(var(--sutun,3),minmax(0,1fr));padding:0;border-top:var(--gm-size-border) solid var(--gm-line);border-bottom:var(--gm-size-border) solid var(--gm-line)}
+.gm-istatistik[data-sutun="2"]{--sutun:2}.gm-istatistik[data-sutun="3"]{--sutun:3}.gm-istatistik[data-sutun="4"]{--sutun:4}.gm-istatistik[data-sutun="5"]{--sutun:5}
+.gm-istatistik>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--gm-s-4);min-width:0;padding:var(--gm-sayac-ic) var(--gm-s-4);text-align:justify;text-align-last:center;--gm-baslik-hiza:center}
+.gm-istatistik>div+div{border-left:var(--gm-size-border) solid var(--gm-line)}
+/* Birden çok satır: satır başındaki hücrede sol ayırıcı yok; satırlar arasında yatay ayırıcı (hücrenin tam genişliğinde). */
+.gm-istatistik[data-sutun="2"]>div:nth-child(2n+1),.gm-istatistik[data-sutun="3"]>div:nth-child(3n+1),.gm-istatistik[data-sutun="4"]>div:nth-child(4n+1){border-left:0}
+.gm-istatistik[data-sutun="2"]>div:nth-child(n+3),.gm-istatistik[data-sutun="3"]>div:nth-child(n+4),.gm-istatistik[data-sutun="4"]>div:nth-child(n+5){border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-istatistik dd{order:1;margin:0;color:var(--gm-ink);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-sheet-size);line-height:var(--gm-t-sheet-line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.gm-istatistik dt{order:2;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+.gm-istatistik.is-yalin{--gm-sayac-ic:0;border:0}
+.gm-kart:has(>.gm-istatistik:last-child:not(.is-yalin)){padding-bottom:0}
+.gm-kart>.gm-istatistik:last-child:not(.is-yalin){--gm-sayac-ic:var(--gm-s-16);border-bottom:0}
+/* ADIMLAYICI (porsiyon / adet — DG.adimlayici; Beyar düzeltmesi 13 Ekim “− 6 kişilik +”). Tarif detayının porsiyon sayacından türetildi; kökte
+   detay-v2 sayacı da bu sınıflara bağlanır (tek görünüm). Beyaz kutu + ince çizgi + kontrol radius'u, 44 hedefli − / + (primary-deep ikon),
+   orta alan: görünür değer ile görünmez “en geniş değer” izi aynı ızgara hücresinde → genişlik sabit, değer tam ortada, düğmeler simetrik ve
+   değer değişince kaymaz. Değer tek satır: sayı alt başlık rolü kalın, birim meta. */
+.gm-adimlayici.gm-adimlayici{display:inline-flex;align-items:center;flex:none;justify-self:start;align-self:center;gap:0;width:auto;height:auto;min-height:0;padding:0;overflow:visible;border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-paper)}
+.gm-adimlayici.gm-adimlayici>button{display:grid;place-items:center;flex:0 0 var(--gm-size-touch);width:var(--gm-size-touch);height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-primary-dark);cursor:pointer;transition:background-color var(--gm-m-base) var(--gm-ease)}
+.gm-adimlayici.gm-adimlayici>button .icon{font-size:var(--gm-size-icon-sm)}
+.gm-adimlayici.gm-adimlayici>button:active:not(:disabled){background:var(--gm-bg)}
+.gm-adimlayici.gm-adimlayici>button:disabled{color:var(--gm-line);cursor:default}
+.gm-adimlayici.gm-adimlayici>button:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary-dark);outline-offset:calc(-2 * var(--gm-size-border))}
+.gm-adim-deger{display:grid;justify-items:center;align-items:center;padding:0 var(--gm-s-4)}
+.gm-adimlayici .gm-adim-deger>output,.gm-adimlayici .gm-adim-deger>.gm-adim-iz{grid-area:1/1;width:auto;min-width:0;flex:none;display:inline-flex;align-items:baseline;gap:var(--gm-s-4);white-space:nowrap;text-align:justify;text-align-last:center}
+.gm-adim-iz{visibility:hidden}
+.gm-adimlayici .gm-adim-deger b{color:var(--gm-ink);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-subheading-size);line-height:1;font-variant-numeric:tabular-nums}
+.gm-adimlayici .gm-adim-deger span:not(.gm-adim-iz){color:var(--gm-slate);font-family:var(--gm-font);font-weight:var(--gm-t-meta-weight);font-size:var(--gm-t-meta-size);line-height:1}
+.gm-adimlayici.is-yukleniyor{opacity:.6;pointer-events:none}
+.gm-adimlayici.is-hata{border-color:var(--gm-tehlike)}
+@media (prefers-reduced-motion:reduce){.gm-adimlayici.gm-adimlayici>button{transition:none}}

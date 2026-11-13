@@ -1,0 +1,161 @@
+/* Gastro liste-v2.css kaynağından taşındı: ad çevirisi dışında aynıdır. */
+/* Liste V2 — liste-1 tabanı. Ortak tokens/app/hero-light yalnız okunur; bütün değerler token'lardan.
+   Tarif kartı ailesi, kaydet, metrik rozeti, avatar ve kart radius'u ortak-kart.css'te (R3/R4/R7, EK 3).
+   Kontroller kanondaki --gm-r-control / --gm-r-media / --gm-r-sheet değerlerindedir; ?radius onları etkilemez.
+   Bölüm 1: sayfa düzeni (gm-liste-*). Bölüm 2: sayfaya bağlı bileşenler (gm-chip, gm-sheet…). */
+:root{
+  /* docs/46: header solid rengi üç ekranda tek token (--gm-header-solid). */
+  --gm-liste-header-solid:var(--gm-header-solid);
+  --gm-liste-tools-h:0px;
+  --gm-mark:calc(var(--gm-size-chip) - var(--gm-s-8) * 2);
+  --gm-badge:var(--gm-s-20);
+  --gm-flag-w:var(--gm-s-20);
+  --gm-row:var(--gm-s-48);
+  /* D2 · Panel üst köşesi: detaydaki .detail-main ile aynı sheet köşesi (24); yapışınca 0. ?radius etkilemez. */
+  --gm-liste-panel-r:var(--gm-r-sheet);
+}
+
+/* ============ 1 · Sayfa düzeni ============ */
+/* Sabit banner + üstüne kayan beyaz panel (liste-six.css choice 1 aktarımı). */
+:root .gm-liste-arac{position:sticky;top:var(--gm-ust-h);margin:0;z-index:30;background:var(--gm-paper);padding:var(--gm-s-16) var(--gm-gutter);border-bottom:0;transition:border-radius var(--gm-m-quick) var(--gm-ease);border-radius:var(--gm-liste-panel-r) var(--gm-liste-panel-r) 0 0!important}
+:root .gm-liste-arac.is-stuck{border-radius:0!important;box-shadow:0 var(--gm-size-border) 0 var(--gm-line)}
+:root .gm-liste-icerik{position:relative;background:var(--gm-paper);padding:var(--gm-s-16) var(--gm-gutter) calc(var(--gm-dock-alan) + env(safe-area-inset-bottom,0px))}
+/* R6 · Yapışık panelin altına kayan metin satırı yarım kesilmez; bütünüyle gizlenir (liste-v2.js syncHeader). */
+:root .gm-liste-occluded{opacity:0;pointer-events:none}
+:root :is(.gm-liste-themes__title,.gm-liste-theme-rail,.gm-liste-status){transition:opacity var(--gm-m-fast) var(--gm-ease),margin-top var(--gm-duration) var(--gm-ease)}
+
+/* Banner: tek sürekli overlay (JS eğrisi) + sol üstten kaynak ışık token'ı (hero-light.css). */
+/* Sayaç → panel: liste-1'den (24) bir ölçek adımı az (20). Başlık, sayaçlar ve panel aynı gutter hizasında. */
+
+/* Arama altı: kapsam sekmesi + şerit. */
+:root .gm-liste-scope{margin-top:var(--gm-s-12)}
+:root .gm-liste-rail{margin-top:var(--gm-s-12)}
+
+/* İçerik ritmi: tema 24 sonuç satırı 16 sonuçlar. */
+:root .gm-liste-themes{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:1fr;margin:var(--gm-s-8) 0 0;transition:grid-template-rows var(--gm-duration) var(--gm-ease),margin-top var(--gm-duration) var(--gm-ease),opacity var(--gm-duration) var(--gm-ease)}
+/* D1 · Dünya Mutfakları sekmesinde (ya da hiç tema kalmayınca) bölüm yükseklikle birlikte kapanır; sayfa sıçramaz.
+   Kırpma yalnız hareket/kapalı hâlde: şeridin gutter taşması ve odak halkası açık hâlde kesilmez. */
+:root .gm-liste-themes__inner{min-height:0;margin-inline:calc(-1 * var(--gm-gutter));padding-inline:var(--gm-gutter)}
+:root .gm-liste-themes:is(.is-moving,.is-collapsed)>.gm-liste-themes__inner{overflow:hidden}
+:root .gm-liste-themes.is-collapsed{grid-template-rows:0fr;margin-top:0;opacity:0;visibility:hidden;transition:grid-template-rows var(--gm-duration) var(--gm-ease),margin-top var(--gm-duration) var(--gm-ease),opacity var(--gm-duration) var(--gm-ease),visibility 0s linear var(--gm-duration)}
+/* Başlık ve alt boşluğu ortak bölüm başlığından (ortak-baslik.css). */
+/* Bölüm kapalıyken şerit → sonuç satırı, şerit → tema başlığıyla aynı ritimde (40). */
+:root .gm-liste-themes.is-collapsed+.gm-liste-status{margin-top:var(--gm-s-8)}
+/* Arama kutusu: ikon · alan · temizle · filtre. Filtre 44px hedef, kontrol radius'u. */
+:root .gm-liste-arac .gm-girdi{padding-right:var(--gm-s-4)}
+:root .gm-liste-arac .gm-girdi input{min-width:0;text-overflow:ellipsis}
+/* Odak halkası yalnız yazı alanı odaktayken; filtre düğmesi odaktaysa kendi focus-visible halkası görünür. */
+:root .gm-liste-arac .gm-girdi:focus-within:not(:has(input:focus)){outline:none;border-color:var(--gm-line)}
+:root .gm-liste-search-filter{position:relative;display:grid;place-items:center;flex:0 0 var(--gm-size-touch);width:var(--gm-size-touch);height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-slate);cursor:pointer}
+:root .gm-liste-search-filter .icon{font-size:var(--gm-size-icon-md);color:inherit}
+:root .gm-liste-search-filter.is-active{color:var(--gm-primary)}
+:root .gm-liste-search-filter:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:calc(-1 * var(--gm-s-4))}
+:root .gm-liste-search-filter__badge{position:absolute;top:var(--gm-s-4);right:var(--gm-s-4);min-width:var(--gm-s-16);height:var(--gm-s-16);padding:0 var(--gm-s-4);font-size:var(--gm-t-label-size)}
+:root .gm-liste-arac .gm-temizle .icon{color:var(--gm-slate)}
+/* Sonuç satırı: sayı solda; sıralama + görünüm aynı yükseklikte kontrol grubu sağda. */
+:root .gm-liste-status{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-12);margin:var(--gm-s-24) 0 0;scroll-margin-top:calc(var(--gm-ust-h) + var(--gm-liste-tools-h) + var(--gm-s-16))}
+:root .gm-liste-status .gm-liste-sayi{margin:0;flex-shrink:0;white-space:nowrap;font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate)}
+:root .gm-liste-status .gm-liste-sayi b{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);color:var(--gm-ink)}
+:root .gm-liste-status__controls{display:flex;align-items:stretch;justify-content:flex-end;gap:var(--gm-s-8);flex:0 1 auto;min-width:0}
+:root .gm-liste-status>.gm-liste-status__controls.gm-liste-status__controls{margin-top:0}
+/* Üstteki satır Diet eki (L, 10 Kasım): gm-bilesen.css dikey yığın kuralı (p → düğmeli öğe 20) sonuç sayısı <p>'sinden sonra gelen düğme grubunu 20 aşağı itiyordu; durum satırı 52 yerine 72 oluyor, sayı ile düğmeler hizasız kalıyordu. liste-v2'de bu kural yüklü değil. Kuralın özgüllüğü (0,3,0) olduğu için sınıf iki kez yazıldı. */
+:root .gm-liste-status__controls .gm-gorunum{flex-shrink:0}
+:root .gm-liste-sort-group{display:flex;padding:var(--gm-s-4);border-radius:var(--gm-r-media);background:var(--gm-bg);min-width:0}
+/* Sıralama: yalnız ikon, 44×44 (docs/47: tek tasarım, eski ?siralama=a). Varsayılan dışı sıralamada primary. */
+:root .gm-liste-sort-button{display:inline-flex;align-items:center;justify-content:center;width:var(--gm-size-touch);min-width:var(--gm-size-touch);min-height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-slate);font:inherit;cursor:pointer}
+:root .gm-liste-sort-button .icon{font-size:var(--gm-size-icon-md);flex-shrink:0}
+:root .gm-liste-sort-button.is-active{color:var(--gm-primary)}
+:root .gm-liste-status .gm-gorunum{background:var(--gm-bg);box-shadow:none;flex-shrink:0}
+:root .gm-liste-status .gm-gorunum button{color:var(--gm-slate)}
+:root .gm-liste-status .gm-gorunum button[aria-pressed=true]{color:var(--gm-primary-deep)}
+:root .gm-liste-results{margin-top:var(--gm-s-16)}
+:root .gm-liste-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gm-s-24) var(--gm-s-12)}
+:root .gm-liste-rows{display:grid;grid-template-columns:minmax(0,1fr)}
+/* Satırlar arasında ayraç yalnız iki satır arasında. */
+:root .gm-liste-rows>.gm-card--row+.gm-card--row{margin-top:var(--gm-s-16);padding-top:var(--gm-s-16);border-top:var(--gm-size-border) solid var(--gm-line)}
+:root :is(.gm-kslider,.gm-feature)+:is(.gm-liste-grid,.gm-liste-rows){margin-top:var(--gm-s-24)}
+:root .gm-sayfalama{display:flex;justify-content:center;gap:var(--gm-s-8);margin:var(--gm-s-32) 0 0}
+:root .gm-sayfalama:empty{display:none}
+:root .gm-liste-empty{display:grid;justify-items:center;gap:var(--gm-s-12);padding:var(--gm-s-32) var(--gm-s-16);text-align:justify;text-align-last:center;--gm-baslik-hiza:center}
+:root .gm-liste-empty__mark{display:grid;place-items:center;width:var(--gm-s-48);height:var(--gm-s-48);border-radius:var(--gm-r-control);background:var(--gm-primary-tint);color:var(--gm-primary-deep)}
+:root .gm-liste-empty__mark .icon{font-size:var(--gm-size-icon-lg)}
+:root .gm-liste-empty h2,:root .gm-liste-empty p{margin:0}
+:root .gm-liste-empty p{color:var(--gm-slate)}
+:root .gm-liste-empty .gm-btn{margin-top:var(--gm-s-4)}
+
+/* Header: solid zemin token'ı. */
+
+/* ============ 2 · Sayfaya bağlı bileşenler ============ */
+/* gm-stats: fotoğraf üstü sayaç satırı (liste-1 .list-stat-line ölçüleri); eşit aralık, ayraçlar ortada. */
+
+/* gm-badge: sayı rozeti. */
+.gm-badge{display:inline-grid;place-items:center;min-width:var(--gm-badge);height:var(--gm-badge);padding:0 var(--gm-s-4);border-radius:var(--gm-r-choice);background:var(--gm-primary-deep);color:var(--gm-paper);font-family:var(--gm-font-bold);font-size:var(--gm-t-label-size);line-height:1;letter-spacing:0}
+.gm-badge:empty{display:none}
+
+/* gm-chip + gm-chip-rail: 44px, 12px iç, 8px aralık, kontrol radius'u; seçimde yalnız renk değişir (genişlik sabit). */
+.gm-kok-chip-rail{display:flex;gap:var(--gm-chip-gap);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin-inline:calc(-1 * var(--gm-gutter));padding-inline:var(--gm-gutter);scroll-padding-inline:var(--gm-gutter)}
+.gm-kok-chip-rail::-webkit-scrollbar{display:none}
+.gm-kok-chip{display:inline-flex;align-items:center;gap:var(--gm-s-8);flex:0 0 auto;height:var(--gm-size-chip);min-height:var(--gm-size-chip);padding:0 var(--gm-chip-padding);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-slate);font:inherit;font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);white-space:nowrap;cursor:pointer}
+.gm-kok-chip:has(>.gm-mark){padding-left:var(--gm-s-8)}
+.gm-kok-chip[aria-pressed=true]{border-color:var(--gm-primary-dark);background:var(--gm-primary-tint);color:var(--gm-primary-deep)}
+.gm-kok-chip__count{color:var(--gm-slate)}
+.gm-kok-chip[aria-pressed=true] .gm-kok-chip__count{color:var(--gm-primary-deep)}
+.gm-kok-chip--removable{color:var(--gm-ink)}
+.gm-kok-chip--removable>.icon:last-child{font-size:var(--gm-size-icon-sm);color:var(--gm-slate)}
+
+/* gm-mark: 28px işaret yuvası (kategori fotoğrafı, bayrak veya ikon); iç köşe = 12 − 8. */
+.gm-mark{display:grid;place-items:center;width:var(--gm-mark);height:var(--gm-mark);flex:0 0 var(--gm-mark);border-radius:calc(var(--gm-r-control) - var(--gm-s-8));background:var(--gm-bg);color:var(--gm-primary-deep);overflow:hidden}
+.gm-mark .icon{font-size:var(--gm-size-icon-sm)}
+.gm-mark__foto{width:100%;height:100%;border-radius:0;background-color:var(--gm-line);background-size:cover;background-position:center}
+.gm-mark__foto.image-failed{display:grid;place-items:center;font-size:var(--gm-size-icon-sm)}
+/* docs/47 · P3: bayrak çıplak (yuva zemini ve bayrağın çevresindeki ince çerçeve yok); köşesi kontrol ölçeğinde kalır. */
+.gm-mark--flag{background:transparent}
+.gm-mark--flag img{display:block;width:var(--gm-flag-w);height:auto;aspect-ratio:4/3;border-radius:var(--gm-r-choice)}
+.gm-kok-chip[aria-pressed=true] .gm-mark:not(.gm-mark--flag){background:var(--gm-paper)}
+
+/* gm-page: sayfalama, 44px. */
+.gm-page{display:grid;place-items:center;min-width:var(--gm-size-touch);height:var(--gm-size-touch);padding:0 var(--gm-s-8);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-ink);font:inherit;font-size:var(--gm-t-body-size);cursor:pointer}
+.gm-page[aria-current=page]{background:var(--gm-primary-dark);border-color:var(--gm-primary-dark);color:var(--gm-paper);font-family:var(--gm-font-bold)}
+
+/* gm-sheet: ortak alttan açılan panel. Başlık + çip satırı + iç kaydırma + sabit alt eylem çubuğu. */
+.gm-sheet>.handle{flex-shrink:0}
+.gm-sheet .gm-sheet__head{flex-shrink:0;margin:0;min-height:var(--gm-size-touch)}
+.gm-sheet__title{display:flex;align-items:center;gap:var(--gm-s-8);margin:0}
+.gm-sheet__title>.icon{font-size:var(--gm-size-icon-md);color:var(--gm-primary-deep)}
+.gm-sheet__chips{flex-shrink:0;align-items:center;height:var(--gm-size-chip);margin-top:var(--gm-s-12)}
+.gm-sheet__hint{color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);white-space:nowrap}
+.gm-sheet__scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:var(--gm-s-12) calc(-1 * var(--gm-gutter)) 0;padding:0 var(--gm-gutter);border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-sheet__foot{flex-shrink:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gm-s-12);margin:0 calc(-1 * var(--gm-gutter));padding:var(--gm-s-16) var(--gm-gutter) calc(var(--gm-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--gm-size-border) solid var(--gm-line);background:var(--gm-paper)}
+.gm-sheet__foot .gm-btn{margin:0}
+
+/* gm-facet: tek açık akordeon; yükseklik ızgara satırıyla yumuşak açılır; ayraç yalnız bölümler arasında. */
+.gm-facet+.gm-facet{border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-facet__heading{margin:0}
+.gm-facet__head{display:flex;align-items:center;gap:var(--gm-s-12);width:100%;min-height:var(--gm-row);padding:0;border:0;background:none;color:var(--gm-ink);text-align:justify;text-align-last:left;cursor:pointer}
+.gm-facet__icon{display:grid;place-items:center;width:var(--gm-s-24);flex:0 0 var(--gm-s-24);color:var(--gm-primary-deep)}
+.gm-facet__icon .icon{font-size:var(--gm-size-icon-md)}
+.gm-facet__label{flex:1;min-width:0}
+.gm-facet__head>.icon:last-child{font-size:var(--gm-size-icon-sm);color:var(--gm-slate);transition:transform var(--gm-duration) var(--gm-ease)}
+.gm-facet.is-open .gm-facet__head>.icon:last-child{transform:rotate(180deg)}
+.gm-facet__body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--gm-duration) var(--gm-ease)}
+.gm-facet.is-open>.gm-facet__body{grid-template-rows:1fr}
+.gm-facet__inner{min-height:0;overflow:hidden}
+.gm-facet__inner>:last-child{margin-bottom:var(--gm-s-12)}
+.gm-sheet .gm-option{display:flex;align-items:center;gap:var(--gm-s-12);min-height:var(--gm-size-touch);margin:0;font-weight:var(--gm-weight-body);cursor:pointer}
+.gm-sheet .gm-option[hidden]{display:none}
+.gm-option__label{flex:1;min-width:0;color:var(--gm-ink);font-size:var(--gm-t-body-size);line-height:var(--gm-t-meta-line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-option__count{color:var(--gm-slate);font-size:var(--gm-t-meta-size);font-variant-numeric:tabular-nums}
+.gm-option:has(input:checked) .gm-option__label{color:var(--gm-primary-deep)}
+.gm-more{display:inline-flex;align-items:center;gap:var(--gm-s-4);min-height:var(--gm-size-touch);padding:0;border:0;background:none;color:var(--gm-primary-deep);font:inherit;font-family:var(--gm-font-bold);font-size:var(--gm-t-meta-size);cursor:pointer}
+.gm-more .icon{font-size:var(--gm-size-icon-sm)}
+
+/* gm-choice: tekli seçim listesi (sıralama); onay ikonu yeri hep ayrılır. */
+.gm-choice-list{margin-top:var(--gm-s-12);padding-bottom:calc(var(--gm-s-16) + env(safe-area-inset-bottom,0px))}
+.gm-choice{display:flex;align-items:center;gap:var(--gm-s-12);width:100%;min-height:var(--gm-row);padding:0;border:0;background:none;color:var(--gm-ink);font:inherit;font-size:var(--gm-t-body-size);text-align:justify;text-align-last:left;cursor:pointer}
+.gm-choice+.gm-choice{border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-choice__icon{display:grid;place-items:center;width:var(--gm-s-24);flex:0 0 var(--gm-s-24);color:var(--gm-primary-deep)}
+.gm-choice__label{flex:1}
+.gm-choice>.icon:last-child{visibility:hidden;color:var(--gm-primary-deep);font-size:var(--gm-size-icon-sm)}
+.gm-choice[aria-checked=true]{color:var(--gm-primary-deep)}
+.gm-choice[aria-checked=true]>.icon:last-child{visibility:visible}
+

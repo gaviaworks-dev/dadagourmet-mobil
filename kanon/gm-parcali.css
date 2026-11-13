@@ -1,0 +1,50 @@
+/* Gastro ortak/dg-parcali.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Parçalı gri buton listesi (Beyar revize B6, 13 Ekim) — yalnız ana ajan yazar. Açık gri zeminli kare kare parçalar, aralarında ince
+   (2px) beyaz ayırıcı; dış köşeler kontrol radius'u (12), iç köşeler seçim kademesi (4). Her parça: 40'lık tint ikon kutusu + başlık
+   (gövde rolü, bold) + kısa açıklama (meta, en çok 2 satır) + sağda ok. Dokunma alanı satırın tamamı, en az 64.
+   Kullanım: sistem/hata “Buradan devam edebilirsin”, izin reddedildi maddeleri, Tabaktan Tarif sheet seçenekleri ve benzeri.
+   Uygulama sayfaları: DG.parcali(ogeler); kök runtime (Tabaktan) aynı işaretlemeyi yazar. Tek dosya: her iki yüzey yükler. */
+.gm-parcali{display:grid;gap:calc(var(--gm-size-border) * 2);margin:0;padding:0;list-style:none}
+.gm-parcali-oge{display:flex;align-items:center;gap:var(--gm-s-12);width:100%;min-height:calc(var(--gm-s-48) + var(--gm-s-16));margin:0;padding:var(--gm-s-12) var(--gm-s-12) var(--gm-s-12) var(--gm-s-12);border:0;border-radius:var(--gm-r-choice);background:var(--gm-bg);color:var(--gm-ink);font:inherit;text-align:justify;text-align-last:start;text-decoration:none;cursor:pointer;transition:background-color var(--gm-m-base) var(--gm-ease),transform var(--gm-m-press,100ms) var(--gm-ease)}
+.gm-parcali>:first-child,.gm-parcali>:first-child>.gm-parcali-oge{border-top-left-radius:var(--gm-r-control);border-top-right-radius:var(--gm-r-control)}
+.gm-parcali>:last-child,.gm-parcali>:last-child>.gm-parcali-oge{border-bottom-left-radius:var(--gm-r-control);border-bottom-right-radius:var(--gm-r-control)}
+@media (hover:hover){.gm-parcali-oge:hover{background:color-mix(in srgb,var(--gm-slate) 9%,var(--gm-bg))}}
+.gm-parcali-oge:active{transform:scale(.99)}
+.gm-parcali-oge:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:calc(-2 * var(--gm-size-border))}
+.gm-parcali-ikon{display:grid;place-items:center;width:var(--gm-s-40);height:var(--gm-s-40);flex-shrink:0;border-radius:var(--gm-r-control);background:var(--gm-primary-tint);color:var(--gm-primary-deep)}
+.gm-parcali-ikon .icon{font-size:var(--gm-size-icon-md)}
+.gm-parcali-metin{display:grid;gap:var(--gm-s-4);flex:1;min-width:0;text-align:justify;text-align-last:start;--gm-baslik-hiza:start}
+.gm-parcali-metin b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold,700);font-size:var(--gm-t-body-size);line-height:var(--gm-t-body-line)}
+.gm-parcali-metin small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate)}
+.gm-parcali-ok{flex-shrink:0;color:var(--gm-slate);font-size:var(--gm-size-icon-sm)}
+.gm-parcali-oge.is-ana .gm-parcali-ikon{background:var(--gm-primary);color:var(--gm-paper)}
+.gm-parcali-oge.is-yikici .gm-parcali-ikon{background:color-mix(in srgb,var(--gm-primary-tint) 60%,var(--gm-bg));color:var(--gm-primary-deep)}
+.gm-parcali-oge[aria-disabled=true]{opacity:.55;pointer-events:none}
+/* Bilgi maddesi (tıklanmaz): aynı parça, oksuz. */
+.gm-parcali-oge.is-bilgi{cursor:default}
+@media (hover:hover){.gm-parcali-oge.is-bilgi:hover{background:var(--gm-bg)}}
+@media (prefers-reduced-motion:reduce){.gm-parcali-oge{transition:none}}
+
+/* KUTU varyantları (Beyar V4, 13 Ekim — önceden tabaktan.css .tt-adimlar): ikon üstte, başlık altta, açıklama ve ok yok; kare kutular,
+   aralarında aynı 2px beyaz ayırıcı; dış köşeler kontrol radius'u (12), iç köşeler seçim kademesi (4).
+   .is-yatay — tek satır n kutu (--gm-sutun, varsayılan 3): Tabaktan / Dolaptan Tarife tanıtım adımları.
+   .is-izgara — 2×2 kutu: Ne Pişirsem (orta düğme) paneli. DG.parcali(ogeler, {kutu: 'yatay' | 'izgara'}); kök aynı işaretlemeyi yazar. */
+.gm-parcali:is(.is-yatay,.is-izgara){grid-template-columns:repeat(var(--gm-sutun,3),minmax(0,1fr))}
+.gm-parcali.is-izgara{--gm-sutun:2}
+.gm-parcali:is(.is-yatay,.is-izgara)>li>.gm-parcali-oge,.gm-parcali:is(.is-yatay,.is-izgara)>.gm-parcali-oge{flex-direction:column;justify-content:center;gap:var(--gm-s-8);aspect-ratio:1;min-height:0;padding:var(--gm-s-12) var(--gm-s-8);border-radius:var(--gm-r-choice)}
+.gm-parcali.is-izgara>li>.gm-parcali-oge{aspect-ratio:auto;min-height:calc(var(--gm-s-48) * 2 + var(--gm-s-8))}
+.gm-parcali:is(.is-yatay,.is-izgara)>*{border-radius:var(--gm-r-choice)}
+.gm-parcali.is-yatay>:first-child>.gm-parcali-oge{border-radius:var(--gm-r-control) var(--gm-r-choice) var(--gm-r-choice) var(--gm-r-control)}
+.gm-parcali.is-yatay>:last-child>.gm-parcali-oge{border-radius:var(--gm-r-choice) var(--gm-r-control) var(--gm-r-control) var(--gm-r-choice)}
+.gm-parcali.is-izgara>:nth-child(1)>.gm-parcali-oge{border-top-left-radius:var(--gm-r-control)}
+.gm-parcali.is-izgara>:nth-child(2)>.gm-parcali-oge{border-top-right-radius:var(--gm-r-control)}
+.gm-parcali.is-izgara>:nth-last-child(2):nth-child(odd)>.gm-parcali-oge{border-bottom-left-radius:var(--gm-r-control)}
+.gm-parcali.is-izgara>:last-child>.gm-parcali-oge{border-bottom-right-radius:var(--gm-r-control)}
+.gm-parcali:is(.is-yatay,.is-izgara) .gm-parcali-metin{flex:0 0 auto;width:100%;text-align:justify;text-align-last:center;--gm-baslik-hiza:center}
+.gm-parcali:is(.is-yatay,.is-izgara) .gm-parcali-metin b{text-align:justify;text-align-last:center;-webkit-line-clamp:2}
+.gm-parcali:is(.is-yatay,.is-izgara) .gm-parcali-ok{display:none}
+/* Kutu üstü küçük rozet (Pro): başlığın üstünde, kutunun sağ üstünde. */
+.gm-parcali-oge .gm-parcali-rozet{position:absolute;top:var(--gm-s-8);right:var(--gm-s-8);display:inline-flex;align-items:center;gap:var(--gm-s-4);padding:0 var(--gm-s-8);min-height:var(--gm-s-20,20px);border-radius:var(--gm-r-badge-sm,6px);background:var(--gm-paper);color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-label-size,11px);line-height:1;letter-spacing:var(--gm-t-label-track,.06em);text-transform:uppercase}
+.gm-parcali-oge .gm-parcali-rozet .icon{font-size:var(--gm-t-label-size,11px)}
+.gm-parcali:is(.is-yatay,.is-izgara) .gm-parcali-oge{position:relative}
+

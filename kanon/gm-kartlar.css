@@ -1,0 +1,162 @@
+/* Gastro ortak-kart.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak tarif kartı ailesi + kart radius kuralı (docs/41 · R3/R4/R7, EK 3; docs/46 birleştirme; docs/47 patron seçimleri).
+   Üç ekran bağlı: liste kartları/öne çıkan slider, ana sayfa ve detayın fotoğraf üstü küçük kartı (gm-tile) ile
+   ikişerli slider'ı (gm-pairs), video kartının süre + oynat çifti (gm-meta + gm-play).
+   tokens.css değişmez: buradaki token'lar karar verilince kalıcı hâle getirilir.
+   docs/47: seçilen tasarım tek ve varsayılandır (kart köşesi 16, gösterge noktalar); ?radius / ?rozet / ?gosterge kalktı. */
+
+/* ---------- R3 · Tarif kartı radius'u (EK 3; docs/47: a seçildi, tek değer) ----------
+   Yalnız tarif kartları (normal kart, öne çıkan kart/slider, satır kartı, küçük kart); kontroller kanondaki
+   --gm-r-control / --radius-segment / --gm-r-sheet değerlerinde kalır. */
+:root{
+  --gm-card-r:var(--gm-s-16);
+  --gm-r-avatar:var(--gm-r-round);
+  /* R4 · Süre/puan ve kaydet: aynı yükseklik ve kenar boşluğu (32px satır, 8px kenar; kaydet 44px hedef). */
+  --gm-pair-size:var(--gm-size-save-visible);
+  --gm-pair-inset:var(--gm-s-8);
+  --gm-pair-fg:var(--gm-paper);
+  --gm-row-media:calc(var(--gm-s-48) * 3 + var(--gm-s-8));
+  --gm-duration:250ms;
+  /* docs/47 EK 3 · Görsel üstü geçiş: tek tanım (bütün kartlar, video kapakları, ana sayfa ve detay hero'su buradan alır).
+     Yalnız üst ve alt kenarda, ortası temiz. Kaynak koyu --gm-overlay, kahverengi karışım yok.
+     Eğri smootherstep s(t) = 6t⁵ − 15t⁴ + 10t³: iki uçta hem eğim hem eğrilik sıfır, koyuluk fark edilmeden başlar ve
+     biter (görünür başlangıç çizgisi yok). Üst: kenarda --gm-veil-top-a (en çok %35), --gm-top-veil-h boyunca
+     1 − s(t) ile sıfır (9 durak). Alt (ortak-kart.js veils/edgeBottom): ilk metin satırının --gm-veil-lead (40px)
+     üstünde 0, satırın --gm-veil-tail (32px) altında --gm-veil-end-a (en çok %60), sonra sabit.
+     Okunurluk önce yumuşak metin gölgesiyle (--gm-photo-shadow), geçiş koyulaştırılmadan. */
+  --gm-veil-top-a:.35;
+  --gm-veil-end-a:.6;
+  --gm-veil-lead:var(--gm-s-40);
+  --gm-veil-tail:var(--gm-s-32);
+  --gm-top-veil-h:max(32%, calc(var(--gm-s-32) * 2));
+  --gm-photo-shadow:0 1px 2px color-mix(in srgb,var(--gm-overlay) 50%,transparent),0 0 var(--gm-s-8) color-mix(in srgb,var(--gm-overlay) 45%,transparent);
+  --gm-icon-halo:0 0 var(--gm-s-8) color-mix(in srgb,var(--gm-overlay) 35%,transparent),0 1px 2px color-mix(in srgb,var(--gm-overlay) 50%,transparent);
+  --gm-save-stroke:calc(var(--gm-size-border) * 2);
+  --gm-top-veil:linear-gradient(180deg,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 100.00%),transparent) 0,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 98.39%),transparent) 12.5%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 89.65%),transparent) 25%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 72.48%),transparent) 37.5%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 50.00%),transparent) 50%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 27.52%),transparent) 62.5%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 10.35%),transparent) 75%,
+    color-mix(in srgb,var(--gm-overlay) calc(var(--gm-veil-top-a) * 1.61%),transparent) 87.5%,
+    transparent 100%);
+}
+
+/* ---------- R7 · Avatar: fotoğraf varsa kapak; yoksa detaydaki gibi baş harf dairesi ----------
+   D3: baş harf etiket (11) yerine bir üst basamak meta (13) ve GilroyBd (mevcut en kalın dosya, ExtraBold);
+   11px'te "İ" küçük "i" gibi okunuyordu. Avatar ölçüsü (--gm-size-avatar-card) değişmez. */
+.gm-card-avatar{display:grid;place-items:center;width:var(--gm-size-avatar-card);height:var(--gm-size-avatar-card);min-width:var(--gm-size-avatar-card);min-height:var(--gm-size-avatar-card);aspect-ratio:1;flex-shrink:0;border-radius:var(--gm-r-avatar);background:var(--gm-line);background-size:cover;background-position:center;color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-meta-size);line-height:1;letter-spacing:0;text-shadow:none}
+.gm-card-avatar.has-photo{color:transparent}
+.gm-card-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- docs/47 · P4 · Görsel üstü geçiş: tarif kartı, öne çıkan kart, küçük kart ve video kapağı (.gm-veil-top) ----------
+   Rozet/kaydet katmanlarının altında, fotoğrafın ve alt metin geçişinin üstünde. Dokunmayı engellemez. */
+:is(.gm-card__media,.gm-feature__media,.gm-tile__media,.gm-veil-top)::after{content:'';position:absolute;inset:0 0 auto;z-index:1;height:var(--gm-top-veil-h);background:var(--gm-top-veil);pointer-events:none}
+.is-loading :is(.gm-card__media,.gm-feature__media,.gm-tile__media)::after{visibility:hidden}
+
+/* ---------- R4 · Süre/puan + kaydet (tek kalıp: kart, öne çıkan, satır, küçük kart, video) ----------
+   docs/47 · P4/EK: koyu kutu zemini (cam) kaldırıldı; beyaz metin/ikon doğrudan üst geçişin üstünde, çok hafif gölgeyle.
+   Konum ve ölçü aynı: 8px kenar, 32px satır; kaydet 44px dokunma alanı. */
+.gm-meta{position:absolute;left:var(--gm-pair-inset);top:var(--gm-pair-inset);z-index:3;display:inline-flex;align-items:center;gap:var(--gm-s-12);height:var(--gm-pair-size);max-width:calc(100% - var(--gm-pair-size) - var(--gm-pair-inset) * 3);padding:0 var(--gm-s-8);background:none;color:var(--gm-pair-fg);font-family:var(--gm-font-bold);font-size:var(--gm-t-meta-size);font-weight:var(--gm-weight-bold);line-height:1;white-space:nowrap;text-shadow:var(--gm-photo-shadow);pointer-events:none}
+.gm-meta>span{display:inline-flex;align-items:center;gap:var(--gm-s-4)}
+/* docs/47 EK: süre (saat) + görüntülenme (göz), kalın (GilroyBd 700), ikon metinle aynı satırda ortalı, metin renginde. */
+.gm-meta .icon{font-size:var(--gm-t-meta-size);line-height:1;color:currentColor}
+/* Kaydet: zeminsiz ikon, 44px hedef. app.css'teki genel .save (beyaz zemin, gölge, kayıtlı tint zemin; Diet'te alınmadı) ve
+   .recipe-card .save::before (koyu kare) kuralları daha özgül seçicilerle nötrlenir; app.css değişmez (docs/47 · P5). */
+.gm-save{position:absolute;top:calc(var(--gm-pair-inset) - var(--gm-save-inset));right:calc(var(--gm-pair-inset) - var(--gm-save-inset));z-index:4;display:grid;place-items:center;width:var(--gm-size-touch);height:var(--gm-size-touch);min-width:var(--gm-size-touch);min-height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;box-shadow:none;color:var(--gm-pair-fg);cursor:pointer}
+.gm-save::before,.recipe-card .gm-save::before{content:none}
+/* docs/47 EK 3 · Kaydet/oynat ikonunun arkasında kenarı belli olmayan yumuşak koyu hale (#211E16 %35, 8px bulanık) + ince gölge;
+   iki durumda aynı (zıplama yok). Kaydedilmiş hâlde turuncu ikonun çevresinde 1px beyaz kontur: turuncu ile kontur arası
+   her fotoğrafta aynı kontrast (≥ 3:1, grafik eşiği); seçim gerekçesi docs/47 · EK 3. */
+.gm-save .icon,.gm-play .icon{font-size:var(--gm-size-icon-sm);text-shadow:var(--gm-icon-halo);transition:color var(--gm-duration) var(--gm-ease)}
+.gm-save[aria-pressed=true] .icon{-webkit-text-stroke:var(--gm-save-stroke) var(--gm-paper);paint-order:stroke fill}
+/* Kaydedildi: ikon dolu (fa-solid, iki durumda da) ve primary; zemin yok. */
+.gm-save[aria-pressed=true],.recipe-card .gm-save[aria-pressed=true]{background:transparent;color:var(--gm-primary)}
+.gm-save:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:calc(-1 * var(--gm-save-inset))}
+
+/* docs/46 · Video kartının oynat işareti: kaydetle aynı yer ve ölçü (44px alan, 8px kenar); docs/47: zeminsiz beyaz ikon. */
+.gm-play{position:absolute;top:calc(var(--gm-pair-inset) - var(--gm-save-inset));right:calc(var(--gm-pair-inset) - var(--gm-save-inset));z-index:4;display:grid;place-items:center;width:var(--gm-size-touch);height:var(--gm-size-touch);color:var(--gm-pair-fg);pointer-events:none}
+
+/* ---------- Tarif kartı (dikey) ---------- */
+.gm-card{position:relative;display:flex;flex-direction:column;min-width:0}
+.gm-card__media,.gm-feature__media{position:relative;overflow:hidden;background:var(--gm-line)}
+.gm-card__media{aspect-ratio:4/5;border-radius:var(--gm-card-r)}
+.gm-card__visual,.gm-feature__visual{position:absolute;inset:0;display:block;border-radius:0}
+.gm-photo{position:absolute;inset:0;border-radius:0;background-size:cover;background-position:center;transition:transform var(--gm-duration) var(--gm-ease)}
+.gm-photo.image-failed{display:grid;place-items:center;color:var(--gm-slate)}
+.gm-card__body{display:flex;flex-direction:column;gap:var(--gm-s-12);padding:var(--gm-s-12) var(--gm-s-4) 0;min-width:0}
+.gm-card__text{display:grid;gap:var(--gm-s-4);min-width:0;color:inherit;text-decoration:none}
+.gm-card__category{display:block;font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-label-size);line-height:var(--gm-t-label-line);color:var(--gm-primary-deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-card__title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;margin:0;color:var(--gm-ink);height:calc(2 * var(--gm-t-card-size) * var(--gm-t-card-line))}
+.gm-author{display:flex;align-items:center;gap:var(--gm-s-8);min-width:0;margin:0;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+.gm-author__name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-card:active .gm-photo,.gm-feature:active .gm-photo{transform:scale(1.02)}
+
+/* ---------- Satır kartı: aynı kalıp ve kart radius'u; kare görsel (rozet + kaydet aynı satırda sığar) ---------- */
+.gm-card--row{display:grid;grid-template-columns:var(--gm-row-media) minmax(0,1fr);column-gap:var(--gm-s-16);align-items:center}
+.gm-card--row .gm-card__media{width:var(--gm-row-media);aspect-ratio:1}
+.gm-card--row .gm-card__body{padding:0}
+.gm-card--row .gm-card__title{height:auto;max-height:calc(2 * var(--gm-t-card-size) * var(--gm-t-card-line))}
+
+/* ---------- Öne çıkan kart: ana sayfa V3 ailesi (görsel üstü metin, tek sürekli gradient) ---------- */
+.gm-feature{position:relative;min-width:0}
+.gm-feature__media{aspect-ratio:4/3;border-radius:var(--gm-card-r)}
+.gm-feature__veil{position:absolute;inset:0;z-index:1;background:var(--gm-veil,linear-gradient(180deg,transparent 55%,color-mix(in srgb,var(--gm-overlay) 70%,transparent)));pointer-events:none}
+.gm-feature__info{position:absolute;left:var(--gm-s-16);right:calc(var(--gm-s-16) + var(--gm-pager-room, 0px));bottom:var(--gm-s-16);z-index:2;display:flex;flex-direction:column;gap:var(--gm-s-8);min-width:0}
+.gm-feature .gm-card__category,.gm-feature .gm-card__title,.gm-feature .gm-author{color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
+.gm-feature .gm-card__title{height:auto;max-height:calc(2 * var(--gm-t-featured-size) * var(--gm-t-featured-line))}
+.gm-feature .gm-card-avatar{text-shadow:none}
+/* docs/47 · P5: tek satırlık başlıkta da metin bağlantısı 44px dokunma alanı (önce 42; ana sayfada yerel düzeltmeydi). */
+.gm-feature .gm-card__text{min-height:var(--gm-size-touch);align-content:end}
+
+/* ---------- R2 · Öne çıkan slider: kaydırma + snap; gösterge kartın içinde ---------- */
+.gm-kslider{position:relative;--gm-pager-room:0px}
+.gm-kslider__track{display:flex;gap:var(--gm-s-12);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--gm-card-r)}
+.gm-kslider__track::-webkit-scrollbar{display:none}
+.gm-kslider__track:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:var(--gm-size-border)}
+.gm-slide{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+.gm-kslider[data-count="1"] .gm-kslider__pager{display:none}
+.gm-kslider__pager{position:absolute;right:var(--gm-s-16);bottom:var(--gm-s-16);z-index:5;display:flex;align-items:center;height:var(--gm-size-avatar-card);pointer-events:none}
+/* Gösterge noktaları (docs/47: tek gösterge); etkin nokta uzun ve primary. Tam yuvarlak yalnız avatarda: 8px noktada radius seçim kademesinin yarısı. */
+.gm-pager-dots{display:flex;align-items:center;gap:var(--gm-s-4)}
+.gm-pager-dots i{display:block;width:var(--gm-s-8);height:var(--gm-s-8);border-radius:calc(var(--gm-r-choice) / 2);background:color-mix(in srgb,var(--gm-paper) 60%,transparent);transition:width var(--gm-duration) var(--gm-ease),background-color var(--gm-duration) var(--gm-ease)}
+.gm-pager-dots i.is-on{width:var(--gm-s-24);background:var(--gm-primary)}
+
+/* ---------- docs/46 · Fotoğraf üstü küçük kart (gm-tile): ana sayfa ve detayda aynı ----------
+   2:3 fotoğraf, kart radius'u (?radius), rozet + kaydet çifti; kalın kategori, en çok 2 satır başlık ve yazar fotoğrafın
+   altında, metin konumundan hesaplanan koyu geçişin (--gm-veil, DGCard.veils) üstünde. Açıklama/meta yok. */
+.gm-tile{position:relative;min-width:0}
+.gm-tile__media{position:relative;overflow:hidden;aspect-ratio:2/3;border-radius:var(--gm-card-r);background:var(--gm-line)}
+.gm-tile__visual{position:absolute;inset:0;display:block;border-radius:0}
+.gm-tile__veil{position:absolute;inset:0;z-index:1;background:var(--gm-veil,linear-gradient(180deg,transparent 55%,color-mix(in srgb,var(--gm-overlay) 70%,transparent)));pointer-events:none}
+.gm-tile__info{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;flex-direction:column;gap:var(--gm-s-8);padding:var(--gm-s-12);min-width:0;pointer-events:none}
+.gm-tile__info a{pointer-events:auto}
+.gm-tile .gm-card__text{min-height:var(--gm-size-touch);align-content:end}
+.gm-tile .gm-card__category{color:var(--gm-paper);line-height:var(--gm-t-meta-line);letter-spacing:var(--gm-t-label-track);text-shadow:var(--gm-photo-shadow)}
+.gm-tile .gm-card__title{height:auto;max-height:calc(2 * var(--gm-t-card-size) * var(--gm-t-card-line));color:var(--gm-paper);font-family:var(--gm-font);font-size:var(--gm-t-card-size);font-weight:var(--gm-t-card-weight);line-height:var(--gm-t-card-line);letter-spacing:var(--gm-t-card-track);text-shadow:var(--gm-photo-shadow)}
+.gm-tile .gm-author{color:var(--gm-paper);font-size:var(--gm-t-meta-size);text-shadow:var(--gm-photo-shadow)}
+.gm-tile .gm-card-avatar{text-shadow:none}
+.gm-tile:active .gm-photo{transform:scale(1.02)}
+.gm-tile .gm-card__text:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-paper);outline-offset:var(--gm-size-border);border-radius:var(--gm-r-choice)}
+
+/* ---------- docs/46 · İkişerli slider (gm-pairs): tam 2 kart, yarım kart yok, sayfa sayfa snap, gösterge yok ----------
+   Şerit içerik genişliğindedir ve orada kırpılır; kart = (içerik − 12) / 2; her tek sıradaki kart bir sayfa başlatır. */
+.gm-pairs{display:grid;min-width:0}
+.gm-pairs__track{display:flex;gap:var(--gm-s-12);min-width:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--gm-card-r)}
+.gm-pairs__track::-webkit-scrollbar{display:none}
+.gm-pairs__track:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:calc(var(--gm-size-border) * 2)}
+.gm-pairs__item{flex:0 0 calc((100% - var(--gm-s-12)) / 2);min-width:0}
+.gm-pairs__item:nth-child(odd){scroll-snap-align:start;scroll-snap-stop:always}
+
+
+/* İskelet: aynı DOM ve ölçüler. */
+.is-loading :is(.gm-meta,.gm-save,.gm-feature__veil,.gm-tile__veil,.gm-kslider__pager){visibility:hidden}
+.is-loading .gm-photo{background:var(--gm-line)!important}
+.is-loading :is(.gm-card__category,.gm-card__title,.gm-author__name){color:transparent!important;text-shadow:none!important;background:var(--gm-line);border-radius:var(--gm-r-choice)}
+.is-loading .gm-feature .gm-feature__info{visibility:hidden}
+.is-loading .gm-card-avatar{color:transparent!important}
+.is-loading :is(.gm-card,.gm-feature){animation:skeleton-breathe 1s ease-in-out infinite alternate}
+
+@media(prefers-reduced-motion:reduce){.gm-photo,.gm-save .icon,.gm-pager-dots i{transition:none}.gm-kslider__track{scroll-behavior:auto}}

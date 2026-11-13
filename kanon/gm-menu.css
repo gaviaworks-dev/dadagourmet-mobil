@@ -1,0 +1,79 @@
+/* Gastro ortak-menu.css kaynağından taşındı; hesap kısayolları ve bloklar Gastro mobil 1.0.1 dg_drawer.dart ile güncel. */
+/* Ortak yan menü (ortak-menu.js). Kanon: sağdan çekmece, %86 / en çok var(--gm-size-menu-w), düz sol kenar, 48px satır,
+   24px ikon sütunu + 12px metin boşluğu, tek açık akordeon; tokenlar tokens.css'ten. Sayfa CSS'inden bağımsız. */
+/* docs/46 · Header solid rengi üç ekranda tek token (Beyar kararı): canlı site ve logo rengi var(--gm-primary) (PANTONE 173 C).
+   Beyaz logo/ikon kontrastı 4.45:1 (grafik eşiği 3:1 geçer; 4.5:1 küçük metin eşiğinin hemen altında). tokens.css değişmez. */
+html.gm-menu-locked{overflow:hidden}
+.gm-menu{position:fixed;inset:0 0 0 auto;width:min(86%,var(--gm-size-menu-w));max-width:none;height:var(--gm-ekran-h);max-height:none;margin:0 0 0 auto;padding:0;border:0;border-radius:0;background:var(--gm-paper);color:var(--gm-ink);font-family:var(--gm-font);transform:translateX(100%);transition:transform 250ms var(--gm-ease)}
+.gm-menu.is-in{transform:none}
+.gm-menu-panel{display:flex;flex-direction:column;height:100%;padding-top:var(--gm-guvenli-ust,env(safe-area-inset-top,0px))}
+.gm-menu-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.gm-menu-scroll::-webkit-scrollbar{display:none}
+
+/* Head: official colour logo at the header logo's scale (64px), close on the same line. */
+.gm-menu-head{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-12);min-height:calc(var(--gm-s-48) + var(--gm-s-16));padding:var(--gm-s-12) var(--gm-s-8) var(--gm-s-12) var(--gm-gutter)}
+.gm-menu-logo{display:flex;align-items:center;min-height:var(--gm-size-touch)}
+.gm-menu-logo img{display:block;width:calc(var(--gm-s-48) + var(--gm-s-16));height:auto}
+.gm-menu-close{display:grid;place-items:center;width:var(--gm-size-touch);height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-ink);cursor:pointer}
+.gm-menu-close .icon{font-size:var(--gm-size-icon-md)}
+
+/* Account area */
+.gm-menu-user{display:grid;gap:var(--gm-s-12);margin:0 var(--gm-s-8);padding:var(--gm-s-16) var(--gm-s-12);border-radius:var(--gm-r-surface);background:var(--gm-bg)}
+.gm-menu-hello{display:grid;gap:var(--gm-s-4);margin:0}
+.gm-menu-hello b{font-family:var(--gm-font-bold);font-size:var(--gm-t-card-size);line-height:var(--gm-t-card-line)}
+.gm-menu-hello span{font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate)}
+.gm-menu-auth{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gm-s-8)}
+.gm-menu-auth .button{width:100%;min-height:var(--gm-size-touch)}
+.gm-menu-profile{display:flex;align-items:center;gap:var(--gm-s-12);min-height:var(--gm-size-touch);color:var(--gm-ink);text-decoration:none}
+.gm-menu-avatar{display:grid;place-items:center;width:var(--gm-size-avatar-md);height:var(--gm-size-avatar-md);min-width:var(--gm-size-avatar-md);aspect-ratio:1;flex-shrink:0;border-radius:var(--gm-r-round);background:var(--gm-line);color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-size:var(--gm-t-card-size)}
+.gm-menu-who{display:grid;gap:var(--gm-s-4);min-width:0;flex:1}
+.gm-menu-who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--gm-font-bold);font-size:var(--gm-t-body-size);line-height:var(--gm-t-body-line)}
+.gm-menu-who small{display:flex;align-items:center;gap:var(--gm-s-4);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-primary-deep)}
+.gm-menu-who small .icon{font-size:var(--gm-size-icon-sm)}
+.gm-menu-go{display:flex;align-items:center;gap:var(--gm-s-4);flex-shrink:0;font-size:var(--gm-t-meta-size);color:var(--gm-slate)}
+.gm-menu-go .icon{font-size:var(--gm-size-icon-sm)}
+.gm-menu-shortcuts{display:flex;gap:var(--gm-s-8);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+.gm-menu-shortcuts::-webkit-scrollbar{display:none}
+.gm-menu-short{display:flex;flex:1 0 auto;flex-direction:column;align-items:center;justify-content:center;gap:var(--gm-s-4);min-height:var(--gm-size-touch);padding:var(--gm-s-8) var(--gm-s-4);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-ink);text-decoration:none;font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);white-space:nowrap}
+.gm-menu-short{position:relative}
+.gm-menu-short .icon{font-size:var(--gm-size-icon-sm);color:var(--gm-primary-deep)}
+.gm-menu-sayac{position:absolute;top:var(--gm-s-4);right:var(--gm-s-4);display:grid;place-items:center;min-width:var(--gm-s-16);height:var(--gm-s-16);padding-inline:var(--gm-s-4);border-radius:var(--gm-r-round);background:var(--gm-accent-yellow);color:var(--gm-ink);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-nav-size);line-height:1}
+
+/* Navigation rows: 48px, 24px icon column, 12px gap, body role; dividers only between items. */
+.gm-menu-nav{display:grid;gap:var(--gm-s-12);padding-top:var(--gm-s-12)}
+.gm-menu-blok{margin-inline:var(--gm-s-8);padding:var(--gm-s-4);border-radius:var(--gm-r-surface);background:var(--gm-bg)}
+.gm-menu-item{position:relative}
+.gm-menu-item+.gm-menu-item:before{content:'';position:absolute;top:0;left:var(--gm-s-12);right:var(--gm-s-12);border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-menu-row{display:flex;align-items:center;gap:var(--gm-s-12);width:100%;min-height:var(--gm-s-48);padding:0 var(--gm-s-12);border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-ink);text-decoration:none;text-align:justify;text-align-last:left;font-family:var(--gm-font);font-size:var(--gm-t-body-size);font-weight:var(--gm-t-body-weight);line-height:var(--gm-t-body-line);cursor:pointer}
+.gm-menu-ic{display:grid;place-items:center;width:var(--gm-s-24);flex-shrink:0;color:var(--gm-slate)}
+.gm-menu-ic .icon{font-size:var(--gm-size-icon-md)}
+.gm-menu-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-menu-row.is-active{background:var(--gm-primary-tint);color:var(--gm-primary-deep);font-family:var(--gm-font-bold)}
+.gm-menu-row.is-active .gm-menu-ic{color:var(--gm-primary-deep)}
+.gm-menu-badge{display:inline-flex;align-items:center;gap:var(--gm-s-4);flex-shrink:0;padding:0 var(--gm-s-8);border-radius:var(--gm-r-control);background:var(--gm-primary-tint);color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-size:var(--gm-t-label-size);line-height:var(--gm-s-24)}
+.gm-menu-badge .icon{font-size:var(--gm-t-label-size)}
+.gm-menu-chev{display:grid;place-items:center;width:var(--gm-s-24);flex-shrink:0;color:var(--gm-slate);transition:transform var(--gm-m-base) var(--gm-ease)}
+.gm-menu-chev .icon{font-size:var(--gm-size-icon-sm)}
+.gm-menu-group.is-open>.gm-menu-toggle .gm-menu-chev{transform:rotate(180deg)}
+.gm-menu-group.is-open>.gm-menu-toggle{font-family:var(--gm-font-bold)}
+/* Smooth height without layout jumps: 0fr → 1fr. */
+.gm-menu-sub{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--gm-m-base) var(--gm-ease)}
+.gm-menu-group.is-open>.gm-menu-sub{grid-template-rows:1fr}
+.gm-menu-sub-in{min-height:0;overflow:hidden}
+.gm-menu-subrow{padding-left:calc(var(--gm-s-12) + var(--gm-s-24) + var(--gm-s-12))}
+.gm-menu-subrow .gm-menu-ic .icon{font-size:var(--gm-size-icon-sm)}
+.gm-menu-group.is-open>.gm-menu-sub .gm-menu-sub-in{padding-bottom:var(--gm-s-8)}
+
+/* Foot (end of the scroll area, so an open language list never covers rows): compact language selector,
+   then quiet social and legal links. */
+.gm-menu-foot{margin:var(--gm-s-16) var(--gm-s-8) 0;padding:var(--gm-s-8) 0 calc(var(--gm-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-menu-lang .gm-menu-label b{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+.gm-menu-lang-opt[aria-checked=true]{color:var(--gm-primary-deep);font-family:var(--gm-font-bold)}
+.gm-menu-lang-opt[aria-checked=true] .gm-menu-ic{color:var(--gm-primary-deep)}
+.gm-menu-meta{display:grid;gap:var(--gm-s-4);padding:var(--gm-s-8) var(--gm-s-12) 0}
+.gm-menu-brand{font-family:'Font Awesome 6 Brands';font-weight:400;font-style:normal;line-height:1;font-size:var(--gm-size-icon-md)}
+.gm-menu-legal{display:flex;flex-wrap:wrap;column-gap:var(--gm-s-16)}
+.gm-menu-legal a{display:inline-flex;align-items:center;min-height:var(--gm-size-touch);color:var(--gm-slate);font-size:var(--gm-t-meta-size);text-decoration:none;white-space:nowrap}
+
+.gm-menu :is(a,button):focus-visible{outline:2px solid var(--gm-primary);outline-offset:-2px}
+@media (prefers-reduced-motion:reduce){.gm-menu,.gm-menu-sub,.gm-menu-chev{transition:none}}

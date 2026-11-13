@@ -1,0 +1,18 @@
+/* Gastro ortak/dg-not.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak bilgi notu (DG.ipucu) ve durum rozeti (DG.durumRozet) — yalnız ana ajan yazar. Uygulama sayfaları ve Tabaktan taslak detayı (tabaktan-taslak.html) aynı dosyayı yükler. */
+.gm-ipucu{display:flex;align-items:flex-start;gap:var(--gm-s-12);padding:var(--gm-s-16);border-radius:var(--gm-r-control);background:var(--gm-primary-tint)}
+.gm-ipucu-ikon{display:grid;place-items:center;width:var(--gm-s-32);height:var(--gm-s-32);flex-shrink:0;border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-primary-deep)}
+.gm-ipucu-ikon .icon{font-size:var(--gm-size-icon-sm)}
+.gm-ipucu h4{margin:0 0 var(--gm-s-4);font-family:var(--gm-font-bold);font-size:var(--gm-t-body-size);line-height:var(--gm-t-body-line)}
+.gm-ipucu p{margin:0;font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-ink)}
+
+/* === Durum rozeti (yönetici, 12 Ekim) — tek satır, ikon + metin yan yana; yükseklik 24, köşe küçük rozet kademesi (6; 24/6 = ana düğme
+   48/12 sertliği). Tonlar tokens.json color.status (kontrast ≥4.5 ölçüldü). === */
+.gm-durum-rozet{display:inline-flex;align-items:center;gap:var(--gm-s-4);height:var(--gm-s-24);padding:0 var(--gm-s-8);border-radius:var(--gm-r-badge-sm);font-family:var(--gm-font-bold);font-size:var(--gm-t-label-size);font-weight:var(--gm-weight-bold);line-height:1;letter-spacing:0;white-space:nowrap;vertical-align:middle;flex-shrink:0}
+.gm-durum-rozet .icon{font-size:var(--gm-t-label-size)}
+.gm-durum-rozet.is-notr{background:var(--gm-notr-bg);color:var(--gm-notr-fg);box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-line)}
+.gm-durum-rozet.is-uyari{background:var(--gm-uyari-bg);color:var(--gm-uyari-fg)}
+.gm-durum-rozet.is-basari{background:var(--gm-basari-bg);color:var(--gm-basari-fg)}
+.gm-durum-rozet.is-bugun{background:var(--gm-primary-dark);color:var(--gm-paper)}   /* Dolabım: son gün bugün (primary) */
+.gm-durum-rozet.is-gecti{background:var(--gm-primary-deep);color:var(--gm-paper)}   /* Dolabım: süresi geçti (koyu primary) */
+.gm-durum-rozet.is-hata{background:var(--gm-tehlike-bg);color:var(--gm-tehlike-fg)}

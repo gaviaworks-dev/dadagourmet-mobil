@@ -1,0 +1,109 @@
+/* Uygulama kabuğu: Gastro çok sayfalı belge kaydırması yerine ekran yığını. Bileşenler Gastro CSS'inden gelir; burada yalnız kök değişkenler, ekran yığını ve fixed katmanların kolon içine alınması vardır. */
+:root{--gm-ust-h:calc(var(--gm-size-header) + var(--gm-guvenli-ust,env(safe-area-inset-top,0px)));--gm-choice-border-color:color-mix(in srgb,var(--gm-muted) 55%,var(--gm-paper));--gm-ekran-h:100dvh;--gm-ekran-w:100vw;--gm-fa-solid-weight:900;--gm-rail-w:calc(min(var(--gm-ekran-w),var(--gm-size-app-max)) * .59);--gm-save-inset:calc((var(--gm-size-touch) - var(--gm-size-save-visible)) / 2);--gm-size-avatar-md:var(--gm-size-avatar-row)}
+@media (min-width:520px){:root{--gm-ekran-h:min(calc(100dvh - var(--gm-s-32)),var(--gm-size-app-max-h));--gm-ekran-w:var(--gm-size-app-max)}}
+html,body{height:100%}
+body.gm{overscroll-behavior:none}
+body.gm.gm-uygulama{position:fixed;inset:0;overflow:hidden;overflow:clip;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.gm.gm-uygulama :is(input,textarea){-webkit-user-select:text;user-select:text}
+.gm-orta-metin{text-align:justify;text-align-last:center;--gm-baslik-hiza:center}
+button:is(.gm-puf,.gm-feature,.gm-kart,.gm-yazar-kim,.gm-bildirim){width:100%;text-align:justify;text-align-last:left}
+.gm-yigin-4{display:grid;gap:var(--gm-s-4)}
+.gm-yigin-24{display:grid;gap:var(--gm-s-24)}
+
+/* Kabuk kapları overflow:clip: programla da kaydırılamaz (scrollIntoView iç kap yetmeyince kökü kaydırıp başlığı kaybettiriyordu). hidden eski tarayıcı yedeği. */
+.gm-kok{position:fixed;inset:0;overflow:hidden;overflow:clip;isolation:isolate;background:var(--gm-paper)}
+@media (min-width:520px){.gm-kok{inset:auto;top:50%;left:50%;width:var(--gm-size-app-max);height:var(--gm-ekran-h);transform:translate(-50%,-50%);border-radius:var(--gm-r-surface);box-shadow:var(--gm-sh-lg)}}
+.gm-ekranlar{position:absolute;inset:0;overflow:hidden;overflow:clip}
+.gm-ekran{position:absolute;inset:0;overflow:hidden;overflow:clip;background:var(--gm-paper);will-change:transform}
+.gm-ekran.is-gizli{visibility:hidden;pointer-events:none}
+.gm-kaydir{position:absolute;inset:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y}
+.gm-kaydir::-webkit-scrollbar{display:none}
+.gm-icerik{min-height:100%;padding-bottom:env(safe-area-inset-bottom,0px)}
+.gm-ekran.has-ust:not(.has-saydam) .gm-kaydir{padding-top:var(--gm-ust-h)}
+/* Yapışma kenarı kaydırıcının dolgusundan sayılır: dolgu üst barı zaten aştığı için ikinci kez eklenmez. */
+.gm-ekran.has-ust:not(.has-saydam) :is(.gm-cevrimdisi,.gm-liste-arac,.gm-sekme-bar){top:0}
+:is(.gm-ekran--sekme,.gm-ekran.has-dock) .gm-icerik{padding-bottom:calc(var(--gm-size-nav-bar) + var(--gm-s-40) + env(safe-area-inset-bottom,0px))}
+.gm-ekran.has-altbar .gm-icerik{padding-bottom:calc(var(--gm-altbar-h,var(--gm-size-control-lg)) + var(--gm-s-16))}
+/* Odaklanan alan (klavye açıkken) alt eylem çubuğunun arkasında kalmasın: tarayıcı kaydırırken çubuk payını bırakır. */
+.gm-ekran.has-altbar .gm-kaydir{scroll-padding-bottom:calc(var(--gm-altbar-h,var(--gm-size-control-lg)) + var(--gm-s-16))}
+.gm-ekran.has-ust:not(.has-saydam) .gm-kaydir{scroll-padding-top:var(--gm-ust-h)}
+.gm-kok.has-tabagim .gm-ekran:not(.is-gizli):not(.gm-ekran--tam) .gm-icerik{padding-bottom:calc(var(--gm-size-nav-bar) + var(--gm-size-nav-bottom) + var(--gm-s-24) + var(--gm-size-tabagim-bar) + var(--gm-s-24) + env(safe-area-inset-bottom,0px))}
+.gm-ekran--tam .gm-icerik{height:100%;padding-bottom:0}
+.gm-altbar{position:absolute;left:0;right:0;bottom:0;z-index:32}
+
+/* Gastro fixed katmanları kolon içinde */
+.gm-header{position:absolute;left:0;width:100%;transform:none;z-index:30}
+.gm-header .gm-logo img{width:var(--gm-size-logo)}
+/* Gizli dock görünmez ve odaklanamaz (visibility, solma bitince): nav'ı olmayan ekranda ekran dışındaki FAB ikonu ölçümlerde ayraca yapışık sayılmaz, Tab ile de ulaşılmaz (11 Kasım). */
+.gm-dock{position:absolute;left:0;width:100%;transform:translateY(100%);opacity:0;visibility:hidden;z-index:var(--gm-z-dock);transition:transform var(--gm-m-page) var(--gm-e-emphasized-decel),opacity var(--gm-m-base) var(--gm-e-standard),visibility 0s linear var(--gm-m-base)}
+.gm-kok.has-dock .gm-dock{transform:none;opacity:1;visibility:visible;transition-delay:0s}
+/* Dock Gastro .dgu-dock gibi kâğıt zeminli (nav + 40 + safe-area; V4 ana-v3 ekranında da içerik dock'un üstünde kesilir): kayan içerik nav'ın arkasından görünmez.
+   İçerik alt boşluğu aynı yükseklik (.gm-icerik kuralı aşağıda), en alttaki içerik dock'un üstünde kalır. Tabağım çubuğu dock'un üstünde çizilir. */
+.gm-kok .gm-tabagim-kat{z-index:var(--gm-z-tabagim)}
+.gm-nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.gm-bar{position:relative;left:auto;width:100%;transform:none;z-index:auto}
+.gm-bar.gm-kayan{position:absolute;bottom:0;transform:translateY(calc(100% + var(--gm-s-16)))}
+.gm-bar.gm-kayan.is-gorunur{transform:none}
+.gm-bar-sol{display:grid;gap:var(--gm-s-4);flex:none!important;align-content:center;padding-inline:var(--gm-s-8)}
+.gm-katman{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden;overflow:clip}
+.gm-katman>*{pointer-events:auto}
+.gm-katman.is-serbest{position:fixed;left:50%;right:auto;width:min(100%,var(--gm-size-app-max));transform:translateX(-50%)}
+.gm-sheet-kap,.gm-dialog-kap,.gm-menu-kap{position:absolute;inset:0}
+.gm-perde{position:absolute;inset:0;background:var(--gm-sheet-scrim);animation:gm-perde-gir var(--gm-m-page) var(--gm-e-standard)}
+.gm-perde.is-cikis{opacity:0;transition:opacity var(--gm-m-page-exit) var(--gm-e-standard)}
+.gm-sheet{position:absolute;inset:auto 0 0;width:100%;outline:0;display:none}
+.gm-sheet.is-tam{height:calc(var(--gm-ekran-h) * .85)}
+.gm-dialog-kap{display:grid;place-items:center}
+.gm-dialog-kap .gm-perde{animation:none}
+.gm-diyalog{position:relative;outline:0}
+.gm-snack{position:absolute;bottom:calc(var(--gm-snack-alt,var(--gm-s-24)) + env(safe-area-inset-bottom,0px));width:calc(100% - var(--gm-gutter) * 2)}
+.gm-menu{position:absolute;display:block;outline:0}
+/* Gastro <dialog>.showModal odağı kabın kendisinde halka çizmez; katman kapları programla odaklanır, halka içteki denetimlerde kalır. */
+body.gm :is(.gm-sheet,.gm-diyalog,.gm-menu):focus-visible{outline:0}
+.gm-yenile{position:absolute}
+.gm-kamera{height:100%;min-height:100%}
+.gm-kamera.is-ornek{height:calc(var(--gm-s-48) * 15);min-height:0}
+.gm-izin{min-height:100%}
+.gm-panel{min-height:calc(var(--gm-ekran-h) - var(--gm-ust-h))}
+.gm-banner.is-detay{height:calc(var(--gm-size-banner) + var(--gm-s-48) * 2)}
+.gm-banner-metin .gm-t-label{color:var(--gm-paper)}
+.gm-foto-metin{display:grid;gap:var(--gm-s-8);color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
+.gm-menu-logo img{width:var(--gm-size-logo)}
+.gm-menu-panel{height:100%}
+
+/* Onboarding şablonu: Gastro tam ekran; adım göstergesi ve geri aynı satırda */
+.gm-onb{display:flex;flex-direction:column;height:100%}
+.gm-onb-ust{display:flex;align-items:center;gap:var(--gm-s-8);flex:none;padding:calc(var(--gm-guvenli-ust,env(safe-area-inset-top,0px)) + var(--gm-s-8)) var(--gm-s-8) 0}
+.gm-onb-ust .gm-adim{flex:1;min-width:0}
+.gm-onb-bos{flex:none;width:var(--gm-size-touch)}
+.gm-onb-govde{flex:1;min-height:0;overflow-y:auto;align-content:start;padding:var(--gm-s-24) var(--gm-gutter) var(--gm-s-16);scrollbar-width:none;overscroll-behavior:contain}
+.gm-onb-govde::-webkit-scrollbar{display:none}
+.gm-onb-neden{justify-self:start;padding-inline:0}
+.gm-onb-alt{display:grid;justify-items:center;gap:var(--gm-s-8);flex:none;padding:var(--gm-s-8) var(--gm-gutter) calc(var(--gm-s-16) + env(safe-area-inset-bottom,0px));background:var(--gm-paper)}
+
+/* Marka düzeltmeleri: hata ve yıkıcı eylem Diet tehlike ailesinden (--gm-tehlike*, Gastro rengi yok); primary üstü küçük metin primaryDark. */
+.gm-hata{color:var(--gm-tehlike-fg)}
+.gm-alan.is-hata .gm-girdi{border-color:var(--gm-tehlike)}
+.gm-parcali-oge.is-yikici .gm-parcali-ikon{background:var(--gm-tehlike-bg);color:var(--gm-tehlike-fg)}
+.gm-parcali-oge.is-yikici b{color:var(--gm-tehlike)}
+.gm-sayac,.gm-tk-gun.is-secili .gm-tk-sayi,.gm-tk-ay.is-secili{background:var(--gm-primary-dark)}
+.gm-header .gm-sayac{background:var(--gm-accent-yellow);color:var(--gm-ink)}
+.gm-tk-gun.is-bugun:not(.is-secili) .gm-tk-sayi{color:var(--gm-primary-deep)}
+.gm-kayan-btn[aria-pressed=true],.gm-ibtn[aria-pressed=true]{color:var(--gm-primary-dark)}
+.gm-ibtn.is-dolu[aria-pressed=true]{color:var(--gm-paper)}
+.gm-btn--tonlu:active,.gm-btn--tonlu.is-basili{background:var(--gm-primary-line)}
+.gm-btn--metin.is-basili{background:var(--gm-primary-tint)}
+.gm-arama{display:grid;gap:var(--gm-s-8)}
+.gm-arama-sonuc:empty{display:none}
+:is(.gm-arama-sonuc,.gm-liste-results,.gm-satirlar,.gm-metin,[data-yuva]) mark{background:var(--gm-primary-tint);color:var(--gm-primary-deep);border-radius:var(--gm-r-dot);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+.gm-satir-deger{flex:none;font-size:var(--gm-t-meta-size)}
+
+/* Halkalı hero: fotoğraf üstü gösterge için düz perde; Gastro gülücük kabuğu aynı */
+.gm-gulucuk.is-perdeli .gm-gkapak-golge{background:color-mix(in srgb,var(--gm-overlay) 58%,transparent)}
+.gm-gulucuk.is-perdeli{gap:var(--gm-s-16)}
+.gm-seg .gm-seg-sayi{font-weight:var(--gm-weight-body)}
+.gm-diyalog{width:calc(100% - var(--gm-gutter) * 2)}
+/* Sayfa başlığı fotoğraf üstünde gizli, üst bar dolunca görünür (detay-v2 .compact-title). */
+.gm-header.is-saydam .gm-htitle{visibility:hidden}
+/* Ortalı kısa metin: balance satırları eşitler, ortalama boşluğu kapatır. Justify ile birlikte balance ilk satırı daha çok gerer. */
+:root :is(:is(.gm-durum,.gm-sahne-metin,.gm-liste-empty,.gm-rozet-detay,.gm-profil-kimlik,.review-empty)>p,.gm-izin-metin,.gm-orta-metin,.gm-kamera-yonerge){text-align:center;text-align-last:center;text-wrap:balance;-webkit-hyphens:manual;hyphens:manual}

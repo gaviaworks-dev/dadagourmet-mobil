@@ -1,0 +1,454 @@
+[
+ {
+  "ekran": "ana",
+  "kod": "ana-a",
+  "sira": 1,
+  "ad": "Ana · A Dada ailesi",
+  "referans": "Dada Gastro \"Ne pişirsem?\" + Dada Diet Bugün",
+  "alinan": "Fotoğraf slayt hero, vurgulu başlık, sekmeli arama paneli, popüler çipler, sayı şeridi, gülücük alt kenar.",
+  "gerekce": "Gastro ve Diet ile birebir aile; kullanıcı üç uygulamada aynı ana sayfayı tanır.",
+  "iyilesti": "Bugünün Rotası kartında şimdi çıkarsan varış saati; konseptler web sırasında; ekranda ham sınıf kalmadı (GM.yigin, GM.modulIzgara); boş hâl metni.",
+  "git": "#/alt/ana-a"
+ },
+ {
+  "ekran": "liste",
+  "kod": "liste-a",
+  "sira": 1,
+  "ad": "Liste · A Dada ailesi",
+  "referans": "Dada Gastro liste-v2",
+  "alinan": "Fotoğraflı başlık, yapışkan arama ve süzgeç, kategori çipleri, ızgara/liste.",
+  "gerekce": "Gastro/Diet listesiyle aynı davranış; öğrenme maliyeti yok.",
+  "git": "#/alt/liste-a",
+  "iyilesti": "Yol üstü durak rozeti ve liste görünümünde rota sapması, başlıkta rotadaki mekân sayısı, Diet/Gastro kalıbındaki Mekân Bul eylem kartı."
+ },
+ {
+  "ekran": "detay",
+  "kod": "detay-a",
+  "sira": 1,
+  "ad": "Detay · A Dada ailesi",
+  "referans": "Dada Gastro detay-v2",
+  "alinan": "Fotoğraf banner, özet şeridi, yapışkan sekmeler, alt eylem çubuğu.",
+  "gerekce": "Gastro tarif detayıyla aynı iskelet; tutarlılık en yüksek.",
+  "git": "#/alt/detay-a/mikla",
+  "iyilesti": "Gastro yazar satırı (editör · görüntülenme), sayılı alt çubuk (Yorumlar 0 → sekmeye atlar), üst barda Kaydet/Paylaş, il coğrafi işaret kartı, doğru Dada Puan dili."
+ },
+ {
+  "ekran": "route",
+  "kod": "route-a",
+  "sira": 1,
+  "ad": "Route · Ana yön (araştırma)",
+  "referans": "Gastro orta düğme sheet’i + Roadtrippers + Waze + Flighty",
+  "alinan": "Merkez: planlayıcı, webden rota, son ve hazır rotalar; harita + Duraklar/Keşfet/İhtiyaçlar/Özet çekmecesi.",
+  "gerekce": "DADA-ROUTE-REFERANS §6 ana yönleri; aileyle tutarlı.",
+  "git": "#/rota",
+  "iyilesti": "Merkeze pilot rotanın lezzet profili, haritaya il kimliği pinleri (dokununca Ne Yenir / Ne Alınır sheet’i) geldi; sürüş süreleri özetle tutarlı, ham sınıflar kanona taşındı, boş/yükleniyor/hata halleri eklendi."
+ },
+ {
+  "ekran": "widget",
+  "kod": "widget",
+  "sira": 1,
+  "ad": "Widget’lar · iOS ve Android",
+  "git": "#/widget/yuzey?cerceve=yok&uye=1",
+  "referans": "Flighty (Canlı Etkinlik, Dinamik Ada), Apple ve Google Haritalar (yolculuk), Structured (sıradaki iş), (Not Boring) Weather ve Widgetsmith (dev rakam, geri sayım), Android Glance ve Live Updates kılavuzları",
+  "alinan": "Gerçek iOS 18/26 ve Pixel ızgarası (küçük 2×2, orta 4×2, büyük 4×4), tek tonlu kilit ekranı widget’ları, StandBy, Canlı Etkinlik ve Dinamik Ada kısa/geniş, Android 16 ProgressStyle canlı güncelleme ve durum çipi; uçta halka olmayan tek yolculuk çubuğu.",
+  "gerekce": "Üç yön aynı telefonda karşılaştırılır: A yolculuk (rakipsiz Dada Route), B her gün işe yarayan öğün ve masa, C marka sesi. Prototip örneği: rezervasyon kaydı yoksa bugün 20.00 Mikla (2 kişi, onaylandı); yolculuk İstanbul → İzmir, sıradaki durak Total yakıt molası 3,2 km (tahmini “~3 km”); Dada Puan 580 + 40 bekleyen (eşikler web prototipinden); puan, yorum, sponsor yok.",
+  "secenekler": [
+   {
+    "ad": "Yön",
+    "anahtar": "yon",
+    "ogeler": [
+     {
+      "ad": "A · Co-Pilot",
+      "deger": "a"
+     },
+     {
+      "ad": "B · Sofra Saati",
+      "deger": "b"
+     },
+     {
+      "ad": "C · Gurme Defter",
+      "deger": "c"
+     }
+    ]
+   },
+   {
+    "ad": "Telefon",
+    "anahtar": "platform",
+    "ogeler": [
+     {
+      "ad": "iPhone",
+      "deger": "ios",
+      "ikon": "apple"
+     },
+     {
+      "ad": "Android",
+      "deger": "android",
+      "ikon": "android"
+     }
+    ]
+   },
+   {
+    "ad": "Yüzey",
+    "anahtar": "yuzey",
+    "ogeler": [
+     {
+      "ad": "Ana ekran",
+      "deger": "ana"
+     },
+     {
+      "ad": "Kilit ekranı",
+      "deger": "kilit"
+     },
+     {
+      "ad": "StandBy",
+      "deger": "standby"
+     },
+     {
+      "ad": "Canlı",
+      "deger": "canli"
+     }
+    ]
+   },
+   {
+    "ad": "Boy",
+    "anahtar": "boy",
+    "ogeler": [
+     {
+      "ad": "Küçük",
+      "deger": "kucuk"
+     },
+     {
+      "ad": "Orta",
+      "deger": "orta"
+     },
+     {
+      "ad": "Büyük",
+      "deger": "buyuk"
+     }
+    ]
+   },
+   {
+    "ad": "Saat (B)",
+    "anahtar": "saat",
+    "ogeler": [
+     {
+      "ad": "Akşam 19.00",
+      "deger": "aksam"
+     },
+     {
+      "ad": "Sabah 08.10",
+      "deger": "sabah"
+     },
+     {
+      "ad": "Öğle 12.30",
+      "deger": "ogle"
+     },
+     {
+      "ad": "Sonra 21.40",
+      "deger": "sonra"
+     }
+    ]
+   },
+   {
+    "ad": "Tema",
+    "anahtar": "tema",
+    "ogeler": [
+     {
+      "ad": "Açık",
+      "deger": "acik"
+     },
+     {
+      "ad": "Koyu",
+      "deger": "koyu"
+     },
+     {
+      "ad": "Renklendirilmiş",
+      "deger": "renkli"
+     },
+     {
+      "ad": "Şeffaf",
+      "deger": "seffaf"
+     }
+    ]
+   },
+   {
+    "ad": "Durum",
+    "anahtar": "durum",
+    "ogeler": [
+     {
+      "ad": "Dolu",
+      "deger": "dolu"
+     },
+     {
+      "ad": "İlk gün",
+      "deger": "bos"
+     },
+     {
+      "ad": "Giriş yok",
+      "deger": "giris"
+     },
+     {
+      "ad": "Çevrimdışı",
+      "deger": "cevrimdisi"
+     }
+    ]
+   },
+   {
+    "ad": "Mesafe",
+    "anahtar": "konum",
+    "ogeler": [
+     {
+      "ad": "Tahmini",
+      "deger": "tahmini"
+     },
+     {
+      "ad": "Kesin (izinli)",
+      "deger": "kesin"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "ekran": "ana",
+  "kod": "ana-b",
+  "sira": 2,
+  "ad": "Ana · B Kategori",
+  "referans": "Uber + Google Maps + Apple Maps + Citymapper + Flighty",
+  "alinan": "Uber ana ekranı: tam ekran canlı harita, üstte yüzen \"Nereye gidiyorsun?\" planlayıcısı ve rota çipleri, üç konumlu alt sayfa ve iç kaydırma devri (Apple Maps), yukarıda arama hapına dönen planlayıcı; Google Maps \"Bu alanda ara\"; Flighty bileti.",
+  "gerekce": "Dada Route bir harita ürünü; harita ilk ekranda canlı, pin ya da rota çipi tek dokunuşta alt sayfayı o mekâna/rotaya çevirir.",
+  "iyilesti": "Tek hareket modeli: bant, planlayıcı, arama hapı, rota çipleri, harita ve üst bar tek sayfa konumuna bağlı birlikte oynar (harita · orta · tam); sürükleme + tekerlek/trackpad + iç kaydırma devri, haritayı sürüklemek sayfayı indirir; 203 gerçek pin, rota çipi haritayı uçurur, Bu alanda ara.",
+  "git": "#/alt/ana-b"
+ },
+ {
+  "ekran": "liste",
+  "kod": "liste-b",
+  "sira": 2,
+  "ad": "Liste · B Kategori",
+  "referans": "Google Maps + Resy",
+  "alinan": "Arkada harita, 3 duraklı liste çekmecesi, kart ↔ pin senkronu.",
+  "gerekce": "Mekânın nerede olduğu karar için ilk bilgi; harita ve liste tek ekranda.",
+  "git": "#/alt/liste-b",
+  "iyilesti": "Google Maps’in “Bu alanda ara” hapı (liste görünen alanla süzülür, harita yerinde kalır) ve satırda Dada Route sapması."
+ },
+ {
+  "ekran": "detay",
+  "kod": "detay-b",
+  "sira": 2,
+  "ad": "Detay · B Kategori",
+  "referans": "Michelin Guide + Resy + Google Maps",
+  "alinan": "Galeri hero, rozetler, 4’lü eylem şeridi, \"Neden seviyoruz\", yapışkan rezervasyon.",
+  "gerekce": "Restoran uygulamalarının alıştırdığı düzen; rezervasyon her an elde.",
+  "git": "#/alt/detay-b/mikla",
+  "iyilesti": "Kimlik panelinde rota bağlamı kartı (+dk · km), Resy \"Bilmen gerekenler\" satırları, fotoğrafa Gastro marka ışığı, rezervasyon onayında +25 Dada Puan."
+ },
+ {
+  "ekran": "route",
+  "kod": "ref-route-1",
+  "sira": 2,
+  "ad": "Route · komoot kalıbı",
+  "referans": "komoot (Garmin Connect IQ App of the Year 2023, şirket beyanı)",
+  "alinan": "Tur sayfası: harita üstte, dört metrik, km ekseninde sürüklenebilir profil (yükseklik yerine lezzet yoğunluğu), yol türü yerine durak türü ve sapma dağılımı, bölge paketi.",
+  "gerekce": "Rotayı yola çıkmadan bir bakışta okutur: lezzetin rotanın neresinde toplandığını ve aradaki boşluğu dürüstçe gösterir.",
+  "iyilesti": "Profilin altına komoot yüzey şeridinin karşılığı geldi (Dada durağı kesimi / yalnız il kimliği kesimi, km cinsinden) ve dağılım km’ye çevrildi; boş hal eklendi.",
+  "git": "#/ref/route-1"
+ },
+ {
+  "ekran": "ana",
+  "kod": "ana-c",
+  "sira": 3,
+  "ad": "Ana · C Son nesil",
+  "referans": "Roadtrippers + Any Distance + Flighty + AllTrails",
+  "alinan": "Rota hikâye kapakları, canlı yolculuk kartı, km eksenli lezzet profili.",
+  "gerekce": "Rotayı hikâye gibi anlatır; yolculuk sürerken canlı durum öne çıkar.",
+  "iyilesti": "Canlı kartta sabit yazılmış süre ve +dk çipleri kalktı: kalan süre, varış, sıradaki yakıt/mescit rotadan hesaplanıyor; ilk kapak Bugünün Rotası etiketli; eksik AS-T1/AS-B1 yerleri eklendi.",
+  "git": "#/alt/ana-c"
+ },
+ {
+  "ekran": "liste",
+  "kod": "liste-c",
+  "sira": 3,
+  "ad": "Liste · C Son nesil",
+  "referans": "The Infatuation + AllTrails + Watch Duty",
+  "alinan": "Koleksiyon sekmeleri, rehber manşeti, numaralı büyük kartlar, yüzen harita + araç sütunu.",
+  "gerekce": "Editoryal rehber hissi; Gourmet’in seçki ürünü olduğunu vurgular.",
+  "git": "#/alt/liste-c",
+  "iyilesti": "Sekme ve başlıklar web konsept adlarında; manşet özetinde “N Dada Route’ta”, rota durağı kartlarında rotaya götüren yol üstü/sapma etiketi; kanon 24 ritmi."
+ },
+ {
+  "ekran": "detay",
+  "kod": "detay-c",
+  "sira": 3,
+  "ad": "Detay · C Son nesil",
+  "referans": "Google Maps + Watch Duty + Roadtrippers",
+  "alinan": "Harita üstü 3 duraklı detay sheet’i, rota bağlamı (+dk, km).",
+  "gerekce": "Dada Route’tan gelen kullanıcı haritadan kopmadan karar verir.",
+  "git": "#/alt/detay-c/mikla",
+  "iyilesti": "Watch Duty tazelik damgası yarım sheet’te, Roadtrippers \"sonraki duraklar\" (rotada bu duraktan sonrakiler, sapmalı), kompakt başlık ve kümelenmiş pinler."
+ },
+ {
+  "ekran": "route",
+  "kod": "ref-route-2",
+  "sira": 3,
+  "ad": "Route · Roadtrippers kalıbı",
+  "referans": "Roadtrippers (yol gezisi planlamada kategori lideri; ödül doğrulanmadı)",
+  "alinan": "Haritada rota boyunca keşif kategorileri, kayan yer kartında “Ekle”, sabit güzergâh çubuğu ve otoyol çıkış rehberi yerine il geçiş rehberi.",
+  "gerekce": "Keşif ile plan aynı haritada iki kip olur; durak eklemek tek dokunuş, güzergâh her an bir çubuk uzakta.",
+  "iyilesti": "Yer kartı Roadtrippers’taki gibi tek satıra indi, “Ekle” sağda dikey düğme; boş/yükleniyor/hata halleri ve boş rotada Geçiş rehberine yönlendirme eklendi.",
+  "git": "#/ref/route-2"
+ },
+ {
+  "ekran": "ana",
+  "kod": "ref-ana-1",
+  "sira": 4,
+  "ad": "Ana · Citymapper kalıbı",
+  "referans": "Citymapper (The Europas 2015 Grand Prix)",
+  "alinan": "A→B paneli en üstte, altında süre farklı \"rota karakteri\" ızgarası (Lezzet yolu, Şef masası, Sahil…) ve kayıtlı yer kısayolları.",
+  "gerekce": "Gourmet’in asıl sorusu \"bu yolda nerede yerim?\"; karakter seçmek rotayı tek dokunuşta lezzete çevirir.",
+  "iyilesti": "Her karakterde Citymapper gibi varış saati; duraklar artık yolun başına yığılmıyor, rotanın üç dilimine yayılıyor; konseptler web sırasında, boş hâl metni.",
+  "git": "#/ref/ana-1"
+ },
+ {
+  "ekran": "liste",
+  "kod": "ref-liste-1",
+  "sira": 4,
+  "ad": "Liste · TheFork kalıbı",
+  "referans": "TheFork (Avrupa’nın önde gelen rezervasyon uygulaması; ödül doğrulanmadı)",
+  "alinan": "Hap süzgeçler ve alt alta bölümlü süzgeç sayfası: zaman segmenti, ortalama puan ve fiyat kaydırıcısı, canlı sonuç sayılı düğme.",
+  "gerekce": "Webin 14 süzgeç grubunu akordeonsuz, tek kaydırmada ve en sık kullanılanları üstte hap olarak sunar.",
+  "git": "#/ref/liste-1",
+  "iyilesti": "Gourmet’e özgü “Yol üstü” hapı (Dada Route önerilen durakları), kartta rotaya götüren sapma etiketi, tek seçimde hapın seçimin adını göstermesi."
+ },
+ {
+  "ekran": "detay",
+  "kod": "ref-detay-1",
+  "sira": 4,
+  "ad": "Detay · Michelin Guide kalıbı",
+  "referans": "The MICHELIN Guide (restoran rehberinde global otorite; uygulama ödülü doğrulanamadı)",
+  "alinan": "Metin binmeyen kare fotoğraf, ad üstünde ayırt ediciler satırı, Favori / Kaydet / Gittim / Not dörtlüsü, editoryal görüş ve ince ayraçlı bilgi listesi.",
+  "gerekce": "Gurme rehber kimliğini en sade ve güvenilir dille kurar; yıldız yerine Gourmet’in gerçek seçkilerini gösterir, ödül uydurmaz.",
+  "git": "#/ref/detay-1/mikla",
+  "iyilesti": "Editör notu Michelin tipografisinde alıntı bloğu, kimlikte rota bağlamı kartı, fotoğrafa marka ışığı, doğru Dada Puan dili."
+ },
+ {
+  "ekran": "route",
+  "kod": "ref-route-3",
+  "sira": 4,
+  "ad": "Route · Google Maps kalıbı",
+  "referans": "Google Maps (navigasyonda global kategori lideri)",
+  "alinan": "Yol tarifi paneli, haritada süre balonlu alternatif rota, “Rota boyunca ara” çipleri ve sağ kolonda +dk ek süreli sonuç listesi.",
+  "gerekce": "Kullanıcının zaten bildiği dil: “bu durak bana kaç dakikaya mal olur” sorusunu her satırda aynı hizada cevaplar.",
+  "iyilesti": "Sheet başı Google imzasıyla süre · mesafe · varış saati; boş/yükleniyor/hata halleri; boş rotada Dada’ya özgü boş durum.",
+  "git": "#/ref/route-3"
+ },
+ {
+  "ekran": "ana",
+  "kod": "ref-ana-2",
+  "sira": 5,
+  "ad": "Ana · Michelin Guide kalıbı",
+  "referans": "The MICHELIN Guide (kategoride küresel referans)",
+  "alinan": "Sade büyük başlık + arama, \"Yakınımda\" mini harita kartı, editoryal seçki kapağı ve ad üstünde ödül satırlı kartlar.",
+  "gerekce": "Gourmet bir seçki rehberi; rozet dili gerçek \"Dada Route Durağı\" seçkisinden gelir, uydurma ödül yok.",
+  "iyilesti": "Editoryal giriş paragrafı (gerçek sayılar, iki yana yaslı, kalın vurgu); rozet satırı yol üstü durağı ayırıyor; Yakınımda haritası kümeler okunsun diye geniş kadraj; konseptler web sırasında.",
+  "git": "#/ref/ana-2"
+ },
+ {
+  "ekran": "liste",
+  "kod": "ref-liste-2",
+  "sira": 5,
+  "ad": "Liste · OpenTable kalıbı",
+  "referans": "OpenTable (kategoride global lider; ödül doğrulanmadı)",
+  "alinan": "Kişi · tarih · saat kapsülü ve satırda saat düğmeleri; o saatte talep almayan mekânda Bildir.",
+  "gerekce": "Rezervasyon alan 161 mekânı “bu akşam nereye?” sorusuyla listeler; açıklık verisi gerçek, saatler talep saatidir.",
+  "git": "#/ref/liste-2",
+  "iyilesti": "Yolculukta masa: “Yol üstü” hızlı süzgeci ve satırda rotaya götüren “Yol üstü · İstanbul – İzmir” etiketi; kapalı satır soluk, sheet düğmesi kısa."
+ },
+ {
+  "ekran": "detay",
+  "kod": "ref-detay-2",
+  "sira": 5,
+  "ad": "Detay · OpenTable kalıbı",
+  "referans": "OpenTable (rezervasyonda global kategori lideri)",
+  "alinan": "Kısa fotoğrafın hemen altında kişi · gün kapsülü ve bugün / yarın slot bandı, \"Şunun için ideal\" etiketleri, menü özeti.",
+  "gerekce": "Rezervasyon alan mekânda karar anını ilk ekrana taşır; saate tek dokunuşla akışın ikinci adımı açılır.",
+  "git": "#/ref/detay-2/mikla",
+  "iyilesti": "Slot bandının altında OpenTable puan satırı karşılığı \"+25 Dada Puan\" (web kuralı), kimlikte rota bağlamı, slot rayı kartın içinde kırpılıyor."
+ },
+ {
+  "ekran": "route",
+  "kod": "ref-route-4",
+  "sira": 5,
+  "ad": "Route · Flighty kalıbı",
+  "referans": "Flighty (Apple Design Awards 2023, Interaction)",
+  "alinan": "Uçuş kartı gibi yolculuk panosu (kod, büyük saatler, kapıdan kapıya süre) ve kalkış saatine göre yeniden hesaplanan saatli zaman çizelgesi, yolculuk bildirimleri.",
+  "gerekce": "Haritayı değil zamanı öne alır: hangi durağa saat kaçta varılacağını ve öğüne denk gelip gelmediğini gösterir.",
+  "iyilesti": "Flighty’nin canlı hali eklendi (Plan / Yolda): ilerleme yayı, sıradaki gurme durağa kalan süre, geçilen olaylar soluk, şimdiki nabızlı; Co-Pilot’a geçiş.",
+  "git": "#/ref/route-4"
+ },
+ {
+  "ekran": "ana",
+  "kod": "ref-ana-3",
+  "sira": 6,
+  "ad": "Ana · Airbnb kalıbı",
+  "referans": "Airbnb (kategori lideri; Core77 Design Award 2011 Notable — Apple Design Award doğrulanamadı)",
+  "alinan": "Yapışkan arama kapsülü + ikonlu kategori sekmeleri, yaklaşan yolculuk kartı, büyük fotoğraflı ilan akışı, deneyim kartları.",
+  "gerekce": "Konseptler Gourmet’in kategorisi; sekme akışı süzünce fotoğraf karar verdirir, etkinlikler deneyim gibi okunur.",
+  "iyilesti": "Sekme değişince akış kademeli belirerek geliyor, kartlarda basılı hâl; yolculuk kartında şimdi çıkarsan varış saati; sekmeler web konsept sırasında.",
+  "git": "#/ref/ana-3"
+ },
+ {
+  "ekran": "liste",
+  "kod": "ref-liste-3",
+  "sira": 6,
+  "ad": "Liste · Beli kalıbı",
+  "referans": "Beli (restoran sıralama uygulaması; ödül doğrulanmadı)",
+  "alinan": "Gittim / Gideceğim listeleri ve yeni mekânı ikili karşılaştırmayla sıraya yerleştirme.",
+  "gerekce": "Puan uydurmadan kişisel sıralama verir; Keşfet sekmesi tüm mekân listesini ve süzgeçleri korur.",
+  "git": "#/ref/liste-3",
+  "iyilesti": "Gittim sekmesinde kişisel özet (mekân · şehir · en sık mutfak) ve listendekileri hazır rotada açan Dada Route çağrısı, listeyi paylaş."
+ },
+ {
+  "ekran": "detay",
+  "kod": "ref-detay-3",
+  "sira": 6,
+  "ad": "Detay · Tock kalıbı",
+  "referans": "Tock (tadım menüsü ve biletli deneyim rezervasyonunda global; ödül doğrulanamadı)",
+  "alinan": "Logo karolu vitrin başlığı ve masa yerine deneyim satan bilet kartları (tadım menüsü, à la carte, teras), etkinlik biletleri.",
+  "gerekce": "Şef restoranlarında kullanıcı masa değil deneyim seçer; Gourmet’in fine dining ağırlıklı kataloğuna uyar.",
+  "git": "#/ref/detay-3/mikla",
+  "iyilesti": "Deneyim biletleri gerçek mekân fotoğraflarıyla (tadım tabağı, manzara), Tock \"Pickup\" karşılığı Ne Alınır? paket bileti, vitrin fotoğrafına marka ışığı."
+ },
+ {
+  "ekran": "ana",
+  "kod": "ref-ana-4",
+  "sira": 7,
+  "ad": "Ana · Komoot kalıbı",
+  "referans": "Komoot (Garmin Connect IQ App of the Year 2023; Walkers’ App of the Year 2022)",
+  "alinan": "Tur kartı (harita + foto, 4’lü sayı ızgarası, yol türü bileşim çubukları), bölge kartları, koleksiyonlar, spor türü ızgarası.",
+  "gerekce": "Dada Route bir tur ürünü; rotanın km, il ve durak bileşimini tek kartta ölçülü gösterir.",
+  "iyilesti": "Komoot yükselti profilinin karşılığı eklendi: km cetvelli lezzet yoğunluğu profili (A/B, il sınırları, yakıt-mola çentikleri); konseptler web sırasında.",
+  "git": "#/ref/ana-4"
+ },
+ {
+  "ekran": "liste",
+  "kod": "ref-liste-4",
+  "sira": 7,
+  "ad": "Liste · Mapstr kalıbı",
+  "referans": "Mapstr (kişisel harita uygulaması; ödül doğrulanmadı)",
+  "alinan": "Renkli etiket pinleri ve soldan açılan sayılı etiket paneli; liste görünümünde etiket grupları.",
+  "gerekce": "Mutfak ve ortamı haritada renkle okutur, kişisel kayıtları aynı haritada ayırt eder.",
+  "git": "#/ref/liste-4",
+  "iyilesti": "Panelde “Dada Route rotaları” etiket grubu: rota seçilince önerilen durakları ve rota çizgisi koridoruyla haritada; kişisel renkler ayrıştı."
+ },
+ {
+  "ekran": "detay",
+  "kod": "ref-detay-4",
+  "sira": 7,
+  "ad": "Detay · Airbnb kalıbı",
+  "referans": "Airbnb (konaklama/deneyim ilanında global kategori lideri; ödül doğrulanamadı)",
+  "alinan": "Bindiren panelde ortalı başlık ve üçlü özet, editör satırı, ikonlu öne çıkanlar, olanak listesi + tümünü göster, konum haritası, yapışkan fiyat çubuğu.",
+  "gerekce": "Tanıdık ilan okuma ritmi uzun içeriği taranabilir kılar; fiyat seviyesi ve rezervasyon her an altta durur.",
+  "git": "#/ref/detay-4/mikla",
+  "iyilesti": "Üçlü özet Airbnb yumuşak kartına döndü, il coğrafi işaret kartı (ne yenir, ne alınır), fotoğrafa marka ışığı."
+ }
+]

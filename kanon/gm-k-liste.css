@@ -1,0 +1,341 @@
+/* Mekân listesi parçaları (kanon/gm-k-liste.js). Ölçü, radius, gölge, tipografi ve hareket gm-tokens.css'ten; her bileşenin hangi kanon ailesinden türediği başında yazılı. */
+
+/* Çekmece durak yükseklikleri kayıtlı uzunluk: JS sürüklerken çözümlenmiş px okur. */
+@property --gm-kl-yarim-h{syntax:'<length>';inherits:true;initial-value:0px}
+@property --gm-kl-kapali-h{syntax:'<length>';inherits:true;initial-value:0px}
+
+/* ===================== Liste ızgarası bağlamı ===================== */
+/* Liste-v2 ızgarasında kompakt mekân kartı şerit genişliğini (rail-card) bırakır, hücreyi doldurur. */
+.gm-liste-grid > .gm-mk.is-kompakt{width:auto;min-width:0}
+.gm-liste-grid > .gm-durum,.gm-liste-rows > .gm-durum{grid-column:1/-1}
+.gm-liste-results .gm-alt-yukleniyor{grid-column:1/-1}
+
+/* ===================== Konum seçici (GM.konumSecici) — GM.planlayici kapsülü / gm-chip ailesi ===================== */
+.gm-kl-konum{display:flex;align-items:center;gap:var(--gm-s-8);width:100%;min-height:var(--gm-size-touch);padding:0 var(--gm-s-12);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-ink);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);text-align:left;cursor:pointer}
+.gm-kl-konum:active{background:var(--gm-bg)}
+.gm-kl-konum:focus-visible{outline:var(--gm-size-focus) solid var(--gm-primary);outline-offset:var(--gm-s-2)}
+.gm-kl-konum-ikon{display:grid;place-items:center;flex:none;width:var(--gm-size-box-sm);height:var(--gm-size-box-sm);border-radius:var(--gm-r-chip-sm);background:var(--gm-primary-tint);color:var(--gm-primary)}
+.gm-kl-konum-ikon .icon{font-size:var(--gm-size-icon-sm)}
+.gm-kl-konum-yol{display:flex;align-items:center;gap:var(--gm-s-4);flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.gm-kl-konum-yol > span{flex:none;color:var(--gm-slate)}
+.gm-kl-konum-yol > span.is-son{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--gm-ink);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+.gm-kl-konum-ayrac{flex:none;font-size:var(--gm-size-icon-check);color:var(--gm-muted)}
+.gm-kl-konum-sayi{flex:none;color:var(--gm-slate);font-size:inherit}
+.gm-kl-konum-ok{flex:none;font-size:var(--gm-size-icon-sm);color:var(--gm-slate)}
+.gm-kl-konum.is-yuzen{width:auto;max-width:100%;border-color:transparent;box-shadow:var(--gm-sh-md)}
+
+/* Konum sheet'i — GM.siralaSheet seçim listesi; üstte kırıntı */
+.gm-kl-kirinti{display:flex;align-items:center;flex-wrap:wrap;gap:var(--gm-s-4);padding:0 0 var(--gm-s-12);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-kirinti button{min-height:var(--gm-size-touch);padding:0 var(--gm-s-4);border:0;background:none;color:var(--gm-primary-deep);font:inherit;font-family:var(--gm-font-bold);cursor:pointer}
+.gm-kl-kirinti b{padding:0 var(--gm-s-4);color:var(--gm-ink);font-family:var(--gm-font-bold)}
+.gm-kl-kirinti .icon{font-size:var(--gm-size-icon-check);color:var(--gm-muted)}
+.gm-kl-konum-satir .gm-option__count{margin-left:auto;color:var(--gm-slate);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font)}
+.gm-choice.gm-kl-konum-satir > .icon:last-child{flex:none;width:var(--gm-size-icon-md);text-align:center}
+.gm-choice.gm-kl-konum-satir > .icon.gm-kl-konum-in{visibility:visible;color:var(--gm-slate)}
+.gm-kl-konum-satir:first-child .gm-choice__label{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+
+/* ===================== Çekmece (GM.cekmece) — GM.sheet türevi, ekran içi, 3 durak ===================== */
+:is(.gm-kl-hekran,.gm-kl-cekmece){--gm-kl-yarim-h:calc(var(--gm-ekran-h) * .46);--gm-kl-kapali-h:calc(var(--gm-s-24) + var(--gm-size-touch) + var(--gm-s-16) + env(safe-area-inset-bottom,0px))}
+.gm-kl-hekran .gm-kl-cekmece{--gm-kl-yarim-h:inherit;--gm-kl-kapali-h:inherit}
+.gm-kl-cekmece{position:absolute;left:0;right:0;top:var(--gm-kl-tam-ust,0);bottom:0;z-index:6;display:flex;flex-direction:column;border-radius:var(--gm-r-sheet) var(--gm-r-sheet) 0 0;background:var(--gm-paper);box-shadow:var(--gm-sh-lg);transform:translateY(calc(100% - var(--gm-kl-yarim-h)));transition:transform var(--gm-m-page) var(--gm-e-emphasized-decel),border-radius var(--gm-m-quick) var(--gm-e-standard);will-change:transform}
+.gm-kl-cekmece[data-durak=tam]{transform:none}
+.gm-kl-cekmece[data-durak=kapali]{transform:translateY(calc(100% - var(--gm-kl-kapali-h)))}
+.gm-kl-cekmece.is-surukle{transition:none}
+.gm-kl-cekmece-tut{flex:none;padding:var(--gm-s-8) var(--gm-gutter) var(--gm-s-8);touch-action:none;cursor:grab}
+.gm-kl-cekmece-tut .gm-tutamak{display:block;width:var(--gm-size-sheet-handle-w);height:var(--gm-size-sheet-handle-h);margin:0 auto var(--gm-s-8);border-radius:var(--gm-r-switch);background:var(--gm-line)}
+.gm-kl-cekmece-bas{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-12);min-height:var(--gm-size-touch)}
+.gm-kl-cekmece-govde{flex:1;min-height:0;overflow:hidden;padding:0 var(--gm-gutter) calc(var(--gm-s-32) + env(safe-area-inset-bottom,0px));overscroll-behavior:contain;touch-action:none;scrollbar-width:none}
+.gm-kl-cekmece-govde::-webkit-scrollbar{display:none}
+.gm-kl-cekmece[data-durak=tam] .gm-kl-cekmece-govde{overflow-y:auto;touch-action:pan-y}
+.gm-kl-cekmece[data-durak=tam]{border-radius:var(--gm-r-surface) var(--gm-r-surface) 0 0}
+/* Çekmecede satır: foto küçük kademede (venue-thumb), meta tek satır; seçili satır kenar boşluğunu gutter'a eşler. */
+.gm-kl-cekmece .gm-mk-satir{grid-template-columns:var(--gm-size-venue-thumb) minmax(0,1fr) var(--gm-size-touch);cursor:pointer;transition:background var(--gm-m-quick) var(--gm-e-standard)}
+.gm-kl-cekmece .gm-mk-satir-foto{width:var(--gm-size-venue-thumb)}
+.gm-kl-cekmece .gm-mk-satir.is-secili{margin:0 calc(-1 * var(--gm-gutter));padding:var(--gm-s-12) var(--gm-gutter)}
+
+/* ===================== Harita ekranı düzeni (mekanlar-b, mekanlar-c harita kipi) ===================== */
+.gm-kl-hekran{--gm-kl-tam-ust:calc(var(--gm-guvenli-ust,env(safe-area-inset-top,0px)) + var(--gm-s-12) + var(--gm-size-control-lg) + var(--gm-s-8) + var(--gm-s-4));position:relative;height:100%;min-height:var(--gm-ekran-h);overflow:hidden;overflow:clip;background:var(--gm-bg)}
+.gm-kl-hekran > .gm-harita{position:absolute;inset:0;height:auto;border-radius:0}
+.gm-kl-hekran-ust{position:absolute;left:0;right:0;top:0;z-index:8;display:grid;gap:var(--gm-s-8);padding:calc(var(--gm-guvenli-ust,env(safe-area-inset-top,0px)) + var(--gm-s-12)) var(--gm-s-12) 0;pointer-events:none}
+.gm-kl-hekran-ust > *{pointer-events:auto}
+.gm-kl-hekran-ust .gm-serit{margin:0 calc(-1 * var(--gm-s-12));padding:var(--gm-s-2) var(--gm-s-12) var(--gm-s-8)}
+.gm-kl-hekran-ust .gm-chip{min-height:var(--gm-size-chip-sm);border-color:transparent;box-shadow:var(--gm-sh-sm);font-size:var(--gm-t-meta-size)}
+.gm-kl-hekran-ust .gm-chip[aria-pressed=true]{border-color:var(--gm-primary-dark)}
+.gm-kl-hekran-ust .gm-kl-konum.is-yuzen{min-height:var(--gm-size-chip-sm);padding:0 var(--gm-s-12) 0 var(--gm-s-4);box-shadow:var(--gm-sh-sm)}
+.gm-kl-hekran-ust .gm-kl-konum.is-yuzen .gm-kl-konum-ikon{width:var(--gm-size-badge);height:var(--gm-size-badge);background:none}
+/* Çekmece tama çıkınca harita üstü çipler kaybolur (Google Maps): yalnız arama kapsülü kalır. */
+.gm-kl-hekran:has(.gm-kl-cekmece[data-durak=tam]) .gm-kl-hekran-ust .gm-serit{opacity:0;visibility:hidden;transition:opacity var(--gm-m-quick) var(--gm-e-standard),visibility 0s linear var(--gm-m-quick)}
+.gm-kl-hekran-ust .gm-serit{transition:opacity var(--gm-m-quick) var(--gm-e-standard)}
+/* Harita konum/araç düğmeleri çekmecenin üstünde kalır */
+.gm-kl-hekran .gm-kl-arac{position:absolute;right:var(--gm-s-12);top:calc(var(--gm-kl-tam-ust) + var(--gm-size-chip-sm) + var(--gm-s-16));z-index:7}
+.gm-kl-hekran .gm-harita-atif{bottom:auto;top:calc(var(--gm-kl-tam-ust) + var(--gm-size-chip-sm) + var(--gm-s-16));left:var(--gm-s-12)}
+/* Yüzen geçiş düğmesi alt ortada; çekmece kapalıyken onun üstünde. */
+.gm-kl-yuzen-yer{position:absolute;left:50%;bottom:calc(var(--gm-s-24) + env(safe-area-inset-bottom,0px));z-index:9;transform:translateX(-50%);transition:bottom var(--gm-m-page) var(--gm-e-emphasized-decel),opacity var(--gm-m-quick) var(--gm-e-standard)}
+.gm-kl-hekran:has(.gm-kl-cekmece[data-durak=kapali]) .gm-kl-yuzen-yer{bottom:calc(var(--gm-kl-kapali-h,0px) + var(--gm-s-16))}
+.gm-kl-hekran:has(.gm-kl-cekmece[data-durak=yarim]) .gm-kl-yuzen-yer{opacity:0;pointer-events:none}
+/* Seçili mekân kartı (çekmece kapalıyken pin dokunuşu): alt kenarda kayan kart */
+.gm-kl-hsecim{position:absolute;left:var(--gm-s-12);right:var(--gm-s-12);bottom:calc(var(--gm-kl-kapali-h,0px) + var(--gm-s-12));z-index:8;transform:translateY(calc(100% + var(--gm-s-24)));opacity:0;transition:transform var(--gm-m-page) var(--gm-e-emphasized-decel),opacity var(--gm-m-quick) var(--gm-e-standard);pointer-events:none}
+.gm-kl-hsecim.is-gorunur{transform:none;opacity:1;pointer-events:auto}
+.gm-kl-hsecim .gm-mk-harita{grid-template-columns:var(--gm-size-venue-thumb) minmax(0,1fr) var(--gm-size-touch);align-items:start}
+.gm-kl-hsecim .gm-mk-harita-foto,.gm-kl-hkart .gm-mk-harita-foto{position:relative;display:block;width:var(--gm-size-venue-thumb);aspect-ratio:1;border-radius:var(--gm-r-media);overflow:hidden}
+.gm-kl-hsecim .gm-mk-eylem{grid-column:1/-1}
+.gm-kl-hekran:has(.gm-kl-hsecim.is-gorunur) .gm-kl-yuzen-yer{opacity:0;pointer-events:none}
+.gm-kl-hekran .gm-kl-cekmece{--gm-kl-tam-ust:inherit}
+
+/* ===================== Harita arama kapsülü (GM.haritaArama) — GM.listeArac türevi ===================== */
+.gm-kl-hara{display:flex;align-items:center;gap:var(--gm-s-2);min-height:var(--gm-size-control-lg);padding:0 var(--gm-s-4);border-radius:var(--gm-r-surface);background:var(--gm-paper);box-shadow:var(--gm-sh-md)}
+.gm-kl-hara .gm-arama{flex:1;min-width:0}
+.gm-kl-hara .gm-girdi{min-height:var(--gm-size-touch);padding:0 0 0 var(--gm-s-4);border-color:transparent;background:transparent}
+.gm-kl-hara .gm-girdi:focus-within{border-color:transparent}
+.gm-kl-hara .gm-girdi input{text-overflow:ellipsis}
+.gm-kl-hara .gm-liste-search-filter{position:relative;display:grid;place-items:center;flex:none;width:var(--gm-size-touch);height:var(--gm-size-touch);padding:0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-ink)}
+.gm-kl-hara .gm-liste-search-filter.is-active{color:var(--gm-primary)}
+.gm-kl-hara-geri{flex:none;color:var(--gm-ink)}
+
+/* ===================== Yüzen geçiş düğmesi (GM.yuzenDugme) — GM.btn birincil gövdesi, hap ===================== */
+.gm-kl-yuzen{display:inline-flex;align-items:center;justify-content:center;gap:var(--gm-s-8);height:var(--gm-size-touch);padding:0 var(--gm-s-20);border:0;border-radius:var(--gm-r-control);background:var(--gm-ink);color:var(--gm-paper);box-shadow:var(--gm-sh-lg);font:var(--gm-t-button-weight) var(--gm-t-meta-size)/1 var(--gm-font-bold);white-space:nowrap;cursor:pointer;transition:transform var(--gm-m-press) var(--gm-e-standard)}
+.gm-kl-yuzen .icon{font-size:var(--gm-size-icon-sm)}
+.gm-kl-yuzen:active{transform:scale(.96)}
+.gm-kl-yuzen:focus-visible{outline:var(--gm-size-focus) solid var(--gm-primary);outline-offset:var(--gm-s-2)}
+.gm-kl-yuzen-sayi{display:inline-grid;place-items:center;min-width:var(--gm-size-badge-sm);height:var(--gm-size-badge-sm);padding:0 var(--gm-s-4);border-radius:var(--gm-r-switch);background:color-mix(in srgb,var(--gm-paper) 18%,transparent);font-size:var(--gm-t-label-size)}
+
+/* ===================== Araç sütunu (GM.aracSutun) — gm-harita-kontrol kümesi, Watch Duty sağ kenar ===================== */
+.gm-kl-arac{display:grid;width:calc(var(--gm-size-box-lg) + var(--gm-s-8));border-radius:var(--gm-r-media);background:var(--gm-paper);box-shadow:var(--gm-sh-md);overflow:hidden}
+.gm-kl-arac-btn{display:grid;justify-items:center;align-content:center;gap:var(--gm-s-2);min-height:calc(var(--gm-size-box-lg) + var(--gm-s-8));padding:var(--gm-s-4) 0;border:0;background:var(--gm-paper);color:var(--gm-ink);cursor:pointer}
+.gm-kl-arac-btn + .gm-kl-arac-btn{border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-kl-arac-btn small{font:var(--gm-t-nav-weight) var(--gm-t-nav-size)/1.2 var(--gm-font);color:var(--gm-slate)}
+.gm-kl-arac-btn[aria-pressed=true]{background:var(--gm-primary-tint);color:var(--gm-primary-deep)}
+.gm-kl-arac-btn[aria-pressed=true] small{color:var(--gm-primary-deep)}
+.gm-kl-arac-btn:active{background:var(--gm-bg)}
+.gm-kl-arac-ikon{position:relative;display:grid;place-items:center;width:var(--gm-size-box-sm);height:var(--gm-size-box-sm)}
+.gm-kl-arac-ikon .icon{font-size:var(--gm-size-icon-md)}
+.gm-kl-arac-ikon .gm-badge{position:absolute;top:calc(-1 * var(--gm-s-2));right:calc(-1 * var(--gm-s-4));min-width:var(--gm-s-16);height:var(--gm-s-16);font-size:var(--gm-t-label-size)}
+
+/* ===================== Rehber manşeti (GM.rehberManset) — GM.kubbe metin dizgesi, fotoğrafsız ===================== */
+.gm-kl-manset{display:grid;gap:var(--gm-s-8);padding:var(--gm-s-24) var(--gm-gutter) var(--gm-s-8)}
+.gm-kl-manset .gm-t-label{color:var(--gm-primary)}
+.gm-kl-manset h1{margin:0;text-wrap:balance}
+.gm-kl-manset-metin{margin:0;font:var(--gm-t-body-weight) var(--gm-t-body-size)/var(--gm-t-body-line) var(--gm-font);color:var(--gm-slate);text-align:left;text-align-last:auto}
+.gm-kl-manset-ozet{display:flex;align-items:center;flex-wrap:wrap;margin:var(--gm-s-4) 0 0;padding-top:var(--gm-s-12);border-top:var(--gm-size-border) solid var(--gm-line);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-manset-ozet b{color:var(--gm-ink);font-family:var(--gm-font-bold)}
+.gm-kl-manset-ozet .gm-nokta{padding:0 var(--gm-s-8);color:var(--gm-muted)}
+
+/* ===================== Editoryal mekân kartı (GM.mekanEditoryal) — gm-card ailesi ===================== */
+.gm-kl-ed{display:grid;gap:var(--gm-s-12)}
+.gm-kl-ed + .gm-kl-ed{margin-top:var(--gm-s-32)}
+.gm-kl-ed-medya{position:relative;aspect-ratio:4/3;border-radius:var(--gm-r-surface);overflow:hidden}
+.gm-kl-ed-medya .gm-card__visual,.gm-kl-ed-medya .gm-photo{position:absolute;inset:0}
+.gm-kl-ed-medya .gm-photo{background-size:cover;background-position:center}
+.gm-kl-ed-medya .gm-mk-ust{left:var(--gm-s-12);top:var(--gm-s-12)}
+.gm-kl-ed-govde{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--gm-s-12);align-items:start;color:inherit;text-decoration:none}
+.gm-kl-ed-sira{min-width:var(--gm-size-box-md);font:var(--gm-t-numeral-lg-weight) var(--gm-t-numeral-lg-size)/var(--gm-t-numeral-lg-line) var(--gm-font-bold);letter-spacing:var(--gm-t-numeral-lg-track);color:var(--gm-primary);font-variant-numeric:tabular-nums}
+.gm-kl-ed-metin{display:grid;gap:var(--gm-s-4);min-width:0}
+.gm-kl-ed-ad{margin:0;font:var(--gm-t-section-weight) var(--gm-t-section-size)/var(--gm-t-section-line) var(--gm-font-bold);letter-spacing:var(--gm-t-section-track);color:var(--gm-ink)}
+.gm-kl-ed.is-secili .gm-kl-ed-medya{box-shadow:0 0 0 var(--gm-size-border2) var(--gm-primary)}
+
+/* ===================== Harita kart şeridi (GM.haritaKartlar) — GM.yatay şeridi ===================== */
+.gm-kl-hkart{display:flex;gap:var(--gm-s-8);overflow-x:auto;padding:var(--gm-s-8) var(--gm-s-16) var(--gm-s-16);scroll-snap-type:x mandatory;scroll-padding:0 var(--gm-s-16);scrollbar-width:none;overscroll-behavior-x:contain}
+.gm-kl-hkart::-webkit-scrollbar{display:none}
+.gm-kl-hkart > .gm-mk-harita{flex:0 0 calc(100% - var(--gm-s-32));scroll-snap-align:center;grid-template-columns:var(--gm-size-venue-thumb) minmax(0,1fr);align-items:center}
+.gm-kl-hkart > .gm-mk-harita.is-secili{box-shadow:0 0 0 var(--gm-size-border2) var(--gm-primary),var(--gm-sh-md)}
+
+/* Çekmece başlığı: sayı + alt satır (gm-liste-sayi ritmi), sağda düğme */
+.gm-kl-cekmece-ozet{display:grid;gap:var(--gm-s-2);min-width:0;margin:0}
+.gm-kl-cekmece-ozet b{font:var(--gm-t-sheet-weight) var(--gm-t-sheet-size)/var(--gm-t-sheet-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-cekmece-ozet small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-manset-ust{display:flex;margin-bottom:var(--gm-s-4)}
+/* Harita kipi alt ekranda (üst bar altında) */
+.gm-kl-hekran.is-alt{--gm-kl-tam-ust:var(--gm-s-12);height:calc(var(--gm-ekran-h) - var(--gm-ust-h));min-height:0}
+.gm-kl-hekran.is-alt .gm-kl-arac{top:var(--gm-s-12)}
+.gm-kl-hekran.is-alt .gm-harita-atif{top:var(--gm-s-12)}
+.gm-kl-hekran-alt{position:absolute;left:0;right:0;bottom:0;z-index:8;display:grid;justify-items:center;gap:var(--gm-s-4);padding-bottom:env(safe-area-inset-bottom,0px)}
+.gm-kl-hekran-alt .gm-kl-hkart{width:100%}
+
+/* Yüzen düğme yuvaları */
+.gm-kl-yuzen-yer.is-sabit{left:auto;transform:none;position:sticky;bottom:calc(var(--gm-s-24) + env(safe-area-inset-bottom,0px));z-index:9;display:flex;justify-content:center;height:0;overflow:visible;pointer-events:none}
+.gm-kl-yuzen-yer.is-sabit > .gm-kl-yuzen{transform:translateY(-100%);pointer-events:auto}
+.gm-kl-yuzen-yer.is-sabit > .gm-kl-yuzen:active{transform:translateY(-100%) scale(.96)}
+.gm-kl-hekran-alt .gm-kl-yuzen-yer{position:static;transform:none}
+/* Konum seçici etiket biçimi (rehber manşeti üstünde): kenarsız, üst etiket ritmi */
+.gm-kl-konum.is-etiket{width:auto;min-height:var(--gm-size-chip-sm);padding:0 var(--gm-s-12) 0 var(--gm-s-4);border-color:var(--gm-primary-line);background:var(--gm-primary-tint);border-radius:var(--gm-r-control)}
+.gm-kl-konum.is-etiket .gm-kl-konum-ikon{width:var(--gm-size-badge);height:var(--gm-size-badge);background:none}
+.gm-kl-konum.is-etiket .gm-kl-konum-yol > span{color:var(--gm-primary-deep)}
+.gm-kl-konum.is-etiket .gm-kl-konum-ok,.gm-kl-konum.is-etiket .gm-kl-konum-ayrac{color:var(--gm-primary-deep)}
+/* Koleksiyon sekmeleri ve listeler */
+.gm-kl-koleksiyon{padding:var(--gm-s-16) var(--gm-gutter) 0}
+.gm-kl-satirlar{display:grid}
+.gm-kl-ed-liste{display:grid}
+.gm-liste-results > .gm-kl-satirlar .gm-mk-satir:first-child{padding-top:0}
+/* Kubbesiz liste gövdesinde (GM.listeGovde) sonuç satırı araç bloğuna yaslanır. */
+.gm-liste-icerik[data-kl-sonuc]{padding-top:var(--gm-s-8)}
+.gm-liste-icerik[data-kl-sonuc] > .gm-liste-status:first-child{margin-top:0}
+/* Kart şeridinde boş hal: kâğıt kart yüzeyi (harita üstünde okunur). */
+.gm-kl-hkart > .gm-durum{flex:1 0 100%;padding:var(--gm-s-24) var(--gm-s-16);border-radius:var(--gm-r-surface);background:var(--gm-paper);box-shadow:var(--gm-sh-md)}
+
+/* ===================== Referanslı liste parçaları (ref-liste-1..4) ===================== */
+/* Yapışkan araç bloğu (GM.yapiskanArac) — GM.listeArac yapışma kuralı, kubbesiz ekranda */
+.gm-kl-yarac{position:sticky;top:0;z-index:30;display:grid;gap:var(--gm-s-12);padding:var(--gm-s-12) var(--gm-gutter);background:var(--gm-paper);box-shadow:0 var(--gm-size-border) 0 var(--gm-line)}
+.gm-kl-yarac > .gm-serit{padding-bottom:var(--gm-s-2)}
+
+/* Basamaklı kaydırıcı (GM.aralik) — GM.slider ailesi */
+.gm-kl-aralik{display:grid;gap:var(--gm-s-8)}
+.gm-kl-aralik-bas{display:flex;align-items:baseline;justify-content:space-between;gap:var(--gm-s-12)}
+.gm-kl-aralik-ad{font:var(--gm-t-label-weight) var(--gm-t-label-size)/var(--gm-t-label-line) var(--gm-font);letter-spacing:var(--gm-t-label-track);text-transform:uppercase;color:var(--gm-slate)}
+.gm-kl-aralik-bas b{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font-bold);color:var(--gm-primary-deep)}
+.gm-kl-aralik input{-webkit-appearance:none;appearance:none;width:100%;height:var(--gm-size-touch);margin:0;background:transparent;cursor:pointer}
+.gm-kl-aralik input::-webkit-slider-runnable-track{height:var(--gm-size-progress);border-radius:var(--gm-r-switch);background:linear-gradient(90deg,var(--gm-primary) 0 calc(var(--oran) * 100%),var(--gm-line) calc(var(--oran) * 100%))}
+.gm-kl-aralik input::-moz-range-track{height:var(--gm-size-progress);border-radius:var(--gm-r-switch);background:var(--gm-line)}
+.gm-kl-aralik input::-moz-range-progress{height:var(--gm-size-progress);border-radius:var(--gm-r-switch);background:var(--gm-primary)}
+.gm-kl-aralik input::-webkit-slider-thumb{-webkit-appearance:none;width:var(--gm-size-slider-knob);height:var(--gm-size-slider-knob);margin-top:calc((var(--gm-size-progress) - var(--gm-size-slider-knob)) / 2);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-round);background:var(--gm-paper);box-shadow:var(--gm-sh-sm)}
+.gm-kl-aralik input::-moz-range-thumb{width:var(--gm-size-slider-knob);height:var(--gm-size-slider-knob);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-round);background:var(--gm-paper);box-shadow:var(--gm-sh-sm)}
+.gm-kl-aralik input:focus-visible{outline:var(--gm-size-focus) solid var(--gm-primary);outline-offset:var(--gm-s-2);border-radius:var(--gm-r-control)}
+.gm-kl-aralik-olcek{display:flex;justify-content:space-between;margin-top:calc(-1 * var(--gm-s-4));font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate)}
+.gm-kl-aralik-yardim{margin:0;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate);text-align:left;text-align-last:auto}
+
+/* Süzgeç hapı (GM.filtreHap) — gm-chip gövdesi */
+.gm-kl-hap{min-height:var(--gm-size-chip-sm);padding:0 var(--gm-s-12);font-size:var(--gm-t-meta-size);white-space:nowrap}
+.gm-kl-hap .gm-kl-hap-ok{font-size:var(--gm-size-icon-check);color:var(--gm-slate)}
+.gm-kl-hap[aria-pressed=true] .gm-kl-hap-ok{color:var(--gm-primary-deep)}
+.gm-kl-hap-sayi{display:inline-grid;place-items:center;min-width:var(--gm-s-20);height:var(--gm-s-20);padding:0 var(--gm-s-4);border-radius:var(--gm-r-switch);background:var(--gm-primary-dark);color:var(--gm-paper);font:var(--gm-t-label-weight) var(--gm-t-label-size)/1 var(--gm-font-bold)}
+.gm-kl-hap.is-ana{background:var(--gm-ink);border-color:var(--gm-ink);color:var(--gm-paper)}
+.gm-kl-hap.is-ana .icon{color:var(--gm-paper)}
+.gm-kl-hap.is-ana .gm-kl-hap-sayi{background:var(--gm-paper);color:var(--gm-ink)}
+
+/* Bölümlü seçim sheet'i (GM.secimSheet) — GM.filtreSheet türevi */
+.gm-kl-secim{display:grid;gap:var(--gm-s-24);padding-bottom:var(--gm-s-24)}
+.gm-kl-secim-bolum{display:grid;gap:var(--gm-s-12)}
+.gm-kl-secim-bolum + .gm-kl-secim-bolum{padding-top:var(--gm-s-24);border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-kl-secim-bolum > h3{display:flex;align-items:center;gap:var(--gm-s-8);margin:0;font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/var(--gm-t-subheading-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-secim-bolum > h3 .icon{color:var(--gm-primary);font-size:var(--gm-size-icon-sm)}
+.gm-kl-secim .gm-sira{gap:var(--gm-s-8)}
+.gm-kl-secim .gm-chip{min-height:var(--gm-size-chip-sm);font-size:var(--gm-t-meta-size)}
+
+/* TheFork kartı (GM.mekanForkKart) — gm-card ailesi */
+.gm-kl-tf{display:grid;gap:var(--gm-s-12)}
+.gm-kl-tf + .gm-kl-tf{margin-top:var(--gm-s-24)}
+.gm-kl-tf-medya{position:relative;aspect-ratio:16/10;border-radius:var(--gm-r-media);overflow:hidden}
+.gm-kl-tf-medya .gm-card__visual,.gm-kl-tf-medya .gm-photo{position:absolute;inset:0}
+.gm-kl-tf-medya .gm-photo{background-size:cover;background-position:center}
+.gm-kl-tf-puan{position:absolute;left:var(--gm-s-8);bottom:var(--gm-s-8);z-index:3;display:inline-flex;align-items:center;height:var(--gm-size-badge);padding:0 var(--gm-s-8);border-radius:var(--gm-r-choice);background:var(--gm-paper);box-shadow:var(--gm-sh-sm)}
+.gm-kl-tf-govde{display:grid;gap:var(--gm-s-4);color:inherit;text-decoration:none}
+.gm-kl-tf-ad{margin:0;font:var(--gm-t-featured-weight) var(--gm-t-featured-size)/var(--gm-t-featured-line) var(--gm-font-bold);color:var(--gm-ink)}
+
+/* Kişi · tarih · saat kapsülü (GM.kisiZaman) — GM.planlayici kapsülü */
+.gm-kl-kz{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:var(--gm-s-4);width:100%;min-height:var(--gm-size-control-lg);padding:0 var(--gm-s-12);border:0;border-radius:var(--gm-r-control);background:var(--gm-primary-tint);color:var(--gm-primary-deep);text-align:left;cursor:pointer}
+.gm-kl-kz > span{display:inline-flex;align-items:center;gap:var(--gm-s-8);padding:0 var(--gm-s-8);font:var(--gm-t-meta-weight) var(--gm-t-body-size)/1 var(--gm-font)}
+.gm-kl-kz > span + span{border-left:var(--gm-size-border) solid var(--gm-primary-line)}
+.gm-kl-kz b{font-family:var(--gm-font-bold);white-space:nowrap}
+.gm-kl-kz .icon{font-size:var(--gm-size-icon-sm)}
+.gm-kl-kz-ok{justify-self:end}
+.gm-kl-kz:focus-visible{outline:var(--gm-size-focus) solid var(--gm-primary);outline-offset:var(--gm-s-2)}
+
+/* Talep saatli satır (GM.mekanSlotSatir) — GM.mekanKart satır ritmi */
+.gm-kl-ot{display:grid;grid-template-columns:minmax(0,1fr) var(--gm-size-venue-thumb);grid-template-areas:"metin foto" "slot slot" "not not";column-gap:var(--gm-s-16);row-gap:var(--gm-s-12);padding:var(--gm-s-20) 0}
+.gm-kl-ot + .gm-kl-ot{border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-kl-ot-metin{grid-area:metin;display:grid;gap:var(--gm-s-4);align-content:start;min-width:0;color:inherit;text-decoration:none}
+.gm-kl-ot-ad{margin:0;font:var(--gm-t-sheet-weight) var(--gm-t-sheet-size)/var(--gm-t-sheet-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-ot-foto{grid-area:foto;position:relative;display:block;width:var(--gm-size-venue-thumb);aspect-ratio:1;border-radius:var(--gm-r-media);overflow:hidden}
+.gm-kl-ot-foto .gm-photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.gm-kl-slotlar{grid-area:slot;display:flex;gap:var(--gm-s-8);flex-wrap:wrap;align-items:center}
+.gm-kl-slotlar.is-yok{justify-content:space-between;flex-wrap:nowrap}
+.gm-kl-slot{display:inline-flex;align-items:center;justify-content:center;gap:var(--gm-s-8);min-width:calc(var(--gm-size-touch) * 1.9);height:var(--gm-size-touch);padding:0 var(--gm-s-12);border:var(--gm-size-border) solid var(--gm-primary-dark);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-primary-deep);font:var(--gm-t-button-weight) var(--gm-t-body-size)/1 var(--gm-font-bold);font-variant-numeric:tabular-nums;cursor:pointer}
+.gm-kl-slot.is-anlik{background:var(--gm-primary-dark);color:var(--gm-paper)}
+.gm-kl-slot.is-bildir{min-width:0;border-color:var(--gm-line);color:var(--gm-ink);font-family:var(--gm-font)}
+.gm-kl-slot:active{transform:scale(.97)}
+.gm-kl-slot-yok{display:inline-flex;align-items:center;gap:var(--gm-s-8);min-width:0;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-slot-not{grid-area:not;display:flex;align-items:center;gap:var(--gm-s-8);margin-top:calc(-1 * var(--gm-s-4));font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate)}
+.gm-kl-slot-not .icon{font-size:var(--gm-size-icon-check);color:var(--gm-primary)}
+
+/* Beli: sıralı satır, öneri satırı, karşılaştırma */
+.gm-kl-sira{display:grid;grid-template-columns:auto var(--gm-size-thumb) minmax(0,1fr) auto;align-items:center;gap:var(--gm-s-12);padding:var(--gm-s-12) 0}
+.gm-kl-sira:not(:has(.gm-kl-sira-no)){grid-template-columns:var(--gm-size-thumb) minmax(0,1fr) auto}
+.gm-kl-sira + .gm-kl-sira{border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-kl-sira-no{min-width:var(--gm-size-box-sm);font:var(--gm-t-numeral-md-weight) var(--gm-t-numeral-md-size)/1 var(--gm-font-bold);letter-spacing:var(--gm-t-numeral-md-track);color:var(--gm-primary);text-align:center;font-variant-numeric:tabular-nums}
+.gm-kl-sira-foto{position:relative;display:block;width:var(--gm-size-thumb);aspect-ratio:1;border-radius:var(--gm-r-control);overflow:hidden}
+.gm-kl-sira-foto .gm-photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.gm-kl-sira-metin{display:grid;gap:var(--gm-s-2);min-width:0;color:inherit;text-decoration:none}
+.gm-kl-sira-metin > b{font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/var(--gm-t-subheading-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-sira-eylem{display:flex;gap:var(--gm-s-4)}
+.gm-kl-sira.is-secili{background:linear-gradient(90deg,var(--gm-primary-tint),transparent);margin:0 calc(-1 * var(--gm-gutter));padding:var(--gm-s-12) var(--gm-gutter)}
+.gm-kl-kiyas{display:grid;gap:var(--gm-s-16);padding-bottom:var(--gm-s-8)}
+.gm-kl-kiyas-soru{margin:0;font:var(--gm-t-section-weight) var(--gm-t-section-size)/var(--gm-t-section-line) var(--gm-font-bold);color:var(--gm-ink);text-align:center;text-align-last:center}
+.gm-kl-kiyas-ikili{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:var(--gm-s-8)}
+.gm-kl-kiyas-ya{font:var(--gm-t-label-weight) var(--gm-t-label-size)/1 var(--gm-font);letter-spacing:var(--gm-t-label-track);text-transform:uppercase;color:var(--gm-slate)}
+.gm-kl-kiyas-kart{display:grid;gap:var(--gm-s-4);align-content:start;padding:var(--gm-s-8) var(--gm-s-8) var(--gm-s-12);border:var(--gm-size-border2) solid var(--gm-line);border-radius:var(--gm-r-surface);background:var(--gm-paper);text-align:left;cursor:pointer;transition:border-color var(--gm-m-quick) var(--gm-e-standard),transform var(--gm-m-press) var(--gm-e-standard)}
+.gm-kl-kiyas-kart:active{border-color:var(--gm-primary);transform:scale(.98)}
+.gm-kl-kiyas-kart b{font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/var(--gm-t-subheading-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-kiyas-kart small{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-kiyas-foto{position:relative;display:block;aspect-ratio:1;margin-bottom:var(--gm-s-4);border-radius:var(--gm-r-media);overflow:hidden}
+.gm-kl-kiyas-foto .gm-photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.gm-kl-kiyas-not{margin:calc(-1 * var(--gm-s-8)) 0 0;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate);text-align:center;text-align-last:center}
+
+/* Mapstr: etiket renkleri (katman ve durum renk ailelerinden), panel, grup başı */
+.gm-kl-et-1{--et:var(--gm-bilgi);--et-tint:var(--gm-bilgi-bg)}
+.gm-kl-et-2{--et:var(--gm-primary);--et-tint:var(--gm-primary-tint)}
+.gm-kl-et-3{--et:var(--gm-ne-yenir);--et-tint:var(--gm-ne-yenir-tint)}
+.gm-kl-et-4{--et:var(--gm-karavan);--et-tint:var(--gm-karavan-tint)}
+.gm-kl-et-5{--et:var(--gm-cografi);--et-tint:var(--gm-cografi-tint)}
+.gm-kl-et-6{--et:var(--gm-sarj);--et-tint:var(--gm-sarj-tint)}
+.gm-kl-et-7{--et:var(--gm-dinlenme);--et-tint:var(--gm-dinlenme-tint)}
+.gm-kl-et-8{--et:var(--gm-yakit);--et-tint:var(--gm-yakit-tint)}
+.gm-kl-et-9{--et:var(--gm-ibadet);--et-tint:var(--gm-ibadet-tint)}
+.gm-kl-et-10{--et:var(--gm-uyari-fg);--et-tint:var(--gm-uyari-bg)}
+.gm-pin[class*="gm-kl-et-"]{--pin:var(--et);--pin-tint:var(--et-tint)}
+.gm-pin.is-kayitli .gm-pin-kafa{box-shadow:0 0 0 var(--gm-size-border2) var(--gm-paper),0 0 0 calc(var(--gm-size-border2) * 2) var(--gm-ink),var(--gm-sh-md)}
+.gm-kl-etp{position:absolute;left:0;top:0;bottom:0;z-index:12;display:flex;flex-direction:column;width:min(78%,calc(var(--gm-size-menu-w) - var(--gm-s-48)));padding-top:var(--gm-guvenli-ust,env(safe-area-inset-top,0px));background:var(--gm-paper);box-shadow:var(--gm-sh-lg);transform:translateX(calc(-100% - var(--gm-s-24)));transition:transform var(--gm-m-page) var(--gm-e-emphasized-decel);visibility:hidden}
+.gm-kl-etp.is-acik{transform:none;visibility:visible}
+.gm-kl-etp-bas{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-8);padding:var(--gm-s-12) var(--gm-s-8) var(--gm-s-8) var(--gm-s-16)}
+.gm-kl-etp-bas b{font:var(--gm-t-sheet-weight) var(--gm-t-sheet-size)/var(--gm-t-sheet-line) var(--gm-font-bold);color:var(--gm-ink)}
+.gm-kl-etp-bas small{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+.gm-kl-etp-bas .gm-satir-metin{display:grid}
+.gm-kl-etp-liste{flex:1;overflow-y:auto;padding:0 var(--gm-s-8) var(--gm-s-24);overscroll-behavior:contain;scrollbar-width:none}
+.gm-kl-etp-ayrac{margin:var(--gm-s-16) var(--gm-s-8) var(--gm-s-4);font:var(--gm-t-label-weight) var(--gm-t-label-size)/var(--gm-t-label-line) var(--gm-font);letter-spacing:var(--gm-t-label-track);text-transform:uppercase;color:var(--gm-slate)}
+.gm-kl-etp-oge{display:grid;grid-template-columns:var(--gm-size-box-md) var(--gm-size-icon-lg) minmax(0,1fr) var(--gm-size-icon-md);align-items:center;gap:var(--gm-s-12);width:100%;min-height:var(--gm-size-choice-row);padding:var(--gm-s-8);border:0;border-radius:var(--gm-r-control);background:none;color:var(--et);text-align:left;cursor:pointer}
+.gm-kl-etp-oge > .icon{font-size:var(--gm-size-icon-md);text-align:center}
+.gm-kl-etp-sayi{display:grid;place-items:center;width:var(--gm-size-box-md);height:var(--gm-size-box-md);border-radius:var(--gm-r-round);background:var(--et);color:var(--gm-paper);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font-bold)}
+.gm-kl-etp-ad{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:var(--gm-t-body-weight) var(--gm-t-body-size)/1.2 var(--gm-font-bold)}
+.gm-kl-etp-onay{visibility:hidden;color:var(--et)}
+.gm-kl-etp-oge[aria-pressed=true]{background:var(--et-tint)}
+.gm-kl-etp-oge[aria-pressed=true] .gm-kl-etp-onay{visibility:visible}
+.gm-kl-etp-oge:active{background:var(--gm-bg)}
+.gm-kl-etb{display:flex;align-items:center;gap:var(--gm-s-12);margin:var(--gm-s-24) 0 var(--gm-s-4);font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/var(--gm-t-subheading-line) var(--gm-font-bold);color:var(--et)}
+.gm-kl-etb:first-child{margin-top:0}
+.gm-kl-etb small{margin-left:auto;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate)}
+.gm-kl-etb .gm-kl-etp-sayi{width:var(--gm-size-box-sm);height:var(--gm-size-box-sm)}
+.gm-kl-etb .gm-kl-etp-sayi .icon{font-size:var(--gm-size-icon-check)}
+/* Çekmecesiz harita ekranında seçili kart alt kenara oturur. */
+.gm-kl-hekran:not(:has(.gm-kl-cekmece)) .gm-kl-hsecim{bottom:calc(var(--gm-s-16) + env(safe-area-inset-bottom,0px))}
+.gm-kl-ot:not(:has(.gm-kl-slot-not)){grid-template-areas:"metin foto" "slot slot"}
+.gm-kl-ot:has(.gm-kl-slotlar.is-yok) .gm-kl-ot-foto{opacity:.72}
+
+/* ===================== Cila turu ===================== */
+/* Rota etiketi (GM.rotaEtiket) — GM.sapma rozeti + rota adı, rotaya bağlantı */
+.gm-kl-rotaet{display:inline-flex;align-items:center;gap:var(--gm-s-4);max-width:100%;min-height:var(--gm-size-badge);padding:0 var(--gm-s-8);border-radius:var(--gm-r-choice);background:var(--gm-primary-tint);color:var(--gm-primary-deep);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);text-decoration:none;white-space:nowrap;overflow:hidden;cursor:pointer}
+.gm-kl-rotaet b{flex:none;font-family:var(--gm-font-bold)}
+.gm-kl-rotaet span{overflow:hidden;text-overflow:ellipsis;color:var(--gm-slate)}
+.gm-kl-rotaet b + span::before{content:"·";padding-right:var(--gm-s-4);color:var(--gm-muted)}
+.gm-kl-rotaet .icon{flex:none;font-size:var(--gm-size-icon-check)}
+.gm-kl-rotaet.is-yolustu{background:var(--gm-basari-bg);color:var(--gm-basari-fg)}
+.gm-kl-rotaet.is-foto{background:var(--gm-paper);box-shadow:var(--gm-sh-sm)}
+.gm-kl-rotaet:active{filter:brightness(.96)}
+/* "Bu alanda ara" hapı */
+.gm-kl-alan{position:absolute;left:50%;top:calc(var(--gm-kl-tam-ust) + var(--gm-size-chip-sm) + var(--gm-s-16));z-index:8;display:inline-flex;align-items:center;gap:var(--gm-s-8);height:var(--gm-size-touch);padding:0 var(--gm-s-16);border:0;border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-primary-deep);box-shadow:var(--gm-sh-md);font:var(--gm-t-button-weight) var(--gm-t-meta-size)/1 var(--gm-font-bold);white-space:nowrap;transform:translate(-50%,calc(-1 * var(--gm-s-8)));opacity:0;pointer-events:none;transition:opacity var(--gm-m-quick) var(--gm-e-standard),transform var(--gm-m-page) var(--gm-e-emphasized-decel)}
+.gm-kl-alan.is-gorunur{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.gm-kl-alan .icon{font-size:var(--gm-size-icon-sm)}
+.gm-kl-hekran:has(.gm-kl-cekmece[data-durak=tam]) .gm-kl-alan{opacity:0;pointer-events:none}
+/* Rota etiketi kart meta satırında tek durum olarak: zeminsiz metin bağlantısı (kart-cila 13.11). */
+.gm-mk-meta > .gm-kl-rotaet{min-height:0;padding:0;background:none;box-shadow:none;font-family:var(--gm-font-bold)}
+/* Satırda rota sapması varken ikinci meta satırı: sapma tam kalır, nitelik ikonları çekilir (taşma yok). */
+:is(.gm-kl-cekmece,.gm-liste-results) .gm-mk-satir .gm-mk-meta:has(.gm-sapma){flex-wrap:nowrap;overflow:hidden}
+:is(.gm-kl-cekmece,.gm-liste-results) .gm-mk-satir .gm-mk-meta .gm-sapma{flex:none}
+:is(.gm-kl-cekmece,.gm-liste-results) .gm-mk-satir .gm-mk-meta:has(.gm-sapma) .gm-nitelik{display:none}
+/* Liste gövdesinde özet (gm-istatistik) ve eylem kartı (gm-eylem) arası 16 ritmi. */
+.gm-liste-icerik[data-kl-sonuc] > .gm-istatistik{margin:var(--gm-s-12) 0 0}
+.gm-liste-icerik[data-kl-sonuc] > .gm-eylem{margin:var(--gm-s-16) 0 var(--gm-s-8)}
+
+/* Yığılma kuralı 2 (Görev 10): sonuç satırında sayının solunda konum etiketi; tek başına satır yok. Manşet özeti tek satır (.gm-tek-satir). */
+.gm-liste-status__on{display:flex;align-items:center;gap:var(--gm-s-8);min-width:0}
+.gm-liste-status__on > .gm-kl-konum{flex:0 1 auto;min-width:0}
+.gm-liste-status__on .gm-kl-konum-yol{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-kl-manset-ozet.gm-tek-satir{flex-wrap:nowrap;gap:0}
+.gm-kl-manset-ozet.gm-tek-satir > *{flex:none}

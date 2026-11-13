@@ -1,0 +1,17 @@
+/* Gastro ortak-baslik.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak bölüm başlığı (docs/46). Kaynak: ana sayfa V3 bölüm başlığı (bölüm başlığı + sağda "Tümü →").
+   Üç ekranın bütün bölüm başlıkları bunu kullanır: ana sayfa, liste ("Tema & pişirme tipi"), detay (Nasıl yapılır?,
+   Yorumlar, Besin Değerleri, Benzer Tarifler). Akordeon başlıkları ("Tarif bilgileri") kendi kalıbında kalır.
+   Üst etiket yok: ana sayfadaki kural (bölümlerin çoğunda üst etiket yok) bütün bölümlere uygulandı.
+   Yapı app.css'teki ortak .section-heading-row ızgarasıdır (başlık en çok 2 dengeli satır, eylem tek satır, arada 12px,
+   eylem ilk satırın taban çizgisinde); burada tipografi, renk ve alt boşluk tek değere bağlanır.
+   İşaretleme: <div class="section-heading-row gm-head"><h2>…</h2><a class="gm-head__link section-heading-action">Tümü <i …></i></a></div> */
+.gm-head{display:grid;grid-template-columns:minmax(0,1fr) max-content;column-gap:var(--gm-s-12);align-items:baseline;min-width:0;margin:0 0 var(--gm-s-16)}
+.gm-head>h2,.gm-head .gm-head__title{grid-column:1;grid-row:1;min-width:0;margin:0;color:var(--gm-ink);font-family:var(--gm-font-bold);font-size:var(--gm-t-section-size);font-weight:var(--gm-t-section-weight);line-height:var(--gm-t-section-line);letter-spacing:var(--gm-t-section-track);text-wrap:balance;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* Sağdaki eylem: "Tümü →" (her yerde aynı) ya da bölümün kendi kontrolleri (ör. adımlarda A− / A+). */
+.gm-head>.section-heading-action,.gm-head>.gm-head__link{grid-column:2;grid-row:1;align-self:baseline;margin:0;flex-shrink:0;white-space:nowrap}
+.gm-head__link{position:relative;display:inline-flex;align-items:baseline;gap:var(--gm-s-4);color:var(--gm-primary-deep);font-family:var(--gm-font);font-size:var(--gm-t-meta-size);font-weight:var(--gm-t-meta-weight);line-height:var(--gm-t-section-line);text-decoration:none}
+.gm-head__link .icon{font-size:var(--gm-size-icon-sm);color:currentColor}
+/* 44px dokunma alanı, satır yüksekliğini büyütmeden (görünmez genişletme). */
+.gm-head__link:after{content:'';position:absolute;left:calc(-1 * var(--gm-s-8));right:calc(-1 * var(--gm-s-8));top:50%;height:var(--gm-size-touch);transform:translateY(-50%)}
+.gm-head__link:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:var(--gm-s-4);border-radius:var(--gm-r-choice)}
