@@ -121,13 +121,13 @@
   GM.cekmeceOzet = (o = {}) => `<p class="gm-kl-cekmece-ozet" data-ka-ozet><b>${esc(o.baslik)}</b>${o.alt ? `<small>${o.alt}</small>` : ''}</p>${o.eylem || ''}`;
   // Seçim yuvası: sayfanın başında; rota bileti ya da seçili mekân kartı buraya yazılır.
   // Yüzen mekân kartı (Airbnb harita kartı + Google Maps yer önizlemesi): pin seçilince haritanın üstünde, alt menünün 12 üstünde tek kart. Solda 96 kare görsel; sağda ad (kalın, tek satır) + sağ üstte tek × (kanon ikon düğmesi), tek meta (.gm-tek-satir: tür · ilçe · ₺ · durum), eylem satırı. o: {git, durum (GM.mekanDurum o), eylem}
-  GM.pinKart = (m, o = {}) => { const g = o.git || `#/mekan/${m.slug}`, git = h => ` href="${esc(h)}" data-git="${esc(h)}"`, foto = src => (src ? `<span class="gm-photo" style="background-image:url('${esc(src)}')"></span>` : `<span class="gm-photo is-yok" aria-hidden="true">${ik('mekan')}</span>`); return `<article class="gm-ka-pk" aria-label="${esc(m.ad)}"><a class="gm-ka-pk-foto"${git(g)} tabindex="-1" aria-hidden="true">${foto(m.kapak || m.kapakB)}</a><div class="gm-ka-pk-govde"><div class="gm-ka-pk-ust"><a class="gm-ka-pk-ad"${git(g)}>${esc(m.ad)}</a>${GM.ikonBtn({ikon: 'kapat', etiket: 'Kartı kapat', tur: 'kutu', sinif: 'gm-ka-pk-kapat', veri: {eylem: 'pin-kapat'}})}</div>${GM.mekanMetaSatir([GM.mekanEtiket(m) ? `<span>${esc(GM.mekanEtiket(m))}</span>` : '', GM.mekanYer(m), GM.fiyat(m.fiyat), GM.mekanDurum(m, o.durum || {})])}<div class="gm-ka-pk-eylem">${o.eylem || ''}</div></div></article>`; };
+  GM.pinKart = (m, o = {}) => { const g = o.git || `#/mekan/${m.slug}`, git = h => ` href="${esc(h)}" data-git="${esc(h)}"`, foto = src => (src ? `<span class="gm-photo" style="background-image:url('${esc(src)}')"></span>` : `<span class="gm-photo is-yok" aria-hidden="true">${ik('mekan')}</span>`); return `<article class="gm-ka-pk" aria-label="${esc(m.ad)}"><a class="gm-ka-pk-foto"${git(g)} tabindex="-1" aria-hidden="true" draggable="false">${foto(m.kapak || m.kapakB)}</a><div class="gm-ka-pk-govde"><div class="gm-ka-pk-ust"><a class="gm-ka-pk-ad"${git(g)} draggable="false">${esc(m.ad)}</a>${GM.ikonBtn({ikon: 'kapat', etiket: 'Kartı kapat', tur: 'kutu', sinif: 'gm-ka-pk-kapat', veri: {eylem: 'pin-kapat'}})}</div>${GM.mekanMetaSatir([GM.mekanEtiket(m) ? `<span>${esc(GM.mekanEtiket(m))}</span>` : '', GM.mekanYer(m), GM.fiyat(m.fiyat), GM.mekanDurum(m, o.durum || {})])}<div class="gm-ka-pk-eylem">${o.eylem || ''}</div></div></article>`; };
   GM.uberSecim = html => `<div class="gm-ka-secim" data-ka-secim aria-live="polite">${html}</div>`;
   // Arama hapı (Uber "Nereye?" / Google Maps arama çubuğu): GM.aramaKapsul'dan türer, tek satır; planlayıcı kartı küçülünce bunun yerine görünür.
   GM.aramaHap = (o = {}) => `<a class="gm-ka-u-hap" href="${esc(o.git || '#/rota/planla')}" data-git="${esc(o.git || '#/rota/planla')}">${ik('ara_')}<span>${esc(o.metin || 'Nereye gidiyorsun?')}</span><span class="gm-ka-u-hap-ikon" aria-hidden="true">${ik('rota')}</span></a>`;
   // Ekran iskeleti. İlk öğe <section class="gm-hh …>: çekirdek üst barı görselin üstünde saydam açar (gm-ui.js).
   // o: {gorsel, baslik (html), ust (planlayıcı + çip yuvası dışı html), hap:{metin, git}, cipler (html), harita (GM.harita o), ozet (html), html (sayfa gövdesi), etiket, sayfaEtiket}
-  GM.uberEkran = (o = {}) => `<section class="gm-hh gm-ka-uber" data-konum="orta"><div class="gm-ka-u-harita">${GM.harita({...o.harita, tam: true, kontroller: false, etiket: o.etiket || 'Harita'})}</div><div class="gm-hh-ust has-gorsel gm-ka-u-bant">${o.gorsel ? `<span class="gm-bant-foto" style="background-image:url('${esc(o.gorsel)}')" aria-hidden="true"></span>` : ''}${o.baslik ? `<h1 class="gm-hh-baslik">${o.baslik}</h1>` : ''}<div class="gm-ka-u-plan">${o.ust || ''}</div></div><div class="gm-ka-u-ust"><button type="button" class="gm-ka-u-geri" data-ka-geri aria-label="Ana görünüme dön">${ik('geri')}</button>${GM.aramaHap(o.hap)}</div><div class="gm-ka-u-cip">${o.cipler || ''}</div>${GM.alanDugme({})}<button type="button" class="gm-ka-u-liste" data-ka-liste>${ik('list')}<span>Listeyi göster</span></button><section class="gm-ka-u-sayfa" aria-label="${esc(o.sayfaEtiket || 'Keşif sayfası')}"><div class="gm-ka-u-tut" data-ka-tut><button type="button" class="gm-ka-u-tutamak" data-ka-tutamak aria-label="Sayfayı büyüt"><span aria-hidden="true"></span></button><div class="gm-ka-u-bas">${o.ozet || ''}<button type="button" class="gm-ka-u-kapat" data-ka-kapat aria-label="Kapat" hidden>${ik('kapat')}</button><button type="button" class="gm-ka-u-ac" data-ka-ac aria-label="Sayfayı aç"><span class="gm-ka-u-ac-ipucu">Yukarı çek</span>${ik('ac')}</button></div></div><div class="gm-ka-u-govde" data-ka-govde>${o.html || ''}</div></section><div class="gm-ka-u-pinkart" data-ka-pinkart aria-live="polite" hidden></div></section>`;
+  GM.uberEkran = (o = {}) => `<section class="gm-hh gm-ka-uber" data-konum="orta"><div class="gm-ka-u-harita">${GM.harita({...o.harita, tam: true, kontroller: false, etiket: o.etiket || 'Harita'})}</div><div class="gm-hh-ust has-gorsel gm-ka-u-bant">${o.gorsel ? `<span class="gm-bant-foto" style="background-image:url('${esc(o.gorsel)}')" aria-hidden="true"></span>` : ''}${o.baslik ? `<h1 class="gm-hh-baslik">${o.baslik}</h1>` : ''}<div class="gm-ka-u-plan">${o.ust || ''}</div></div><div class="gm-ka-u-ust">${o.gorsel ? `<span class="gm-bant-foto" style="background-image:url('${esc(o.gorsel)}')" aria-hidden="true"></span>` : ''}<button type="button" class="gm-ka-u-geri" data-ka-geri aria-label="Ana görünüme dön">${ik('geri')}</button>${GM.aramaHap(o.hap)}</div><div class="gm-ka-u-cip">${o.cipler || ''}</div>${GM.alanDugme({})}<button type="button" class="gm-ka-u-liste" data-ka-liste>${ik('list')}<span>Listeyi göster</span></button><section class="gm-ka-u-sayfa" aria-label="${esc(o.sayfaEtiket || 'Keşif sayfası')}"><div class="gm-ka-u-tut" data-ka-tut><button type="button" class="gm-ka-u-tutamak" data-ka-tutamak aria-label="Sayfayı büyüt"><span aria-hidden="true"></span></button><div class="gm-ka-u-bas">${o.ozet || ''}<button type="button" class="gm-ka-u-kapat" data-ka-kapat aria-label="Kapat" hidden>${ik('kapat')}</button><button type="button" class="gm-ka-u-ac" data-ka-ac aria-label="Sayfayı aç"><span class="gm-ka-u-ac-ipucu">Yukarı çek</span>${ik('ac')}</button></div></div><div class="gm-ka-u-govde" data-ka-govde>${o.html || ''}</div></section><div class="gm-ka-u-pinkart" data-ka-pinkart aria-live="polite" hidden></div></section>`;
   // Rotayı haritada göster: sınıra uç (fitBounds) ve çizgiyi baştan sona canlandır (MapLibre kaynağı gm-rota; şema kipinde yalnız şema).
   GM.haritaRotaCiz = (el, cizgi, o = {}) => {
     const m = el?._harita, src = m?.getSource?.('gm-rota'); if (!src || !cizgi?.length) return;
@@ -144,11 +144,12 @@
     const s = kok.querySelector('.gm-ka-uber'); if (!s) return () => {};
     const q = x => s.querySelector(x), band = q('.gm-ka-u-bant'), sayfa = q('.gm-ka-u-sayfa'), govde = q('[data-ka-govde]'), tut = q('[data-ka-tut]'), ust = q('.gm-ka-u-ust'), cip = q('.gm-ka-u-cip'), hKap = q('.gm-ka-u-harita'), hEl = q('.gm-harita'), alanBtn = q('.gm-kl-alan');
     const bar = kok.classList.contains('has-saydam') ? kok.querySelector('.gm-header') : null, nav = () => kok.querySelector('.gm-nav') || document.querySelector('.gm-nav');
+    const pkEl = q('[data-ka-pinkart]');
     let K = null, y = 0, konum = 'orta', anim = 0, oynuyor = false, tekerden = false;
     // Ölç: konumlar ve yerleşim değerleri section koordinatında (px).
     const olc = () => {
       const H = s.clientHeight, r0 = s.getBoundingClientRect(); if (!H) return false;
-      const hb = bar ? Math.max(0, bar.getBoundingClientRect().bottom - r0.top) : 0, hapH = ust.firstElementChild.offsetHeight, cipH = cip.offsetHeight, bandH = band.offsetHeight, tutH = tut.offsetHeight;
+      const hb = bar ? Math.max(0, bar.getBoundingClientRect().bottom - r0.top) : 0, hapH = ust.querySelector('.gm-ka-u-geri').offsetHeight, cipH = cip.offsetHeight, bandH = band.offsetHeight, tutH = tut.offsetHeight;
       // Alt sınır: alt menü kabının (gm-dock, kâğıt zemin) üst kenarı; sayfa başlığının metni bunun üstünde biter, alttaki boşluğu dock'un kâğıdı verir (yarım satır asla kalmaz).
       const dk = (kok.closest('.gm-kok') || document).querySelector('.gm-dock'), dr = dk && getComputedStyle(dk).visibility !== 'hidden' ? dk.getBoundingClientRect() : null, n = nav(), nr = n?.getBoundingClientRect();
       const alt = dr && dr.height ? dr.top - r0.top + GM.TK.space[8] : nr && nr.height ? nr.top - r0.top - GM.TK.space[8] : H;
@@ -179,7 +180,10 @@
       if (konum !== oncekiKonum) { if (s.classList.contains('is-ipucu')) { s.classList.remove('is-ipucu'); try { GM.durum.yaz('kesfet-ipucu', true); } catch { /* yok */ } } if (konum !== 'tam') yerles(); oncekiKonum = konum; }
       GM.degisim(s, 'uber-konum', konum);
     };
+    // Pin kartı açıkken sayfa gizli: yukarı jest en çok ortaya (hero + harita şeridi) çıkar, tam konum yok.
+    const ustSinir = () => (s.classList.contains('is-pin') ? K.orta : K.tam);
     const git = (ad, ops = {}) => {
+      if (ad === 'tam' && s.classList.contains('is-pin')) ad = 'orta';
       olc(); if (!K || !(ad in K)) return; cancelAnimationFrame(anim); konum = ad;
       const y0 = y, d = K[ad] - y0, sure = az() ? 0 : (ops.sure ?? GM.TK.motion.page), t0 = performance.now();
       if (!sure || Math.abs(d) < 1) { y = K[ad]; uygula(); bitti(); return; }
@@ -196,7 +200,7 @@
     const hiz = () => { const a = g.iz[0], b = g.iz.at(-1); return a && b && b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) : 0; };
     const basla = ev => {
       if (ev.button > 0 || !olc()) return;
-      const sayfada = sayfa.contains(ev.target) || (band.contains(ev.target) && !cip.contains(ev.target)), haritada = hKap.contains(ev.target);
+      const kartta = s.classList.contains('is-pin') && pkEl?.contains(ev.target), sayfada = kartta || sayfa.contains(ev.target) || (band.contains(ev.target) && !cip.contains(ev.target)), haritada = hKap.contains(ev.target);
       if (!sayfada && !haritada) return;
       cancelAnimationFrame(momentum);
       g = {id: ev.pointerId, sy: ev.clientY, y0: y, st: govde.scrollTop, mod: null, sayfada, icerik: govde.contains(ev.target), iz: [[performance.now(), ev.clientY]]};
@@ -213,7 +217,7 @@
         return;
       }
       if (g.mod === 'kaydir') { govde.scrollTop = g.st - dy; if (dy > 0 && govde.scrollTop <= 0 && g.st - dy < 0) { g.mod = 'sayfa'; g.sy = ev.clientY; g.y0 = y; } return; }
-      y = kisit(g.y0 + dy, K.tam, K.harita); uygula();
+      y = kisit(g.y0 + dy, ustSinir(), K.harita); uygula();
     };
     const birak = ev => {
       if (!g || ev.pointerId !== g.id) return; const x = g; g = null; s.classList.remove('is-surukle');
@@ -236,7 +240,7 @@
       if (simdi < sogu || (tekerden && oynuyor)) { if (!oynuyor) sogu = simdi + 400; ev.preventDefault(); return; } // bir tekerlek dizisi = bir konum adımı (fare çentikleri ve trackpad ataleti zincirlenmez)
       ev.preventDefault(); cancelAnimationFrame(anim);
       if (tekerBas == null) { olc(); tekerBas = y; }
-      y = kisit(y - dy, K.tam, K.harita); uygula(); s.classList.add('is-surukle');
+      y = kisit(y - dy, ustSinir(), K.harita); uygula(); s.classList.add('is-surukle');
       clearTimeout(tekerT); tekerT = setTimeout(() => { s.classList.remove('is-surukle'); const d = y - tekerBas, bas = tekerBas; tekerBas = null; const n = Math.abs(d) > GM.TK.space[24] ? yon(Math.sign(d), bas) : null; sogu = performance.now() + 400; tekerden = true; if (n) git(n); else otur(); }, 140);
     };
     // ---- Dokunuşlar ----
@@ -249,8 +253,7 @@
       const a = ev.target.closest('[data-eylem="alan-ara"]'); if (a && s.contains(a)) { a.classList.remove('is-gorunur'); if (hEl._harita) o.alan?.(hEl._harita.getBounds(), u); }
     };
     const degis = ev => { if (ev.target === hEl && ev.detail?.deger && ev.detail.ad !== 'uber-konum') o.pinSec?.(ev.detail.deger, u); };
-    const pkEl = q('[data-ka-pinkart]');
-    const dolgu = (ad = konum) => K && s.classList.contains('is-pin') && pkEl ? {top: Math.round(K.cipHarita + K.cipH + 16), bottom: Math.round(s.getBoundingClientRect().bottom - pkEl.getBoundingClientRect().top + 16), left: 32, right: 32} : K ? (ad === 'harita' ? {top: Math.round(K.cipHarita + K.cipH + 16), bottom: Math.round(K.H - K.harita + 16), left: 32, right: 32} : {top: Math.round(K.bandH + 16), bottom: Math.round(K.H - K.orta + 16), left: 32, right: 32}) : 32;
+    const dolgu = (ad = konum) => K && s.classList.contains('is-pin') && pkEl ? {top: Math.round(ad === 'orta' ? K.bandH + 16 : K.cipHarita + K.cipH + 16), bottom: Math.round(s.getBoundingClientRect().bottom - pkEl.getBoundingClientRect().top + 16), left: 32, right: 32} : K ? (ad === 'harita' ? {top: Math.round(K.cipHarita + K.cipH + 16), bottom: Math.round(K.H - K.harita + 16), left: 32, right: 32} : {top: Math.round(K.bandH + 16), bottom: Math.round(K.H - K.orta + 16), left: 32, right: 32}) : 32;
     // Odak: haritanın neye oturduğu (rota sınırı ya da pin). Sayfa konumu değişince görünür alana göre yeniden yerleşir; kullanıcı haritayı oynatınca odak bırakılır.
     let odak = null;
     const sinir = c => c.reduce(([[a, b], [d, e]], [x, z]) => [[Math.min(a, x), Math.min(b, z)], [Math.max(d, x), Math.max(e, z)]], [[180, 90], [-180, -90]]);
@@ -269,11 +272,11 @@
       kapatGoster: v => { const b = q('[data-ka-kapat]'); if (b) b.hidden = !v; },
       secimYaz: html => { const yv = q('[data-ka-secim]'); if (yv) { yv.innerHTML = html; govde.scrollTop = 0; } },
       ozetYaz: html => { const yv = q('[data-ka-ozet]'); if (yv) yv.outerHTML = html; },
-      // Yüzen pin kartı: html → kart açılır, sayfa gizlenir (harita konumuna iner); null → kart kapanır, sayfa önceki konumuna döner.
+      // Yüzen pin kartı: html → kart açılır, sayfa gizlenir (harita konumuna iner); kart açıkken yukarı jest = hero + harita şeridi (orta), aşağı = harita. null → kart kapanır, o anki konumun sayfası geri gelir.
       pinKart: html => {
         if (!pkEl) return;
         if (html) { if (!s.classList.contains('is-pin')) pinOnce = konum; pkEl.innerHTML = html; pkEl.hidden = false; s.classList.add('is-pin'); if (konum !== 'harita') git('harita'); }
-        else if (s.classList.contains('is-pin')) { pkEl.hidden = true; pkEl.innerHTML = ''; s.classList.remove('is-pin'); git(pinOnce || 'orta'); pinOnce = null; }
+        else if (s.classList.contains('is-pin')) { pkEl.hidden = true; pkEl.innerHTML = ''; s.classList.remove('is-pin'); pinOnce = null; yerles(); }
       },
       pinAcik: () => s.classList.contains('is-pin')
     };
