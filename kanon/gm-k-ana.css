@@ -246,6 +246,12 @@
 .gm-ka-yck-ad{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/1.2 var(--gm-font-bold)}
 .gm-ka-yck-meta{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-size-badge) var(--gm-font);color:color-mix(in srgb,var(--gm-paper) 72%,transparent)}
 .gm-ka-yck-meta .gm-yck-cip{display:inline-flex;margin-left:var(--gm-s-8);vertical-align:top;color:var(--gm-paper)}
+/* Ana · B kompakt bilet (GM.rotaBilet sinif): üst satır (tema + rozet) ve Kalkış/Varış etiketleri gizli (Pilot rota özet satırında), özet tek satır kayar. */
+.gm-bilet.gm-ka-bilet{gap:var(--gm-s-8);padding:var(--gm-s-12) var(--gm-s-16)}
+.gm-bilet.gm-ka-bilet .gm-bilet-bas,.gm-bilet.gm-ka-bilet .gm-bilet-uc small{display:none}
+.gm-bilet.gm-ka-bilet .gm-bilet-ozet{margin:0;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-24)),transparent)}
+.gm-bilet.gm-ka-bilet .gm-bilet-ozet::-webkit-scrollbar{display:none}
+.gm-bilet.gm-ka-bilet .gm-bilet-eylem{margin-top:var(--gm-s-4)}
 /* Ana · B durak kartları (sayfa içi, orta konumda tamamı görünür): kompakt boy — genişlik ~%60, görsel 4:3. */
 .gm-serit.gm-ka-durak > .gm-mk.is-kompakt{width:calc(var(--gm-size-rail-card) - var(--gm-s-24))}
 .gm-serit.gm-ka-durak > .gm-mk.is-kompakt .gm-card__media{aspect-ratio:4/3}

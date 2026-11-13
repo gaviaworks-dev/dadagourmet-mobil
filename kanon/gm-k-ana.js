@@ -152,7 +152,7 @@
       // Alt sınır: alt menü kabının (gm-dock, kâğıt zemin) üst kenarı; sayfa başlığının metni bunun üstünde biter, alttaki boşluğu dock'un kâğıdı verir (yarım satır asla kalmaz).
       const dk = (kok.closest('.gm-kok') || document).querySelector('.gm-dock'), dr = dk && getComputedStyle(dk).visibility !== 'hidden' ? dk.getBoundingClientRect() : null, n = nav(), nr = n?.getBoundingClientRect();
       const alt = dr && dr.height ? dr.top - r0.top + GM.TK.space[8] : nr && nr.height ? nr.top - r0.top - GM.TK.space[8] : H;
-      const ustY = hb + GM.TK.space[8], tam = ustY + hapH + GM.TK.space[12], harita = Math.round(alt - tutH), orta = Math.round(kisit(bandH + GM.TK.space[8], tam + GM.TK.space[64], harita - GM.TK.space[64])); // orta: hero (kavisli alt kenar) tamamı görünür, sayfa hemen altından ~yarı yükseklik
+      const ustY = hb + GM.TK.space[8], tam = ustY + hapH + GM.TK.space[12], harita = Math.round(alt - tutH), orta = Math.round(kisit(bandH + GM.TK.space[24] * 8 + GM.TK.space[8], tam + GM.TK.space[64], harita - GM.TK.space[64])); // orta (Uber): hero · canlı harita şeridi (200) · sayfa (başlık + kompakt bilet alt menünün üstünde)
       // Mor üst bölüm her konumda kanon kavisiyle biter (gm-hh-ust alt köşeleri); harita konumunda çipler kavisin altına iner.
       const R = parseFloat(getComputedStyle(s).getPropertyValue('--gm-r-surface')) || GM.TK.space[24];
       K = {H, hb, ustY, tam, orta, harita, bandH, cipH, R, cipOrta: bandH - cipH - GM.TK.space[16], cipHarita: tam + R + GM.TK.space[8]};

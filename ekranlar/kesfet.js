@@ -19,13 +19,14 @@
   };
   const HARITA = 'kesfet-harita';
   // Rota bileti (Flighty): kalkış ●──● varış, km · süre · tek kaynak durak sayısı, şimdi çıkarsan varış saati.
-  const bilet = (r, bugun) => GM.rotaBilet(r, {etiket: bugun ? r.tema : 'Dada Route', rozet: 'Pilot rota', ozet: `<b>${GM.sayi(r.km)} km</b> · ${GM.sure(r.dk)} · ${GM.rotaSayiMetin(r)}<br>Şimdi çıkarsan varış <b>${GM.varisSaati(r.dk)}</b>`,
-    eylem: GM.btn({metin: 'Rotayı aç', ikon: 'harita', git: `#/rota/${r.id}`}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Rotayı paylaş', tur: 'kutu', veri: {eylem: 'rota-paylas', rota: r.id}})});
+  // Kompakt bilet (gm-ka-bilet): orta konumda başlık + biletin TAMAMI alt menünün üstünde görünür — kalkış ●──● varış · tek satır özet (Pilot rota · km · süre · durak · varış) · eylem.
+  const bilet = (r, bugun) => GM.rotaBilet(r, {sinif: 'gm-ka-bilet', etiket: bugun ? r.tema : 'Dada Route', rozet: 'Pilot rota', ozet: `Pilot rota · <b>${GM.sayi(r.km)} km</b> · ${GM.sure(r.dk)} · ${GM.rotaSayiMetin(r)} · varış <b>${GM.varisSaati(r.dk)}</b>`,
+    eylem: GM.btn({metin: 'Rotayı aç', ikon: 'harita', boyut: 'sm', git: `#/rota/${r.id}`}) + GM.ikonBtn({ikon: 'paylas', etiket: 'Rotayı paylaş', tur: 'kutu', veri: {eylem: 'rota-paylas', rota: r.id}})});
   // Sayfa başlığı (harita konumunda da görünen tek satır): rota · km · yol üstü durak sayısı (GM.rotaSayi, tek kaynak).
   const ozet = (r, bugun) => GM.cekmeceOzet({baslik: bugun ? 'Bugünün Rotası' : r.ad, alt: `${GM.esc(bugun ? r.ad : r.tema)} · ${GM.sayi(r.km)} km · ${GM.rotaSayi(r).yolUstu} yol üstü`});
   const durakBolum = r => GM.bas('Rotadaki duraklar', {metin: 'Haritada', git: `#/rota/${r.id}`}) + GM.yatay(GM.rotaOneri(r).slice(0, 8).map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})), {sinif: 'gm-ka-durak'});
-  // Seçim alanı (rota hâli): önce rotadaki durak kartları, ardından bilet — orta konumda (hero görünürken) sayfa başlığının hemen altında kart görselleri görünür.
-  const rotaSecim = (r, bugun) => durakBolum(r) + bilet(r, bugun);
+  // Seçim alanı (rota hâli): bilet. Durak kartları bölümler içinde (kesfet-duraklar).
+  const rotaSecim = (r, bugun) => bilet(r, bugun);
 
   GM.ekran('kesfet', {
     tur: 'sekme', nav: 'kesfet', baslik: 'Keşfet',
@@ -35,6 +36,7 @@
       const govde = GM.uberSecim(rotaSecim(R, true))
         + GM.guvenSerit([{ikon: 'mekan', metin: `<b>${M.length}</b> mekân yayında`}, {ikon: 'rota', metin: 'Lezzet rotası planlama'}, {ikon: 'etkinlik', metin: 'Haftalık festival takvimi'}])
         + GM.bolumler([
+          {id: 'kesfet-duraklar', html: durakBolum(R)},
           {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.konseptSerit(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
           GM.reklamYeri({kod: 'AS-T1'}),
           {baslik: 'Nasıl keşfetmek istersin?', html: GM.modulIzgara([
@@ -68,6 +70,7 @@
         ilk: u => u.ciz(R.cizgi),
         rotaSec: (id, u) => {
           U = u; rota = GM.rotaBul(id) || R; rotayaDon(u);
+          const s = kok.querySelector('#kesfet-duraklar'); if (s) s.innerHTML = durakBolum(rota);
           u.ciz(rota.cizgi); u.git('orta');
         },
         pinSec: (id, u) => {
