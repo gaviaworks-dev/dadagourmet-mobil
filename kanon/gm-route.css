@@ -1,6 +1,6 @@
 /* Dada Route kanonu: planlama satırı, rota seçenekleri, webden rota, Co-Pilot. Token'lar gm-tokens.css; aile türemesi gm-route.js başında. */
 .gm-dd{list-style:none;margin:0;padding:0;display:grid}
-.gm-dd-satir,.gm-dd-ekle{display:grid;grid-template-columns:var(--gm-size-stop-node) minmax(0,1fr) auto;column-gap:var(--gm-s-12);align-items:center;min-height:calc(var(--gm-size-control-lg) + var(--gm-s-12))}
+.gm-dd-satir,.gm-dd-ekle{display:grid;grid-template-columns:var(--gm-size-stop-node) minmax(0,1fr) calc(var(--gm-size-touch) * 2);column-gap:var(--gm-s-12);align-items:center;min-height:calc(var(--gm-size-control-lg) + var(--gm-s-12))}
 .gm-dd-ray{position:relative;align-self:stretch;display:grid;place-items:center}
 .gm-dd-ray::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:var(--gm-size-route-rail);margin-left:calc(var(--gm-size-route-rail) / -2);background:repeating-linear-gradient(180deg,var(--gm-primary-line) 0 4px,transparent 4px 8px)}
 .gm-dd-satir.is-bas .gm-dd-ray::before{top:50%}
@@ -14,7 +14,7 @@
 .gm-dd-alan b{font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/1.25 var(--gm-font-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gm-dd-alan b.is-yer{font-family:var(--gm-font);color:var(--gm-muted)}
 .gm-dd-alan span{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate)}
-.gm-dd-eylem{display:flex}
+.gm-dd-eylem{display:flex;justify-content:flex-end}
 .gm-dd-ekle{grid-template-columns:var(--gm-size-stop-node) minmax(0,1fr);min-height:var(--gm-size-control-lg)}
 .gm-dd-ekle .gm-btn{justify-self:start}
 .gm-rs-secler{display:grid;gap:var(--gm-s-12)}
@@ -39,11 +39,13 @@
 .gm-webden .gm-satir-metin > span{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate)}
 .gm-webden-ac{display:inline-flex;align-items:center;gap:var(--gm-s-4);font:var(--gm-t-button-weight) var(--gm-t-button-size)/1 var(--gm-font-bold);color:var(--gm-bilgi-fg)}
 /* Co-Pilot (koyu yüzey; ink zemin, kâğıt yazı, on-dark-accent vurgu) */
-.gm-cp{position:relative;min-height:100%;background:var(--gm-ink);color:var(--gm-paper)}
-.gm-cp-harita{position:relative;height:var(--gm-size-map-h)}
-.gm-cp-harita > .gm-harita{position:absolute;inset:0;height:auto;border-radius:0}
-.gm-cp-harita::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--gm-s-64);background:linear-gradient(180deg,transparent,var(--gm-ink));pointer-events:none;z-index:6}
-.gm-cp-govde{position:relative;z-index:7;display:grid;gap:var(--gm-s-16);padding:0 var(--gm-s-16) var(--gm-s-24);margin-top:calc(-1 * var(--gm-s-32))}
+/* Co-Pilot ekranı doldurur: harita kalan yüksekliği alır, durak gövdesi altta kâğıt kenarlı koyu yüzey; geçiş bandı yok (denetim 17). */
+.gm-cp{position:relative;display:flex;flex-direction:column;min-height:var(--gm-ekran-h);background:var(--gm-ink);color:var(--gm-paper)}
+.gm-cp-harita{position:relative;flex:1 1 auto;min-height:var(--gm-size-map-h)}
+.gm-cp-harita > .gm-harita{position:absolute;inset:0;height:auto;border-radius:0;background:var(--gm-ink)}
+/* Haritanın alt kenarı gövdeye koyu yumuşak geçişle bağlanır (açık zemin bandı yok). */
+.gm-cp-harita::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--gm-ust-h) + var(--gm-s-48) + var(--gm-s-48));background:linear-gradient(180deg,transparent,var(--gm-ink) 50%);pointer-events:none;z-index:6}
+.gm-cp-govde{position:relative;z-index:7;flex:none;display:grid;gap:var(--gm-s-16);padding:var(--gm-s-16) var(--gm-s-16) var(--gm-s-24);margin-top:calc(-1 * var(--gm-s-24));border-radius:var(--gm-r-sheet) var(--gm-r-sheet) 0 0;background:var(--gm-ink)}
 .gm-cp-sirada{display:grid;gap:var(--gm-s-12);padding:var(--gm-s-16);border-radius:var(--gm-r-surface);background:color-mix(in srgb,var(--gm-paper) 8%,var(--gm-ink));border:var(--gm-size-border) solid color-mix(in srgb,var(--gm-paper) 12%,transparent)}
 .gm-cp-etiket{font:var(--gm-t-label-weight) var(--gm-t-label-size)/1 var(--gm-font);letter-spacing:var(--gm-t-label-track);text-transform:uppercase;color:var(--gm-on-dark-accent)}
 .gm-cp-sirada-ust{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--gm-s-12);align-items:center}
@@ -150,8 +152,12 @@
 .gm-pk-metin{display:grid;gap:var(--gm-s-8);min-width:0}
 .gm-pk-ad{font:var(--gm-t-card-weight) var(--gm-t-card-size)/1.25 var(--gm-font-bold);color:var(--gm-ink);text-decoration:none}
 .gm-pk-meta{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate);font-variant-numeric:tabular-nums}
-.gm-pk-icerik{display:flex;flex-wrap:wrap;gap:var(--gm-s-4) var(--gm-s-12);margin:0;padding:0;list-style:none}
-.gm-pk-icerik li{display:inline-flex;align-items:center;gap:var(--gm-s-4);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate)}
+.gm-pk-meta-satir{display:flex;align-items:center;gap:var(--gm-s-8);min-width:0;white-space:nowrap}
+.gm-pk-meta-satir .gm-durum-rozet,.gm-pk-meta-satir > :last-child{flex:none}
+.gm-pk-eylem{display:grid;gap:var(--gm-s-4)}
+.gm-pk-icerik{display:flex;flex-wrap:nowrap;gap:var(--gm-s-12);margin:0;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-16)),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - var(--gm-s-16)),transparent)}
+.gm-pk-icerik::-webkit-scrollbar{display:none}
+.gm-pk-icerik li{flex:none;display:inline-flex;align-items:center;gap:var(--gm-s-4);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate)}
 .gm-pk-icerik .icon{font-size:var(--gm-size-icon-check);color:var(--gm-primary)}
 .gm-pk-alt{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gm-s-8)}
 .gm-pk-iniyor{display:grid;gap:var(--gm-s-4)}

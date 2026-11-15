@@ -40,16 +40,24 @@
   const aSonuc = d => {
     const l = sonuc(d), ks = kayitli();
     const durum = GM.listeDurum({sayi: l.length, birim: 'mekân', gorunum: d.gorunum, siraliAktif: d.sira !== 'onerilen', on: aKonum(d, l.length)});
-    return {l, html: l.length ? durum + GM.listeSonuc(l.slice(0, SAYFA).map(m => aKart(m, d, ks)), {gorunum: d.gorunum}) : durum + bos(d)};
+    return {l, html: l.length ? durum + GM.listeSonuc(l.slice(0, SAYFA).map(m => aKart(m, d, ks)), {gorunum: d.gorunum}) : durum + aBos(d)};
   };
   const kategoriSerit = d => GM.cipSerit({ad: 'kategori', tur: 'tek', etiket: 'Mekân kategorisi', secili: d.secili.kategori?.[0] ?? '', ogeler: [{metin: 'Tümü', deger: '', ikon: 'mekan'}, ...S().kategori.map(k => ({metin: k.ad, deger: k.deger, sayi: k.sayi, gorsel: M().find(m => m.f.kategori?.includes(k.deger) && m.kapak)?.kapak}))]});
   const vesileTema = d => GM.listeTema({ad: 'vesile', tur: 'coklu', baslik: 'Ne için arıyorsun?', etiket: 'Deneyim ve kullanım amacı', secili: d.secili.vesile || [], ogeler: [...S().vesile].filter(v => v.deger !== 'aksam-yemegi').sort((a, b) => b.sayi - a.sayi).slice(0, 10).map(v => ({metin: v.ad, deger: v.deger, sayi: v.sayi, ikon: VESILE_IKON[v.deger]}))});
 
+  // A boş sonuç: süzgeç/arama eşleşmedi (Gastro "Süzgeçleri temizle"); sonuç sayısı satırı yerinde kalır.
+  const aBos = d => GM.bos({ikon: 'mekan', baslik: 'Bu süzgeçle mekân yok', metin: d.q ? `“${d.q}” için **eşleşen mekân** bulamadık. Aramayı kısaltmayı ya da süzgeçleri gevşetmeyi dene.` : 'Seçtiğin süzgeçlere uyan mekân yok. **Süzgeçleri gevşet** ya da başka bir şehir seç.', eylem: {metin: 'Süzgeçleri temizle', tur: 'secondary', ikon: 'yenile', veri: {eylem: 'temizle'}}, ikincil: {metin: 'Mekân Bul ile ara', git: '#/mekan-bul'}});
+  // Ekrana özgü hâl: ?hal=sonuc-yok → kayıt olmayan fiyat süzgeci (Ekonomik ₺) seçili açılır; "Süzgeçleri temizle" gerçekten temizler.
+  const aDurumKur = ctx => { const d = durumKur(ctx); if (ctx.sorgu.hal === 'sonuc-yok') d.secili.fiyat = ['1']; return d; };
+
   GM.ekran('mekanlar-a', {
     tur: 'banner', baslik: 'Mekânlar', ust: '#/kesfet', iskelet: 'kart',
+    // İlk açılışta iskelet (Gastro liste-v2): veri yerelde, kısa bekleme kanon skeletonDelay.
+    yukle: () => new Promise(r => setTimeout(r, BEKLE())),
+    cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
     bos: {ikon: 'mekan', baslik: 'Henüz mekân eklenmedi', metin: 'Yeni mekânlar **eklendikçe** burada listelenecek.', eylem: {metin: 'Keşfet’e dön', tur: 'secondary', yerine: '#/kesfet'}},
     ciz: ctx => {
-      if (!A || A.hash !== ctx.hash) A = durumKur(ctx);
+      if (!A || A.hash !== ctx.hash) A = aDurumKur(ctx);
       const d = A, s = aSonuc(d);
       return GM.kubbe({
         gorsel: GM.mekan('mikla')?.kapakB || M()[0].kapakB, etiket: 'Dada Gourmet', baslik: 'Mekânlar',
@@ -61,10 +69,11 @@
     sonra: (kok) => {
       const d = A, c = [];
       let io = null;
-      const sonsuz = l => { io?.disconnect(); const kap = kok.querySelector('[data-kl-sonuc] .gm-liste-grid, [data-kl-sonuc] .gm-liste-rows'); if (!kap || l.length <= SAYFA) return; const ks = kayitli(); io = GM.sonsuz(kap, n => { const p = l.slice((n - 1) * SAYFA, n * SAYFA); return p.length ? p.map(m => aKart(m, d, ks)).join('') : ''; }); };
+      // Sonsuz kaydırma: 24'lük sayfa, alt yükleme göstergesi, sonda "Hepsi bu kadar · N mekân".
+      const sonsuz = l => { io?.disconnect(); const kap = kok.querySelector('[data-kl-sonuc] .gm-liste-grid, [data-kl-sonuc] .gm-liste-rows'); if (!kap) return; const ks = kayitli(); io = GM.sonsuzListe(kap, l, m => aKart(m, d, ks), {sayfa: SAYFA, birim: 'mekân'}); };
       const ciz = (iskelet = true) => {
         const kap = kok.querySelector('[data-kl-sonuc]'), s = aSonuc(d);
-        io?.disconnect(); kap.querySelectorAll('.gm-sonsuz-son,.gm-alt-yukleniyor').forEach(x => x.remove());
+        io?.disconnect(); kap.querySelectorAll('.gm-sonsuz-son,.gm-alt-yukleniyor,.gm-sonsuz-hata,.gm-liste-son').forEach(x => x.remove());
         if (iskelet && s.l.length) {
           kap.innerHTML = GM.listeDurum({sayi: s.l.length, birim: 'mekân', gorunum: d.gorunum, siraliAktif: d.sira !== 'onerilen', on: aKonum(d, s.l.length)}) + GM.listeSonucKap(d.gorunum === 'liste' ? GM.iskelet(3, 'satir') : GM.iskelet(4, 'kart'));
           kaydirUst(kok, kap);
@@ -82,7 +91,7 @@
       c.push(GM.eylem(kok, 'filtre', () => filtreAc(d, yenile)));
       c.push(GM.eylem(kok, 'sirala', () => siralaAc(d, () => { arac(); ciz(); kok.querySelector('.gm-liste-sort-button')?.classList.toggle('is-active', d.sira !== 'onerilen'); })));
       c.push(GM.eylem(kok, 'konum', () => konumAc(d, yenile)));
-      c.push(GM.eylem(kok, 'temizle', () => { temizle(kok, d); yenile(); }));
+      c.push(GM.eylem(kok, 'temizle', () => { temizle(kok, d); yenile(); GM.toast('Süzgeçler **temizlendi**', {ikon: 'yenile'}); }));
       c.push(GM.on(kok, 'kategori', v => { d.secili.kategori = v ? [v] : []; arac(); ciz(); }));
       c.push(GM.on(kok, 'vesile', v => { d.secili.vesile = v; arac(); ciz(); }));
       c.push(GM.on(kok, 'gorunum', v => { d.gorunum = v; ciz(false); }));

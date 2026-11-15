@@ -154,13 +154,18 @@
   GM.rotaKaydet = (R, o = {}) => {
     if (!GM.uye()) return GM.uyeDuvar({baslik: 'Rotanı kaybetme.', metin: 'Rotanı daha sonra tekrar kullanmak için **hesabına kaydet**; Güzergâhlarım her cihazda açılır.'});
     const adlar = GM.durum.oku('rota-adlar', {}) || {}, kayitli = new Set(GM.durum.oku('rota-kayitli', []) || []);
-    return GM.sheet({baslik: kayitli.has(R.id) ? 'Kayıtlı güzergâh' : 'Güzergâhımı kaydet', html: `<div class="gm-yigin">${GM.input({ad: 'rk-ad', etiket: 'Güzergâh adı', ikon: 'duzenle', deger: adlar[R.id] || `${R.kalkis} → ${R.varis}`, yer: 'Kalkış → Varış', yardim: 'En çok 64 karakter'})}${GM.p(`${GM.sayi(Math.round(R.km))} km · ${GM.rotaSayiMetin(R)}. Kaydettiğin rota **Güzergâhlarım**’da durur; webde aynı hesapla açılır.`, {ton: 'ikincil'})}</div>`,
+    // o.cevrimdisi: patron belgesi §3E "Kaydet: çevrimdışı erişim ve sonra kullanmak üzere profile kaydeder" → kayıtla birlikte çevrimdışı paket anahtarı (GM.rotaPaketler).
+    const indi = () => GM.rotaPaketler?.().some(p => p.id === R.id);
+    const cd = o.cevrimdisi ? GM.toggle({ad: 'rk-cevrimdisi', ikon: 'cevrimdisi', etiket: 'Çevrimdışı da indir', alt: `Harita, duraklar, telefonlar · ${GM.rotaPaketMB(R)} MB`, secili: indi() || !kayitli.has(R.id)}) : '';
+    return GM.sheet({baslik: kayitli.has(R.id) ? 'Kayıtlı güzergâh' : 'Güzergâhımı kaydet', html: `<div class="gm-yigin">${GM.input({ad: 'rk-ad', etiket: 'Güzergâh adı', ikon: 'duzenle', deger: adlar[R.id] || `${R.kalkis} → ${R.varis}`, yer: 'Kalkış → Varış', yardim: 'En çok 64 karakter'})}${cd}${GM.p(`${GM.sayi(Math.round(R.km))} km · ${GM.rotaSayiMetin(R)}. Kaydettiğin rota **Güzergâhlarım**’da durur; webde aynı hesapla açılır.`, {ton: 'ikincil'})}</div>`,
       altBar: kayitli.has(R.id) ? GM.btnIkili({metin: 'Kaydı kaldır', veri: {eylem: 'rk-sil'}}, {metin: 'Adı güncelle', ikon: 'kaydet', veri: {eylem: 'rk-kaydet'}}) : GM.btn({metin: 'Güzergâhımı Kaydet', ikon: 'kaydet', tam: true, veri: {eylem: 'rk-kaydet'}}),
       sonra: (k, h) => {
         const inp = k.querySelector('input[name="rk-ad"]'); if (inp) inp.maxLength = 64;
-        const a = GM.eylem(k, 'rk-kaydet', () => { const ad = (inp?.value || '').trim().slice(0, 64) || `${R.kalkis} → ${R.varis}`; GM.durum.yaz('rota-adlar', {...(GM.durum.oku('rota-adlar', {}) || {}), [R.id]: ad}); const l = new Set(GM.durum.oku('rota-kayitli', []) || []); l.add(R.id); GM.durum.yaz('rota-kayitli', [...l]); h.kapat(); GM.toast(`**${ad}** Güzergâhlarım’a kaydedildi`, {tur: 'basari', ikon: 'kaydet', eylem: 'Güzergâhlarım', onEylem: () => GM.git('#/rota/rotalarim')}); o.degisti?.(); });
+        let cdAcik = o.cevrimdisi ? (indi() || !kayitli.has(R.id)) : false;
+        const cdD = GM.on(k, 'rk-cevrimdisi', v => { cdAcik = !!v; });
+        const a = GM.eylem(k, 'rk-kaydet', () => { const ad = (inp?.value || '').trim().slice(0, 64) || `${R.kalkis} → ${R.varis}`; GM.durum.yaz('rota-adlar', {...(GM.durum.oku('rota-adlar', {}) || {}), [R.id]: ad}); const l = new Set(GM.durum.oku('rota-kayitli', []) || []); l.add(R.id); GM.durum.yaz('rota-kayitli', [...l]); if (o.cevrimdisi && cdAcik !== indi()) GM.rotaIndir(R, cdAcik); h.kapat(); GM.toast(`**${ad}** Güzergâhlarım’a kaydedildi${o.cevrimdisi && cdAcik ? ` · çevrimdışı iniyor (${GM.rotaPaketMB(R)} MB)` : ''}`, {tur: 'basari', ikon: 'kaydet', eylem: 'Güzergâhlarım', onEylem: () => GM.git('#/rota/rotalarim')}); o.degisti?.(); });
         const b = GM.eylem(k, 'rk-sil', () => { const l = new Set(GM.durum.oku('rota-kayitli', []) || []); l.delete(R.id); GM.durum.yaz('rota-kayitli', [...l]); h.kapat(); GM.toast('Güzergâh Güzergâhlarım’dan çıkarıldı', {ikon: 'kaydet'}); o.degisti?.(); });
-        return () => { a(); b(); };
+        return () => { a(); b(); cdD(); };
       }});
   };
   GM.rotaKayitliMi = R => (GM.durum.oku('rota-kayitli', []) || []).includes(R.id);
@@ -169,4 +174,127 @@
   // o: {ad, dk, sec(dk)}; seçim anında uygulanır, sheet kapanır.
   GM.molaSec = (o = {}) => GM.sheet({baslik: `${o.ad} · mola`, html: `<div class="gm-yigin">${GM.segment({ad: 'mola-dk', etiket: 'Mola süresi', secili: String(o.dk), ogeler: [15, 30, 45, 60, 90].map(x => ({ad: `${x} dk`, deger: String(x)}))})}${GM.p('Mola süresi toplam süreye ve sonraki durakların varış saatine eklenir.', {ton: 'ikincil'})}</div>`,
     sonra: (k, h) => GM.on(k, 'mola-dk', v => { o.sec?.(+v); h.kapat(); })});
+})();
+/* Aktif rota katmanı (Görev 12 · patron mimari belgesi 15 Kas: 3+4 hibriti iskelet, Komoot istatistik çekmecesi, Google Maps satır/rozet dili).
+   Ekranlar: ekranlar/rota-aktif.js (rota-harita, rota-liste, rota-web), ekranlar/rota.js (rota girişi). Sayılar tek kaynak: GM.rotaOneri · GM.rotaKatmani · GMV.ilKimlik.
+   API: GM.ROTA_DURAK_SINIR · GM.rotaKategori · GM.rotaEklenen · GM.yolSatir · GM.rotaUst · GM.kmSerit · GM.ihtiyacOzet · GM.sapmaDagilim · GM.rotaAksiyon · GM.rotaPaketler · GM.rotaWebden */
+(() => {
+  const esc = s => GM.esc(s), ik = GM.ik, at = GM.at, liste = (...a) => a.filter(Boolean).join(' ');
+  const bg = src => (src ? ` style="background-image:url('${esc(src)}')"` : '');
+  const nokta = '<span class="gm-nokta" aria-hidden="true">·</span>';
+  // Bir rotaya eklenebilecek durak sayısı (web paneli dadaroute.php: rota başına 1–10 durak; mekân ve mola durakları birlikte sayılır).
+  GM.ROTA_DURAK_SINIR = 10;
+  // Rota çizgisinde km'ye düşen nokta (iller verisinde koordinat yok, km var).
+  const noktaKm = (R, km) => { const c = R.cizgi, top = c.reduce((a, p, i) => a + (i ? GM.km(c[i - 1], p) : 0), 0), h = km / R.km * top; let s = 0; for (let i = 1; i < c.length; i++) { const d = GM.km(c[i - 1], c[i]); if (s + d >= h) return c[i]; s += d; } return c.at(-1); };
+  const ilKimlik = R => (R.iller || []).map(i => ({...i, k: (window.GMV?.ilKimlik || []).find(x => x.ad === i.ad)})).filter(i => i.k);
+  const tescil = (i, t) => i.k.tescilli.filter(x => x.tur === t).map(x => x.ad);
+  const mekanOge = d => ({id: d.slug, tur: 'mekan', mekan: d.mekan, ad: d.mekan.ad, km: d.km, uzak: d.uzak, sapma: d.sapma, lng: d.lng, lat: d.lat});
+  const YOL_ALT = [{deger: 'yakit', metin: 'Yakıt', ikon: 'yakit', turler: ['yakit']}, {deger: 'sarj', metin: 'Şarj', ikon: 'sarj', turler: ['sarj']}, {deger: 'ibadet', metin: 'İbadethane', ikon: 'ibadet', turler: ['ibadet']}, {deger: 'mola', metin: 'Mola', ikon: 'dinlenme', turler: ['dinlenme', 'karavan']}];
+
+  // ---------- Kategoriler (Roadtrippers sayaçlı keşif barı; belge §3B) ----------
+  // Ne Yenir? = önerilen gurme duraklar · Ne Alınır? = geçilen illerin coğrafi işaretli ürünleri (il başına bir nokta, sayaç ürün sayısı)
+  // Geçiş Rehberi = il geçişleri (il kimliği: tarihî ve kültürel lezzet mirası) · Yol İhtiyaçları = yakıt, şarj, ibadethane, mola (dinlenme + karavan).
+  // Elektrikli araçta Yol İhtiyaçları şarj ve uzun mola önce gelir; Ne Yenir? sırasında şarj noktasına 1 km'den yakın mekânlar öne alınır.
+  // o: {arac:'yakit'|'ev'} → {kat:[{deger, metin, ikon, tur, sayi}], alt:[{deger, metin, ikon, ogeler}], ogeler:{neYenir, neAlinir, rehber, yol}, lezzet, liste(kat, alt), bul(id)}
+  GM.rotaKategori = (R, o = {}) => {
+    const ev = o.arac === 'ev', I = ilKimlik(R);
+    const K = GM.rotaKatmani(R).filter(k => !String(k.id).startsWith('tarihi')).map(k => ({...k, sapma: GM.katmanSapma(k)})).sort((a, b) => a.km - b.km);
+    const sarj = K.filter(k => k.tur === 'sarj');
+    let mekan = GM.rotaOneri(R).map(mekanOge);
+    if (ev && sarj.length) mekan = mekan.map((x, n) => ({x, n, s: sarj.some(k => GM.km([k.lng, k.lat], [x.lng, x.lat]) <= 1) ? 0 : 1})).sort((a, b) => a.s - b.s || a.n - b.n).map(y => y.x);
+    const il = (i, tur, ek) => { const p = noktaKm(R, i.km); return {id: `${tur === 'neAlinir' ? 'al' : 'il'}-${i.ad}`, tur, ad: i.ad, il: i.ad, bolge: i.bolge, km: Math.round(i.km), lng: p[0], lat: p[1], ...ek}; };
+    const alinir = I.filter(i => tescil(i, 'alinir').length).map(i => il(i, 'neAlinir', {urunler: tescil(i, 'alinir')}));
+    const rehber = I.filter(i => i.km > 5).map(i => il(i, 'cografi', {ye: tescil(i, 'yenir'), al: tescil(i, 'alinir'), varis: i.km >= R.km - 5}));
+    const alt = (ev ? ['sarj', 'mola', 'ibadet', 'yakit'] : ['yakit', 'sarj', 'ibadet', 'mola']).map(d => YOL_ALT.find(a => a.deger === d)).map(a => ({...a, ogeler: K.filter(k => a.turler.includes(k.tur))}));
+    const ogeler = {neYenir: mekan, neAlinir: alinir, rehber, yol: K};
+    const kat = [
+      {deger: 'neYenir', metin: 'Ne Yenir?', ikon: 'neYenir', tur: 'neYenir', sayi: mekan.length},
+      {deger: 'neAlinir', metin: 'Ne Alınır?', ikon: 'neAlinir', tur: 'neAlinir', sayi: alinir.reduce((t, x) => t + x.urunler.length, 0)},
+      {deger: 'rehber', metin: 'Geçiş Rehberi', ikon: 'cografi', tur: 'cografi', sayi: rehber.length},
+      {deger: 'yol', metin: 'Yol İhtiyaçları', ikon: ev ? 'sarj' : 'yakit', tur: ev ? 'sarj' : 'yakit', sayi: K.length}];
+    const altBul = a => alt.find(x => x.deger === a) || alt[0];
+    return {kat, alt, ogeler, altBul, lezzet: new Set(I.flatMap(i => tescil(i, 'yenir'))).size,
+      liste: (k, a) => (k === 'yol' ? altBul(a).ogeler : ogeler[k] || mekan),
+      bul: id => mekan.find(x => x.id === id) || K.find(x => x.id === id) || alinir.find(x => x.id === id) || rehber.find(x => x.id === id) || (() => { const d = GM.rotaDuraklari(R).find(y => y.slug === id); return d ? mekanOge(d) : null; })()};
+  };
+  // Rotaya eklenen duraklar: mekân (rota-<id>.eklenen) + mola durağı (rota-<id>.mola, katman kimliği); kalkış–varış arasında km sırasıyla. d: durum, K: GM.rotaKategori
+  GM.rotaEklenen = (d, K) => [...new Set([...(d.eklenen || []), ...(d.mola || [])])].map(id => K.bul(id)).filter(x => x && (x.tur === 'mekan' || !['neAlinir', 'cografi'].includes(x.tur))).sort((a, b) => a.km - b.km);
+
+  // ---------- Yol satırı (Google Maps "rota boyunca" satırı; belge §3C) ----------
+  // GM.sapmaSatir ailesinden: solda foto ya da tür ikonu, ad + tek meta satırı (mutfak · açık/kapalı; belge §3C), sağda yeşil "Yol üstü" rozeti ya da "+N dk", altında km, sağ kenarda + Ekle.
+  // Aynı satır haritada yüzen mini kart olur (o.yuzen: kâğıt kart + tek ×). İl öğeleri (Ne Alınır?, Geçiş Rehberi) km plakası ve il kartına ok taşır.
+  // x: GM.rotaKategori öğesi; o: {eklendi, secili, yuzen, eylem:false, sira}
+  const kmMetin = km => (km < 1 ? 'kalkışta' : `${GM.sayi(Math.round(km))}. km`);
+  GM.yolSatir = (x, o = {}) => {
+    const m = x.mekan, il = x.tur === 'neAlinir' || x.tur === 'cografi', yol = !il && x.uzak <= 1, git = m ? `#/mekan/${m.slug}` : null;
+    const kutu = m?.kapak ? `<span class="gm-ra-foto"><span class="gm-photo"${bg(m.kapak)}></span>${o.sira ? `<b class="gm-ra-sira">${esc(o.sira)}</b>` : ''}</span>` : `<span class="gm-ra-ikon is-${esc(x.tur)}">${ik(x.tur)}${o.sira ? `<b class="gm-ra-sira">${esc(o.sira)}</b>` : ''}</span>`;
+    const yazi = s => `<span>${esc(s)}</span>`;
+    const meta = m ? GM.mekanMetaSatir([yazi(m.mutfak?.[0] || m.kategori || 'Restoran'), GM.acikDurum(m.acik)])
+      : x.tur === 'neAlinir' ? GM.mekanMetaSatir([yazi(`${x.urunler.length} ürün`), yazi(x.urunler.join(', '))])
+        : x.tur === 'cografi' ? GM.mekanMetaSatir([x.ye.length ? yazi(`Ye: ${x.ye.slice(0, 2).join(', ')}`) : '', x.al.length ? yazi(`Al: ${x.al.slice(0, 2).join(', ')}`) : '', !x.ye.length && !x.al.length ? yazi(x.bolge || 'İl geçişi') : ''])
+          : GM.mekanMetaSatir([yazi(GM.KATMAN_AD[x.tur] || ''), x.alt && x.alt !== x.ad ? yazi(x.alt) : '']);
+    const sap = il
+      ? (o.yuzen ? `<span class="gm-ra-sapma is-km">${ik(x.tur)}<b>${esc(kmMetin(x.km))}</b><small>${esc(x.bolge || 'İl geçişi')}</small></span>` : `<span class="gm-ra-sapma is-km"><b>${esc(GM.sayi(x.km))}</b><small>km</small></span>`)
+      : `<span class="${liste('gm-ra-sapma', yol && 'is-yolustu')}" aria-label="${esc(`${yol ? 'Yol üstü' : `Rotadan ${x.sapma} dakika sapma`}, ${kmMetin(x.km)}`)}">${ik(yol ? 'yolUstu' : 'yon')}<b>${yol ? 'Yol üstü' : `+${esc(x.sapma)} dk`}</b><small>${esc(kmMetin(x.km))}</small></span>`;
+    const adHtml = `<b class="gm-ra-ad gm-kirp-1">${esc(m ? m.ad : il ? x.ad : x.ad)}</b>`;
+    const metin = git ? `<a class="gm-ra-metin" href="${esc(git)}" data-git="${esc(git)}">${adHtml}${meta}</a>` : `<span class="gm-ra-metin">${adHtml}${meta}</span>`;
+    const ekle = o.eylem === false ? '' : il
+      ? `<button type="button" class="gm-ra-ekle is-il" data-eylem="il-ac" data-id="${esc(x.il)}" aria-label="${esc(`${x.ad} il kartı`)}"><span>${ik('cografi')}</span><small>İl kartı</small></button>`
+      : `<button type="button" class="${liste('gm-ra-ekle', o.eklendi && 'is-ekli')}" data-eylem="${o.eklendi ? 'durak-cikar' : 'durak-ekle'}" data-id="${esc(x.id)}" aria-pressed="${!!o.eklendi}" aria-label="${esc(o.eklendi ? `${x.ad} rotada, çıkar` : `${x.ad} durağını rotaya ekle`)}"><span>${ik(o.eklendi ? 'onay' : 'ekle')}</span><small>${o.eklendi ? 'Rotada' : 'Ekle'}</small></button>`;
+    const kapat = o.yuzen ? GM.ikonBtn({ikon: 'kapat', etiket: 'Kartı kapat', tur: 'kutu', sinif: 'gm-ra-kapat', veri: {eylem: 'kart-kapat'}}) : '';
+    return `<article class="${liste('gm-ra-satir', `is-${x.tur}`, o.yuzen && 'is-yuzen', o.secili && 'is-secili', o.eklendi && 'is-eklendi')}" data-durak="${esc(x.id)}">${kutu}${metin}${sap}${ekle}${kapat}</article>`;
+  };
+  GM.yolSatirlar = (l = [], o = {}) => `<div class="gm-ra-satirlar" data-liste>${l.join('')}</div>`;
+
+  // ---------- Üst panel: arama + Yakıtlı/Elektrikli + sayaçlı kategori barı (belge §3B; 4. alternatif üstte, 3. alternatif altında) ----------
+  // o: {arama (GM.haritaArama), arac (GM.segment), kategori (GM.kesifKategoriler), alt (yol ihtiyaçları çip şeridi), ek (bant)}
+  GM.rotaUst = (o = {}) => `${o.arama || ''}<div class="gm-ra-panel">${o.arac || ''}${o.kategori || ''}</div>${o.alt || ''}${o.ek || ''}`;
+
+  // ---------- Km şeridi (belge §4: "Lezzet profili" çizgi grafiği yerine yatay km şeridi; 1. alternatifin İstanbul – Yalova – Bursa çizgisi) ----------
+  // Çizgi kalkıştan varışa; il düğümleri, önerilen duraklar küçük nokta, eklenen duraklar numaralı düğüm.
+  // Yığılma kuralı: il adları TEK SATIR. Önce uçlar, sonra ara iller km sırasıyla yerleşir; sığmayan adın düğümü kalır, dokununca adı söylenir.
+  // Uca 26 px'ten yakın ara düğüm çizilmez (uç düğümle çakışmasın); iki ara düğüm arası en az 14 px. o: {duraklar:[{km}], eklenen:[{id, km, ad}], sinif}
+  GM.kmSerit = (R, o = {}) => {
+    const km = R.km || 1, W = 330, px = v => v / km * W, yuz = v => `${Math.max(0, Math.min(100, v / km * 100)).toFixed(2)}%`, I = R.iller || [];
+    const uc = i => i === 0 || i === I.length - 1;
+    const dugum = []; I.forEach((il, n) => { const x = px(il.km); if (uc(n) || (x - px(I[0].km) >= 26 && px(I.at(-1).km) - x >= 26 && dugum.every(d => uc(d.n) || Math.abs(d.x - x) >= 14))) dugum.push({il, n, x}); });
+    const gen = d => Math.max(d.il.ad.length, 7) * 6.8 + 6, kutu = d => { const w = gen(d); return d.n === 0 ? [d.x, d.x + w] : d.n === I.length - 1 ? [d.x - w, d.x] : [d.x - w / 2, d.x + w / 2]; };
+    const yer = []; [...dugum.filter(d => uc(d.n)), ...dugum.filter(d => !uc(d.n))].forEach(d => { const [a, b] = kutu(d); if (yer.every(([p, q]) => a >= q + 8 || b <= p - 8)) { yer.push([a, b]); d.ad = true; } });
+    const kmM = v => kmMetin(v);
+    const duraklar = (o.duraklar || []).map(d => `<i class="gm-ra-km-nokta" style="--x:${yuz(d.km)}"></i>`).join('');
+    const iller = dugum.map(d => `<button type="button" class="${liste('gm-ra-km-il', d.n === 0 && 'is-bas', d.n === I.length - 1 && 'is-son')}" style="--x:${yuz(d.il.km)}" data-km-il="${esc(d.il.ad)}" data-km="${esc(kmM(d.il.km))}" aria-label="${esc(`${d.il.ad}, ${kmM(d.il.km)}`)}"></button>`).join('');
+    const ekli = (o.eklenen || []).map((e, n) => `<button type="button" class="gm-ra-km-durak" style="--x:${yuz(e.km)}" data-eylem="km-durak" data-id="${esc(e.id)}" aria-label="${esc(`${n + 1}. durak: ${e.ad}, ${kmM(e.km)}`)}">${n + 1}</button>`).join('');
+    const adlar = dugum.filter(d => d.ad).map(d => `<span class="${liste('gm-ra-km-ad', d.n === 0 ? 'is-bas' : d.n === I.length - 1 ? 'is-son' : 'is-orta')}" style="--x:${yuz(d.il.km)}" aria-hidden="true"><b>${esc(d.il.ad)}</b><small>${esc(kmM(d.il.km))}</small></span>`).join('');
+    return `<figure class="${liste('gm-ra-km', o.sinif)}" aria-label="${esc(`${R.kalkis}–${R.varis} km şeridi: ${I.map(i => `${i.ad} ${Math.round(i.km)}. km`).join(', ')}`)}"><div class="gm-ra-km-serit"><span class="gm-ra-km-cizgi"></span>${duraklar}${iller}${ekli}</div><div class="gm-ra-km-adlar">${adlar}</div></figure>`;
+  };
+  // Adı yazılmayan il düğümüne dokunuş: adı ve km'si kısa bildirimle (bütün ekranlarda aynı).
+  document.addEventListener('click', ev => { const b = ev.target.closest?.('.gm-ra-km-il[data-km-il]'); if (b) GM.toast(`**${b.dataset.kmIl}** · ${b.dataset.km}`, {ikon: 'cografi'}); });
+
+  // ---------- Rota metrikleri (belge §3D: Mesafe · Süre · Önerilen durak · Bölgesel lezzet tek satırda) ----------
+  // GM.ozetSerit (gm-facts) kartından türer; hücre içeriğe göre, değer üstte, ad altta tek satır (ikonsuz: uzun adlar tek satıra sığsın), isteğe bağlı fark satırı. l: [{deger, birim, etiket, alt}]
+  GM.rotaMetrik = (l = []) => `<dl class="gm-ra-metrik" style="--n:${l.length}">${l.map(x => `<div><dd>${esc(x.deger)}${x.birim ? `<small>${esc(x.birim)}</small>` : ''}</dd><dt>${esc(x.etiket)}</dt>${x.alt ? `<dd class="gm-ra-metrik-alt">${esc(x.alt)}</dd>` : ''}</div>`).join('')}</dl>`;
+  // ---------- Güzergâh ihtiyaç özeti (belge §3D: yakıt, ibadethane, dinlenme tesisi, karavan alanı sayıları) ----------
+  // GM.yakininda hücre dilinden: tür ikonu + sayı + ad; dokununca haritada o katman açılır. l: [{deger, tur, ikon, ad, sayi}]
+  GM.ihtiyacOzet = (l = []) => `<ul class="gm-ra-iht" aria-label="Güzergâh ihtiyaçları">${l.map(x => `<li><button type="button" class="${liste('gm-ra-iht-oge', `is-${x.tur}`, !x.sayi && 'is-yok')}" data-eylem="ihtiyac-sec" data-id="${esc(x.deger)}" aria-label="${esc(`${x.ad}: ${x.sayi}`)}"><span class="gm-ra-iht-ikon">${ik(x.ikon || x.tur)}</span><b>${esc(GM.sayi(x.sayi))}</b><small>${esc(x.ad)}</small></button></li>`).join('')}</ul>`;
+  // Sapma dağılımı (belge §3D: Yol üstü · 5 dk'ya kadar · 6–10 dk · 10 dk üstü): GM.dagilimCubuk verisi; tek kural web detour_tier (yol üstü = rotaya ≤ 1 km).
+  GM.sapmaDagilim = (O = []) => [['Yol üstü', x => x.uzak <= 1], ['5 dk’ya kadar', x => x.uzak > 1 && x.sapma <= 5], ['6–10 dk', x => x.uzak > 1 && x.sapma > 5 && x.sapma <= 10], ['10 dk üstü', x => x.uzak > 1 && x.sapma > 10]].map(([ad, f], i) => ({ad, sayi: O.filter(f).length, ton: i + 1}));
+
+  // ---------- Sabit alt aksiyon çubuğu (belge §3E: Kaydet · Paylaş · Aktar · Yola Çık) ----------
+  // GM.altEylem gövdesinden (gm-bar); ikincil eylemler etiketli ikon (ikon üstte, ad altta), ana CTA geniş birincil düğme.
+  // o: {ogeler:[{ikon, ad, veri, git, basili}], ana:{metin, ikon, veri, git}}
+  GM.rotaAksiyon = (o = {}) => `<div class="gm-bar gm-ra-bar"><div class="gm-bar-ic">${(o.ogeler || []).map(x => `<button type="button" class="gm-ra-bar-oge"${x.basili != null ? ` aria-pressed="${!!x.basili}"` : ''}${at({veri: x.veri, git: x.git})}>${ik(x.ikon)}<small>${esc(x.ad)}</small></button>`).join('')}${o.ana ? GM.btn({...o.ana, sinif: liste('gm-ra-bar-ana', o.ana.sinif)}) : ''}</div></div>`;
+
+  // ---------- Çevrimdışı paketler (rota-paketler; çevrimdışı ekranı, aktif harita ve Kaydet ortak) ----------
+  GM.rotaPaketler = () => GM.durum.oku('rota-paketler', null) || [{id: 'istanbul-izmir', tarih: '13 Kas 14.20', durum: 'guncel'}, {id: 'istanbul-bursa', tarih: '2 Kas 09.10', durum: 'guncelleme'}, {id: 'izmir-cesme', tarih: '18 Eki 19.45', durum: 'guncel'}];
+  GM.rotaPaketMB = R => Math.round(R.km / 10);
+  GM.rotaIndir = (R, var_ = true) => { const l = GM.rotaPaketler().filter(p => p.id !== R.id); if (var_) l.unshift({id: R.id, tarih: 'Şimdi', durum: 'guncel'}); GM.durum.yaz('rota-paketler', l); };
+
+  // ---------- Webden gönderilen rota (belge §3A: masaüstünde kurulan rota tek dokunuşla mobilde) ----------
+  // Webde aynı hesapla çizilen İstanbul–Bursa: önerilen duraklardan kalkışa en yakın yol üstü mekân + Bursa girişindeki iki mekân (veriden).
+  GM.rotaWebden = () => {
+    const R = GM.rotaBul('istanbul-bursa'); if (!R) return null;
+    const O = GM.rotaOneri(R), bas = O.find(d => d.uzak <= 1 && d.km >= 1) || O[0], son = O.filter(d => d.km > R.km - 10).slice(0, 2);
+    const D = [bas, ...son].filter((x, i, l) => x && l.indexOf(x) === i);
+    return {R, id: R.id, zaman: '2 dk önce', cihaz: 'Mac · Chrome', duraklar: D, ad: `${R.kalkis} – ${R.varis}`, alt: `${D.length} durak · ${GM.sayi(Math.round(R.km))} km · ${GM.sure(R.dk + D.reduce((t, d) => t + d.sapma, 0))}`};
+  };
 })();

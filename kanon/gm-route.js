@@ -5,7 +5,7 @@
 (() => {
   const esc = s => GM.esc(s), ik = GM.ik, liste = (...a) => a.filter(Boolean).join(' ');
   // Planlama durak satırı: ray düğümü (kalkış/ara/varış) + alan + tutamak/sil. o: {tur:'bas'|'ara'|'son', ad, yer, id}
-  GM.durakDuzen = (l = [], o = {}) => `<ol class="${liste('gm-dd', o.sinif)}" data-ad="${esc(o.ad || 'duraklar')}">${l.map((x, i) => `<li class="gm-dd-satir is-${x.tur}" data-id="${esc(x.id || i)}"><span class="gm-dd-ray" aria-hidden="true"><i>${x.tur === 'bas' ? ik('baslangic') : x.tur === 'son' ? ik('varis') : esc(i)}</i></span><button type="button" class="gm-dd-alan" data-eylem="durak-sec" data-id="${esc(x.id || i)}"><small>${esc(x.tur === 'bas' ? 'Nereden' : x.tur === 'son' ? 'Nereye' : `Ara durak ${i}`)}</small><b class="${x.ad ? '' : 'is-yer'}">${esc(x.ad || x.yer || 'Yer seç')}</b>${x.alt ? `<span>${esc(x.alt)}</span>` : ''}</button>${x.tur === 'ara' ? `<span class="gm-dd-eylem">${GM.ikonBtn({ikon: 'grip-lines', etiket: 'Sırala', tur: 'duz', attrs: 'data-surukle'})}${GM.ikonBtn({ikon: 'sil', etiket: 'Durağı sil', tur: 'duz', veri: {eylem: 'durak-sil', id: x.id || i}})}</span>` : x.tur === 'bas' ? `<span class="gm-dd-eylem">${GM.ikonBtn({ikon: 'right-left', etiket: 'Kalkış ve varışı değiştir', tur: 'duz', veri: {eylem: 'durak-degistir'}})}</span>` : ''}</li>`).join('')}${o.ekle === false ? '' : `<li class="gm-dd-ekle"><span class="gm-dd-ray" aria-hidden="true"><i>${ik('ekle')}</i></span>${GM.btn({metin: o.ekleMetin || 'Ara durak ekle', tur: 'text', veri: {eylem: 'durak-ekle'}})}</li>`}</ol>`;
+  GM.durakDuzen = (l = [], o = {}) => `<ol class="${liste('gm-dd', o.sinif)}" data-ad="${esc(o.ad || 'duraklar')}">${l.map((x, i) => `<li class="gm-dd-satir is-${x.tur}" data-id="${esc(x.id || i)}"><span class="gm-dd-ray" aria-hidden="true"><i>${x.tur === 'bas' ? ik('baslangic') : x.tur === 'son' ? ik('varis') : esc(i)}</i></span><button type="button" class="gm-dd-alan" data-eylem="durak-sec" data-id="${esc(x.id || i)}"><small>${esc(x.tur === 'bas' ? 'Nereden' : x.tur === 'son' ? 'Nereye' : `Ara durak ${i}`)}</small><b class="${x.ad ? '' : 'is-yer'}">${esc(x.ad || x.yer || 'Yer seç')}</b>${x.alt ? `<span>${esc(x.alt)}</span>` : ''}</button>${x.tur === 'ara' ? `<span class="gm-dd-eylem">${GM.ikonBtn({ikon: 'grip-lines', etiket: 'Sırala', tur: 'duz', attrs: 'data-surukle', veri: {eylem: 'durak-sirala', id: x.id || i}})}${GM.ikonBtn({ikon: 'sil', etiket: 'Durağı sil', tur: 'duz', veri: {eylem: 'durak-sil', id: x.id || i}})}</span>` : x.tur === 'bas' ? `<span class="gm-dd-eylem">${GM.ikonBtn({ikon: 'right-left', etiket: 'Kalkış ve varışı değiştir', tur: 'duz', veri: {eylem: 'durak-degistir'}})}</span>` : ''}</li>`).join('')}${o.ekle === false ? '' : `<li class="gm-dd-ekle"><span class="gm-dd-ray" aria-hidden="true"><i>${ik('ekle')}</i></span>${GM.btn({metin: o.ekleMetin || 'Ara durak ekle', tur: 'text', veri: {eylem: 'durak-ekle'}})}</li>`}</ol>`;
   // Rota alternatifi kartı: ad, süre, km, gurme durak sayısı, fark; küçük şema. o: {secili, rozet}
   GM.rotaSecenek = (x, o = {}) => `<button type="button" class="${liste('gm-rs-sec', o.secili && 'is-secili')}" aria-pressed="${!!o.secili}" data-cip="${esc(x.id)}">${x.cizgi ? `<span class="gm-rs-sec-sema">${GM.rotaCizgi({rota: {cizgi: x.cizgi}, pinler: [], w: 88, h: 88, dolgu: {top: 10, right: 10, bottom: 10, left: 10}})}</span>` : `<span class="gm-rs-sec-ikon">${ik(x.ikon || 'rota')}</span>`}<span class="gm-satir-metin"><span class="gm-rs-sec-bas"><b>${esc(x.ad)}</b>${o.rozet ? `<em>${esc(o.rozet)}</em>` : ''}</span><span class="gm-rs-sec-sure">${esc(GM.sure(x.dk))}<small>${esc(GM.sayi(x.km))} km</small></span><small>${esc(x.alt)}</small></span>${ik('onay', 'gm-rs-sec-onay')}</button>`;
   GM.rotaSecenekler = (l, o = {}) => `<div class="gm-rs-secler" data-cip-grup="tek" data-ad="${esc(o.ad || 'rota-secenek')}" role="radiogroup" aria-label="Rota seçenekleri">${l.map((x, i) => GM.rotaSecenek(x, {secili: x.id === o.secili, rozet: i === 0 ? o.rozet : null})).join('')}</div>`;
@@ -47,7 +47,7 @@
     };
     ['yakit', 'sarj', 'ibadet', 'dinlenme', 'karavan'].forEach(t => {
       const l = K.filter(k => k.tur === t && (t !== 'sarj' || !o.sarj || o.sarj === 'tumu' || sarjTip(k) === o.sarj));
-      s[t] = {sayi: l.length, ornek: l.some(k => k.ornek), nokta: true, alt: l.length ? `İlki ${l[0].km}. km${l.some(k => k.ornek) ? ' · prototip örneği' : t === 'yakit' ? ' · OpenStreetMap' : ''}` : 'Bu rotada yok'};
+      s[t] = {sayi: l.length, ornek: l.some(k => k.ornek), nokta: true, alt: l.length ? `İlki ${l[0].km}. km${t === 'yakit' ? ' · OpenStreetMap' : ''}` : 'Bu rotada yok'};
     });
     return s;
   };
@@ -65,7 +65,7 @@
     const govde = () => { const s = GM.rotaKatmanSay(R, d); return `<div class="gm-ks">
       <div class="gm-ks-secki">${GM.toggle({ad: 'katman-secki', ikon: 'puanDada', etiket: 'Yalnız Dada seçkisi', alt: 'Dada Route seçkisindeki mekânlar', secili: d.secki})}</div>
       ${GM.KATMAN_GRUP.map(g => `<section class="gm-ks-grup"><h3 class="gm-ks-baslik"><span>${esc(g.ad)}</span><small>${g.ogeler.filter(t => d.katman.includes(t)).length}/${g.ogeler.length} açık</small></h3><div class="gm-ks-liste">${g.ogeler.map(t => satir(t, s[t]) + (t === 'sarj' && d.katman.includes('sarj') && sarjVar() ? `<div class="gm-ks-alt">${GM.segment({ad: 'katman-sarj-tip', etiket: 'Şarj türü', secili: d.sarj, ogeler: [{ad: 'Tümü', deger: 'tumu'}, {ad: 'DC hızlı', deger: 'dc'}, {ad: 'AC', deger: 'ac'}]})}</div>` : '')).join('')}</div></section>`).join('')}
-      ${GM.bilgi({metin: 'Adında **Örnek** yazan noktalar prototip örneğidir; yakıt istasyonları OpenStreetMap verisidir (ODbL).'})}</div>`; };
+      ${GM.bilgi({metin: 'Yakıt istasyonları OpenStreetMap verisidir (ODbL).'})}</div>`; };
     const ayak = () => GM.btnIkili({metin: 'Sıfırla', veri: {eylem: 'ks-sifirla'}}, {metin: `Uygula · ${GM.sayi(nokta())} nokta`, veri: {eylem: 'ks-uygula'}});
     return GM.sheet({baslik: 'Katmanlar', tam: true, sinif: 'gm-ks-sheet', html: `<div data-ks-govde>${govde()}</div>`, altBar: `<div data-ks-ayak>${ayak()}</div>`, sonra: (k, h) => {
       const ciz = () => { const y = k.querySelector('.gm-sheet-govde').scrollTop; k.querySelector('[data-ks-govde]').innerHTML = govde(); k.querySelector('[data-ks-ayak]').innerHTML = ayak(); k.querySelector('.gm-sheet-govde').scrollTop = y; };
@@ -94,16 +94,16 @@
   GM.molaEsi = (R, k) => {
     const yakin = GM.rotaDuraklari(R).map(d => ({d, m: Math.round(GM.km([k.lng, k.lat], [d.lng, d.lat]) * 1000)})).filter(x => x.m <= 1000).sort((a, b) => a.m - b.m).slice(0, 4);
     if (yakin.length) return yakin.map(x => GM.durakKart({...x.d, id: x.d.slug, alt: `${GM.sayi(x.m)} m · ${Math.max(1, Math.round(x.m / 80))} dk yürüme`}, {eylem: false, kucuk: true})).join('');
-    if (k.eslesme) return GM.durakKart({tur: 'neYenir', ikon: 'mekan', ad: k.eslesme.ad, alt: `${GM.sayi(k.eslesme.metre)} m · ${Math.max(1, Math.round(k.eslesme.metre / 80))} dk yürüme · prototip örneği`}, {eylem: false, kucuk: true});
+    if (k.eslesme) return GM.durakKart({tur: 'neYenir', ikon: 'mekan', ad: k.eslesme.ad, alt: `${GM.sayi(k.eslesme.metre)} m · ${Math.max(1, Math.round(k.eslesme.metre / 80))} dk yürüme`}, {eylem: false, kucuk: true});
     return '';
   };
   // Durak sheet'i: GM.sheet (yarım) + GM.durakKart başlık dili + GM.btnIkili ayak (§5e ana yön). d: katman noktası ya da GM.rotaOneri öğesi (mekan alanlı).
   // o: {rota, durak, eklendi, ekle(d), cikar(d)}
   GM.durakSheet = (o = {}) => {
     const R = o.rota, d = o.durak, m = d.mekan, tur = m ? 'mekan' : d.tur, sapma = GM.katmanSapma(d), sarj = tur === 'sarj', dc = sarj && sarjTip(d) === 'dc';
-    const bas = `<header class="gm-ds-bas">${m?.kapak ? `<span class="gm-ds-foto"><span class="gm-photo" style="background-image:url('${esc(m.kapak)}')"></span></span>` : durakIkon(tur, true)}<span class="gm-satir-metin"><small class="gm-card__category">${esc(m ? [m.kategori, m.mutfak?.[0]].filter(Boolean).join(' · ') : GM.KATMAN_AD[tur] || 'Durak')}</small><b>${esc(m ? m.ad : d.ad)}</b><span>${esc(m ? GM.konumMetin(m, 'kisa') : d.alt || '')}</span></span>${d.ornek ? GM.rozet({metin: 'Örnek', ton: 'notr'}) : ''}</header>`;
+    const bas = `<header class="gm-ds-bas">${m?.kapak ? `<span class="gm-ds-foto"><span class="gm-photo" style="background-image:url('${esc(m.kapak)}')"></span></span>` : durakIkon(tur, true)}<span class="gm-satir-metin"><small class="gm-card__category">${esc(m ? [m.kategori, m.mutfak?.[0]].filter(Boolean).join(' · ') : GM.KATMAN_AD[tur] || 'Durak')}</small><b>${esc(m ? m.ad : d.ad)}</b><span>${esc(m ? GM.konumMetin(m, 'kisa') : d.alt || '')}</span></span></header>`;
     const mola = sarj ? `<section class="gm-ds-mola"><div class="gm-ds-mola-bas">${durakIkon('sarj')}<span class="gm-satir-metin"><small>${dc ? 'DC hızlı' : 'AC'} · %20 → %80</small><b>~${dc ? 26 : 100} dk şarj molası</b></span></div>${GM.molaEsi(R, d) ? `<p class="gm-t-label gm-ton-ikincil">Yürüme mesafesinde</p><div class="gm-yigin-8">${GM.molaEsi(R, d)}</div>` : ''}</section>` : '';
-    const html = `<div class="gm-ds">${bas}${GM.durakBaglam({km: d.km, uzak: d.uzak, sapma})}${mola}<section class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">Yakınında</p>${GM.yakininda(yakinBul(R, d))}</section>${m ? GM.satirlar([{ikon: 'mekan', baslik: 'Mekânı incele', alt: 'Menü, saatler, adres ve telefon', git: `#/mekan/${m.slug}`}]) : ''}${d.ornek ? GM.bilgi({metin: 'Bu nokta prototip örneğidir; panelde gerçek veriyle gelir.'}) : sarj ? GM.bilgi({metin: 'Şarj süresi %20’den %80’e tahmindir; araca ve istasyona göre değişir.'}) : ''}</div>`;
+    const html = `<div class="gm-ds">${bas}${GM.durakBaglam({km: d.km, uzak: d.uzak, sapma})}${mola}<section class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">Yakınında</p>${GM.yakininda(yakinBul(R, d))}</section>${m ? GM.satirlar([{ikon: 'mekan', baslik: 'Mekânı incele', alt: 'Menü, saatler, adres ve telefon', git: `#/mekan/${m.slug}`}]) : ''}${sarj ? GM.bilgi({metin: 'Şarj süresi %20’den %80’e tahmindir; araca ve istasyona göre değişir.'}) : ''}</div>`;
     const ayak = GM.btnIkili({metin: 'Yol tarifi', ikon: 'navigasyon', veri: {eylem: 'ds-yol'}}, o.eklendi ? {metin: 'Rotada', ikon: 'onay', tur: 'tonal', veri: {eylem: 'ds-cikar'}} : {metin: 'Rotaya ekle', ikon: 'ekle', veri: {eylem: 'ds-ekle'}});
     return GM.sheet({baslik: 'Rotadaki durak', sinif: 'gm-ds-sheet', html, altBar: ayak, sonra: (k, h) => {
       const t = ev => {
@@ -131,15 +131,17 @@
 
   // ---------- (g) Navigasyona aktar ----------
   // GM.satirlar + GM.ikonKutu (rota.js "Navigasyonda aç" ile aynı satır dili); sınır her satırın altında açıkça yazılı, sağda bu rotaya etkisi (rozet).
-  // Web (WEB-ENVANTERI §3.5): Google tek bağlantıda 9 ara durak (telefonda 3, fazlası etap), Apple iOS 18.4+, Yandex yalnız uçlar. GPX mobil ektir.
+  // Web (WEB-ENVANTERI §3.5): Google tek bağlantıda 9 ara durak (telefonda 3, fazlası etap), Apple iOS 18.4+, Yandex yalnız uçlar. Waze (patron belgesi §3E) tek hedef alır. GPX mobil ektir.
   // o: {rota, duraklar:[...ara durak], hedef:{ad} (tek durağa yol tarifi)}
   GM.aktarSheet = (o = {}) => {
     const R = o.rota, n = (o.duraklar || []).length, tek = !!o.hedef, etap = Math.max(1, Math.ceil(n / 3));
     const rozet = (metin, ton) => GM.durumRozet({metin, ton, ikon: ton === 'uyari' ? 'uyari' : 'onay'});
     const satirlar = tek
-      ? [{ikon: 'map', baslik: 'Google Haritalar', alt: 'Bu durağa yol tarifi', id: 'google'}, {ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Bu durağa yol tarifi', id: 'apple'}, {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Bu durağa yol tarifi', id: 'yandex'}]
-      : [{ikon: 'map', baslik: 'Google Haritalar', alt: 'Tek bağlantıda en çok 9 ara durak; telefonda 3, fazlası etaplara bölünür', id: 'google', sag: n > 3 ? rozet(`${etap} etap`, 'uyari') : rozet('Tek bağlantı', 'basari')},
-        {ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Çok duraklı rota iOS 18.4 ve sonrasında; öncesinde yalnız varış', id: 'apple', sag: rozet('Uygun', 'basari')},
+      ? [{ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Bu durağa yol tarifi', id: 'apple'}, {ikon: 'map', baslik: 'Google Haritalar', alt: 'Bu durağa yol tarifi', id: 'google'}, {ikon: 'car-side', baslik: 'Waze', alt: 'Bu durağa yol tarifi', id: 'waze'}, {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Bu durağa yol tarifi', id: 'yandex'}]
+      // Patron belgesi §3E sırası: Apple Maps · Google Maps · Waze; Yandex (Türkiye'de yaygın) ve dosya seçenekleri ardından.
+      : [{ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Çok duraklı rota iOS 18.4 ve sonrasında; öncesinde yalnız varış', id: 'apple', sag: rozet('Uygun', 'basari')},
+        {ikon: 'map', baslik: 'Google Haritalar', alt: 'Tek bağlantıda en çok 9 ara durak; telefonda 3, fazlası etaplara bölünür', id: 'google', sag: n > 3 ? rozet(`${etap} etap`, 'uyari') : rozet('Tek bağlantı', 'basari')},
+        {ikon: 'car-side', baslik: 'Waze', alt: 'Tek hedef: sıradaki durağa ya da varışa; ara duraklar sırayla açılır', id: 'waze', sag: n ? rozet('Durak durak', 'uyari') : rozet('Uygun', 'basari')},
         {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Yalnız kalkış ve varış; ara duraklar aktarılmaz', id: 'yandex', sag: n ? rozet('Duraklar düşer', 'uyari') : rozet('Uygun', 'basari')},
         // Web rota-katman-panel.js "Tek rota bağlantısı" (R3.6d): bütün duraklar tek adreste, açan kişi uygulamayı seçer.
         {ikon: 'link', baslik: 'Tek rota bağlantısı', alt: 'Bütün duraklar tek adreste; açan kişi Google, Apple ya da Yandex’i seçer', id: 'bag', sag: rozet('Kopyala', 'notr')},
@@ -177,11 +179,12 @@
     const r = o.rota, iniyor = o.durum === 'iniyor';
     const sema = GM.rotaCizgi({rota: {cizgi: r.cizgi}, pinler: [{lng: r.cizgi[0][0], lat: r.cizgi[0][1], uc: true}, {lng: r.cizgi.at(-1)[0], lat: r.cizgi.at(-1)[1], uc: true}], w: 112, h: 112, dolgu: {top: 14, right: 14, bottom: 14, left: 14}});
     const icerik = [['harita', 'Harita'], ['pin', `${o.pinSayi} pin`], ['pin', 'Adres'], ['telefon', 'Telefon']];
-    const durum = iniyor ? '' : o.durum === 'guncelleme' ? GM.durumRozet({metin: 'Güncelleme var', ton: 'uyari', ikon: 'yenile'}) : GM.durumRozet({metin: 'Cihazda', ton: 'basari', ikon: 'onay'});
-    const eylem = iniyor ? GM.ikonBtn({ikon: 'kapat', etiket: 'İndirmeyi durdur', veri: {eylem: 'pk-durdur', id: r.id}}) : GM.ikonBtn({ikon: 'sil', etiket: `${r.ad} paketini sil`, veri: {eylem: 'pk-sil', id: r.id}});
+    const durum = iniyor ? '' : o.durum === 'guncelleme' ? GM.durumRozet({metin: 'Güncelleme', ton: 'uyari', ikon: 'yenile'}) : GM.durumRozet({metin: 'Cihazda', ton: 'basari', ikon: 'onay'});
+    // Güncelleme düğmesi sağ kolonda silin üstünde (satır ≤ 3: ad · boyut + durum · içerik; yığılma kuralı).
+    const eylem = iniyor ? GM.ikonBtn({ikon: 'kapat', etiket: 'İndirmeyi durdur', veri: {eylem: 'pk-durdur', id: r.id}}) : `<span class="gm-pk-eylem">${o.durum === 'guncelleme' ? GM.ikonBtn({ikon: 'yenile', etiket: `${r.ad} paketini güncelle`, tur: 'tint', veri: {eylem: 'pk-guncelle', id: r.id}}) : ''}${GM.ikonBtn({ikon: 'sil', etiket: `${r.ad} paketini sil`, veri: {eylem: 'pk-sil', id: r.id}})}</span>`;
     return `<article class="${liste('gm-pk', iniyor && 'is-iniyor')}" data-paket="${esc(r.id)}"><a class="gm-pk-sema" href="#/rota/${esc(r.id)}" data-git="#/rota/${esc(r.id)}" tabindex="-1" aria-hidden="true">${sema}</a><div class="gm-pk-metin"><a class="gm-pk-ad" href="#/rota/${esc(r.id)}" data-git="#/rota/${esc(r.id)}">${esc(r.ad)}</a>
-      ${iniyor ? `<div class="gm-pk-iniyor">${GM.ilerleme({oran: o.oran, etiket: `${r.ad} indiriliyor`, satir: false})}<small>%${Math.round(o.oran * 100)} · ${esc(o.inen)} / ${esc(o.boyut)}</small></div>` : `<small class="gm-pk-meta">${esc(o.boyut)} · ${esc(o.tarih)}</small><ul class="gm-pk-icerik" aria-label="Paket içeriği">${icerik.map(([i, a]) => `<li>${ik(i)}<span>${esc(a)}</span></li>`).join('')}</ul>`}
-      ${durum || o.durum === 'guncelleme' ? `<div class="gm-pk-alt">${durum}${o.durum === 'guncelleme' ? GM.btn({metin: 'Güncelle', ikon: 'yenile', tur: 'secondary', boyut: 'sm', veri: {eylem: 'pk-guncelle', id: r.id}}) : ''}</div>` : ''}</div>${eylem}</article>`;
+      ${iniyor ? `<div class="gm-pk-iniyor">${GM.ilerleme({oran: o.oran, etiket: `${r.ad} indiriliyor`, satir: false})}<small>%${Math.round(o.oran * 100)} · ${esc(o.inen)} / ${esc(o.boyut)}</small></div>` : `<span class="gm-pk-meta-satir"><small class="gm-pk-meta">${esc(o.boyut)} · ${esc(String(o.tarih || '').replace(/ \d{1,2}\.\d{2}$/, ''))}</small>${durum}</span><ul class="gm-pk-icerik" aria-label="Paket içeriği">${icerik.map(([i, a]) => `<li>${ik(i)}<span>${esc(a)}</span></li>`).join('')}</ul>`}
+      </div>${eylem}</article>`;
   };
   // Depolama özeti: GM.ilerleme çubuğunun parçalı hali (iOS Depolama); l: [{ad, mb, ton:'rota'|'karo'}], bos: cihazda boş alan metni.
   GM.depolama = (o = {}) => { const top = (o.parcalar || []).reduce((t, x) => t + x.mb, 0), olcek = Math.max(top, o.olcek || top) || 1; return `<section class="gm-dp" aria-label="Depolama"><div class="gm-dp-bas"><b>${GM.sayi(top)} MB</b><small>${esc(o.alt || '')}</small></div><div class="gm-dp-cubuk" role="img" aria-label="${esc((o.parcalar || []).map(x => `${x.ad} ${x.mb} MB`).join(', '))}">${(o.parcalar || []).map(x => `<i class="is-${esc(x.ton)}" style="--pay:${(x.mb / olcek).toFixed(3)}"></i>`).join('')}</div><ul class="gm-dp-aciklama">${(o.parcalar || []).map(x => `<li class="is-${esc(x.ton)}"><i aria-hidden="true"></i><span>${esc(x.ad)}</span><b>${GM.sayi(x.mb)} MB</b></li>`).join('')}</ul></section>`; };
@@ -199,8 +202,8 @@
     const p = o.platform || 'carplay', l = (o.ogeler || []).slice(0, 12), s = o.secili != null ? l[o.secili] : null;
     // Harita: GM.harita koyu, dokunmasız; liste panelinin altında kalmasın diye sol dolgu. Pinler listedeki sırayla numaralı.
     const h = o.harita || {}, c = h.cizgi || [];
-    // Görünen alan: konumdan sıradaki duraklara (rotanın tamamı değil); CarPlay haritası da yaklaşan bölümü gösterir.
-    const nk = [...l.map(x => [x.lng, x.lat]), ...(h.konum ? [h.konum] : [])], sinir = nk.length > 1 ? [[Math.min(...nk.map(q => q[0])), Math.min(...nk.map(q => q[1]))], [Math.max(...nk.map(q => q[0])), Math.max(...nk.map(q => q[1]))]] : undefined;
+    // Görünen alan: konumdan sıradaki üç durağa (rotanın tamamı değil; konum noktası ile 1 numaralı pin ayrışsın); CarPlay haritası da yaklaşan bölümü gösterir.
+    const nk = [...l.slice(0, 3).map(x => [x.lng, x.lat]), ...(h.konum ? [h.konum] : [])], sinir = nk.length > 1 ? [[Math.min(...nk.map(q => q[0])), Math.min(...nk.map(q => q[1]))], [Math.max(...nk.map(q => q[0])), Math.max(...nk.map(q => q[1]))]] : undefined;
     const sema = c.length ? GM.harita({ad: o.ad || `arac-${p}`, stil: 'koyu', etkilesim: false, kontroller: false, tam: true, etiket: 'Rota haritası', rota: {cizgi: c, gecilen: h.gecilen}, konum: h.konum, yon: h.yon, sinir,
       dolgu: {top: 24, right: 40, bottom: 24, left: o.uyari ? 24 : 170}, pinler: l.map((x, i) => ({id: `ae-${i}`, lng: x.lng, lat: x.lat, sira: i + 1, secili: i === o.secili}))}) : '';
     // Satır: numara rozeti (haritadaki pinle aynı), ad + tür, sağda mesafe ve sapma. Tür ikonu numara rozetinin rengidir (gurme primary, yol katmanı nötr).

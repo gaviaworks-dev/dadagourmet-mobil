@@ -4,49 +4,54 @@
   // Gezinme Gastro mobil 1.0.1 çekmecesinin kalıbıdır (app_drawer.dart): hesap kartı + 4 kısayol, başlıksız iki blok, ayak. İçerik Gourmet web çekmecesi.
   // Gourmet çekmecesi (web mobil çekmecesi: 5 menü kalemi + Görüş Bildir; üye bloğu Hesabım; WEB-ENVANTERI §1.1, §4.5).
   const hesapGrubu = {id: 'hesap', label: 'Hesabım', icon: 'user', children: [
-    {id: 'rez', label: 'Rezervasyonlarım', icon: 'calendar-check', git: '#/yer/rezervasyonlarim'},
-    {id: 'fav', label: 'Gurme Favorilerim', icon: 'heart', git: '#/yer/favoriler'},
-    {id: 'ziy', label: 'Ziyaret Geçmişim', icon: 'circle-check', git: '#/yer/ziyaretler'},
-    {id: 'deg', label: 'Değerlendirmelerim', icon: 'star', git: '#/yer/degerlendirmeler'},
-    {id: 'kat', label: 'Topluluk Katkılarım', icon: 'users', git: '#/yer/katkilar'},
-    {id: 'puan', label: 'Puan Durumu ve Rozetler', icon: 'medal', git: '#/yer/puan'},
-    {id: 'liste', label: 'Listelerim ve Rotalarım', icon: 'list', git: '#/rota/rotalarim'},
-    {id: 'etk', label: 'Etkinliklerim', icon: 'calendar-days', git: '#/yer/etkinliklerim'},
-    {id: 'terc', label: 'Keşif Tercihlerim', icon: 'sliders', git: '#/yer/tercihler'},
-    {id: 'ayar', label: 'Hesap Ayarları', icon: 'gear', git: '#/yer/ayarlar'},
-    {id: 'cozum', label: 'Çözüm Merkezi', icon: 'headset', git: '#/yer/cozum'},
+    {id: 'rez', label: 'Rezervasyonlarım', icon: 'calendar-check', git: '#/profil/rezervasyonlar'},
+    {id: 'fav', label: 'Gurme Favorilerim', icon: 'heart', git: '#/profil/favoriler'},
+    {id: 'ziy', label: 'Ziyaret Geçmişim', icon: 'circle-check', git: '#/profil/ziyaretler'},
+    {id: 'deg', label: 'Değerlendirmelerim', icon: 'star', git: '#/profil/degerlendirmeler'},
+    {id: 'kat', label: 'Topluluk Katkılarım', icon: 'users', git: '#/profil/katkilar'},
+    {id: 'puan', label: 'Puan Durumu ve Rozetler', icon: 'medal', git: '#/profil/puan'},
+    {id: 'liste', label: 'Listelerim', icon: 'list', git: '#/profil/listeler'},
+    {id: 'rotalarim', label: 'Rotalarım', icon: 'route', git: '#/rota/rotalarim'},
+    {id: 'bildirim', label: 'Bildirimler', icon: 'bell', git: '#/bildirimler'},
+    {id: 'paket', label: 'Paketlerim', icon: 'box-open', git: '#/paketlerim'},
+    {id: 'odeme', label: 'Ödemelerim', icon: 'credit-card', git: '#/odemelerim'},
+    {id: 'isletmelerim', label: 'İşletmelerim', icon: 'store', git: '#/isletme'},
+    {id: 'etk', label: 'Etkinliklerim', icon: 'calendar-days', git: '#/profil/etkinlikler'},
+    {id: 'terc', label: 'Keşif Tercihlerim', icon: 'sliders', git: '#/profil/tercihler'},
+    {id: 'ayar', label: 'Hesap Ayarları', icon: 'gear', git: '#/ayarlar'},
+    {id: 'cozum', label: 'Çözüm Merkezi', icon: 'headset', git: '#/cozum-merkezi'},
     {id: 'cikis', label: 'Çıkış', icon: 'right-from-bracket', eylem: 'cikis'}]};
   const BLOKLAR = () => [[
     {id: 'kesfet', label: 'Ana Sayfa', icon: 'house', git: '#/kesfet'},
     {id: 'mekanlar', label: 'Mekânlar', icon: 'utensils', git: '#/mekanlar'},
-    {id: 'bul', label: 'Mekân Bul', icon: 'wand-magic-sparkles', git: '#/yer/mekan-bul'},
-    {id: 'lezzet', label: 'Gurme Lezzetler', icon: 'bowl-food', git: '#/yer/lezzetler'},
+    {id: 'bul', label: 'Mekân Bul', icon: 'wand-magic-sparkles', git: '#/mekan-bul'},
+    {id: 'lezzet', label: 'Gurme Lezzetler', icon: 'bowl-food', git: '#/lezzetler'},
     {id: 'rota', label: 'Dada Route', icon: 'route', git: '#/rota'},
-    {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/yer/etkinlikler'},
-    {id: 'rehber', label: 'Şehir Rehberleri', icon: 'city', git: '#/yer/rehberler'}
+    {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/etkinlikler'},
+    {id: 'rehber', label: 'Şehir Rehberleri', icon: 'city', git: '#/rehberler'}
   ], [
     ...(GM.uye() ? [hesapGrubu] : []),
-    {id: 'oner', label: 'Mekân Öner', icon: 'plus', git: '#/yer/mekan-oner'},
-    {id: 'isletme', label: 'İşletmeni Ekle', icon: 'store', git: '#/yer/isletme'},
-    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/yer/gorus'}
+    {id: 'oner', label: 'Mekân Öner', icon: 'plus', git: '#/mekan-oner'},
+    {id: 'isletme', label: 'İşletmeni Ekle', icon: 'store', git: '#/isletme'},
+    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'}
   ]];
-  const kisayollar = () => [['#/rota/rotalarim', 'route', 'Rotalarım'], ['#/yer/rezervasyonlarim', 'calendar-check', 'Rezervasyonlarım'], ['#/yer/favoriler', 'heart', 'Favorilerim'], ['#/yer/puan', 'medal', 'Dada Puan']];
+  const kisayollar = () => [['#/rota/rotalarim', 'route', 'Rotalarım'], ['#/profil/rezervasyonlar', 'calendar-check', 'Rezervasyonlarım'], ['#/profil/favoriler', 'heart', 'Favorilerim'], ['#/profil/puan', 'medal', 'Dada Puan']];
   // Dil: Ayarlar > Dil ile aynı iki dil ve aynı kayıt (hesap-ayar.dil.dil). Tasarım öğesi: uygulama TR çalışır, diller Flutter aşamasında gelir.
   const DILLER = [['tr', 'Türkçe'], ['en', 'English']];
   const dilKod = () => GM.durum.oku('hesap-ayar', {})?.dil?.dil || 'tr';
   const dilAd = () => (DILLER.find(([k]) => k === dilKod()) || DILLER[0])[1];
   // Sosyal (karar 5, 11 Kasım): Diet web'de adresli sosyal hesap yok (web footer + Laravel adressiz ikonu basmıyor) → menüde sosyal satırı yok. Adres gelince web'in platformları: Instagram, YouTube, Pinterest.
   // Yasal ayak (Paket 1, 1b): web footer kurumsal sırası (_src/kabuk/menu.mjs footerKurumsal: Hakkımızda · Editoryal ve Bilimsel Kurul · Künye · İletişim), sonra SSS ve Yasal Metinler. Hepsi gerçek rota.
-  const YASAL = [['#/yer/kurumsal', 'Hakkımızda'], ['#/yer/kurumsal', 'Künye'], ['#/yer/kurumsal', 'İletişim'], ['#/yer/kurumsal', 'SSS'], ['#/yer/yasal', 'Yasal Metinler']];
+  const YASAL = [['#/kurumsal/hakkimizda', 'Hakkımızda'], ['#/kurumsal/kunye', 'Künye'], ['#/iletisim', 'İletişim'], ['#/sss', 'SSS'], ['#/yasal', 'Yasal Metinler']];
   const aktif = () => (GM.aktif()?.hash || location.hash).split('?')[0];
   const satir = (x, alt) => { const on = x.git === aktif(); return `<a class="gm-menu-row${alt ? ' gm-menu-subrow' : ''}${on ? ' is-active' : ''}" href="${esc(x.git || '')}" data-menu-git="${esc(x.git || '')}"${x.yakinda ? ' data-menu-yakinda' : ''}${x.eylem ? ` data-menu-eylem="${esc(x.eylem)}"` : ''}${on ? ' aria-current="page"' : ''}><span class="gm-menu-ic">${ik(x.icon)}</span><span class="gm-menu-label">${esc(x.label)}</span></a>`; };
   const grup = x => { const acik = x.children.some(c => c.git === aktif()); return `<div class="gm-menu-item gm-menu-group${acik ? ' is-open' : ''}"><button class="gm-menu-row gm-menu-toggle" type="button" aria-expanded="${acik}"><span class="gm-menu-ic">${ik(x.icon)}</span><span class="gm-menu-label">${esc(x.label)}</span><span class="gm-menu-chev">${ik('chevron-down')}</span></button><div class="gm-menu-sub"${acik ? '' : ' inert'}><div class="gm-menu-sub-in">${x.children.map(c => satir(c, true)).join('')}</div></div></div>`; };
-  const kullanici = () => { if (!GM.uye()) return `<p class="gm-menu-hello"><b>Merhaba</b><span>Favorilerini, rotalarını ve Dada Puan’ını korumak için giriş yap.</span></p><div class="gm-menu-auth">${GM.btn({metin: 'Giriş Yap', boyut: 'sm', attrs: 'data-menu-git="#/giris"'})}${GM.btn({metin: 'Üye Ol', tur: 'secondary', boyut: 'sm', attrs: 'data-menu-eylem="uye" data-menu-git=""'})}</div>`; const k = window.GMV?.kullanici || {}; return `<a class="gm-menu-profile" href="#/profil" data-menu-git="#/profil"><span class="gm-menu-avatar" aria-hidden="true">${esc(String(k.ad || 'D').slice(0, 1))}</span><span class="gm-menu-who"><b>${esc([k.ad, k.soyad].filter(Boolean).join(' ') || 'Profilim')}</b><small>${ik('puanDada')} Dada Puan ve rozetler</small></span><span class="gm-menu-go">Profilim ${ik('chevron-right')}</span></a><div class="gm-menu-shortcuts">${kisayollar().map(([g, i, t, n]) => `<a class="gm-menu-short" href="${g}" data-menu-git="${g}">${ik(i)}<span>${esc(t)}</span>${n ? `<b class="gm-menu-sayac">${n}</b>` : ''}</a>`).join('')}</div>`; };
+  const kullanici = () => { if (!GM.uye()) return `<p class="gm-menu-hello"><b>Merhaba</b><span>Favorilerini, rotalarını ve Dada Puan’ını korumak için giriş yap.</span></p><div class="gm-menu-auth">${GM.btn({metin: 'Giriş Yap', boyut: 'sm', attrs: 'data-menu-git="#/giris"'})}${GM.btn({metin: 'Üye Ol', tur: 'secondary', boyut: 'sm', attrs: 'data-menu-eylem="uye" data-menu-git=""'})}</div>`; const k = {...(window.GMX?.hesap?.kullanici || window.GMV?.kullanici || {}), ...(GM.durum.oku('hesap-ayar', {})?.profil || {})}; return `<a class="gm-menu-profile" href="#/profil" data-menu-git="#/profil"><span class="gm-menu-avatar" aria-hidden="true">${esc(String(k.ad || 'D').slice(0, 1))}</span><span class="gm-menu-who"><b>${esc([k.ad, k.soyad].filter(Boolean).join(' ') || 'Profilim')}</b><small>${ik('puanDada')} Dada Puan ve rozetler</small></span><span class="gm-menu-go">Profilim ${ik('chevron-right')}</span></a><div class="gm-menu-shortcuts">${kisayollar().map(([g, i, t, n]) => `<a class="gm-menu-short" href="${g}" data-menu-git="${g}">${ik(i)}<span>${esc(t)}</span>${n ? `<b class="gm-menu-sayac">${n}</b>` : ''}</a>`).join('')}</div>`; };
   const ayak = () => `<footer class="gm-menu-foot"><div class="gm-menu-item gm-menu-group gm-menu-lang"><button class="gm-menu-row gm-menu-toggle" type="button" aria-expanded="false"><span class="gm-menu-ic">${ik('globe')}</span><span class="gm-menu-label">Dil: <b>${esc(dilAd())}</b></span><span class="gm-menu-chev">${ik('chevron-down')}</span></button><div class="gm-menu-sub" inert><div class="gm-menu-sub-in" role="radiogroup" aria-label="Dil">${DILLER.map(([k, d]) => { const on = k === dilKod(); return `<button class="gm-menu-row gm-menu-subrow gm-menu-lang-opt" type="button" role="radio" aria-checked="${on}" data-menu-dil="${k}"><span class="gm-menu-ic">${on ? ik('onay') : ''}</span><span class="gm-menu-label">${esc(d)}</span></button>`; }).join('')}</div></div></div><div class="gm-menu-meta"><div class="gm-menu-legal">${YASAL.map(([g, t]) => `<a href="${g}" data-menu-git="${g}"${g === aktif() ? ' aria-current="page"' : ''}>${esc(t)}</a>`).join('')}</div></div></footer>`;
-  // K6: yalnız profil ve hedef eşitlenir, sağlık verisi kapsam dışıdır.
+  // Dada ailesi hesabı: tek hesapla giriş; Gourmet'ten yalnız profil ve favori mekânlar eşitlenir (Gourmet'te sağlık verisi yoktur).
   const bagliSheet = () => { const d = GM.durum.oku('bagli-uygulamalar', {}); return GM.sheet({
     baslik: 'Bağlı Uygulamalar',
-    html: `<div class="gm-yigin">${GM.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.')}${GM.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', secili: !!d.gastro})}${GM.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', secili: !!d.fit})}</div>`,
+    html: `<div class="gm-yigin">${GM.p('**Profilin ve favori mekânların** bağladığın Dada uygulamalarıyla eşitlenir; rezervasyon ve ödeme bilgilerin **paylaşılmaz**.')}${GM.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', secili: !!d.gastro})}${GM.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', secili: !!d.fit})}</div>`,
     sonra: h => { [['bagli-gastro', 'gastro', 'Dada Gastro'], ['bagli-fit', 'fit', 'Dada Fit']].forEach(([ad, k, m]) => GM.on(h, ad, v => { GM.durum.yaz('bagli-uygulamalar', {...GM.durum.oku('bagli-uygulamalar', {}), [k]: v}); GM.toast(`**${m}** ${v ? 'bağlandı' : 'bağlantısı kapatıldı'}`, {ikon: 'arrows-rotate'}); })); }
   }); };
   let acikEl = null;

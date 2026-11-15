@@ -20,6 +20,8 @@
         GM.modulKart({ikon: 'lezzet', baslik: 'Gurme Lezzetler', alt: 'Yöresel tatlar ve hikâyeleri', fiil: 'Keşfet', git: '#/lezzetler', gorsel: lez[0]?.gorsel})])},
       etkinlik: {baslik: 'Yaklaşan Etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: GM.yatay(etk.map(e => GM.etkinlikKart(e)), {sinif: 'gm-ka-iki'})},
       lezzet: {baslik: 'Gurme Lezzetler', eylem: 'Tamamını Gör', git: '#/lezzetler', html: GM.yatay(lez.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`, sinif: 'gm-ka-puf'})))},
+      // Şehir rehberi (mobil ek; web ana sayfada yok, /sehir-rehberleri'nde yayındaki tek rehber İstanbul): sayılar yayındaki mekânlardan.
+      rehber: (() => { const l = M.filter(m => m.il === 'İstanbul'), g = l.find(m => m.slug === 'mikla')?.kapakB || l.find(m => m.kapakB)?.kapakB; return {baslik: 'Şehir Rehberleri', eylem: 'Tümü', git: '#/rehberler', html: GM.seckiKapak({gorsel: g, rozet: {ikon: 'harita', metin: 'Şehir rehberi'}, baslik: 'İstanbul', alt: `<b>${GM.sayi(l.length)}</b> mekân · <b>${new Set(l.map(m => m.ilce)).size}</b> ilçe`, git: '#/rehber/istanbul'})}; })(),
       teaser: GM.teaser({ikon: 'bul', baslik: 'Ne aradığını bilmiyor musun?', metin: 'Bütçeni, ortamı ve mutfağı seç; **sana uygun mekânları** sıralayalım.', cipler: [['Kebap', 'kebap'], ['Deniz', 'deniz'], ['Kahvaltı', 'kahvalti'], ['Esnaf Lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`})), btn: {metin: 'Mekân Bul', ikon: 'bul', git: '#/mekan-bul'}, sinif: 'gm-ka-teaser'})
     };
     return {R, M, duraklar, etk, lez, bloklar};
@@ -29,6 +31,8 @@
   GM.ekran('ana-a', {
     tur: 'sekme', nav: 'kesfet', baslik: 'Keşfet', bos: {ikon: 'rota', baslik: 'Bugünün rotası hazırlanıyor', metin: 'Pilot rota yayına girince burada görünür. Şimdilik **mekânlara** göz atabilirsin.', eylem: {metin: 'Mekânları keşfet', ikon: 'mekan', git: '#/mekanlar'}},
     ustBar: () => ({saydam: true}),
+    // Çekip yenile: etkinlik ve lezzet rayı veriden yeniden kurulur (sabit an GM.simdi).
+    cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
     ciz: () => {
       const {R, M, duraklar, etk, lez, bloklar: B} = ortak();
       const slayt = GMV.mekanlar.filter(m => m.kapakB).sort((a, b) => (b.slug === 'narimor-urla') - (a.slug === 'narimor-urla')).slice(0, 3);
@@ -38,7 +42,7 @@
         sinif: 'gm-ka-hero',
         ustEtiket: 'Lezzetin rotası',
         baslikHtml: 'Nereye <em>gidiyoruz?</em>',
-        altBaslik: 'Yol üstü lezzet duraklarını, saklı esnaf lokantalarını ve şef masalarını tek rotada topla.',
+        altBaslik: 'Yol üstü lezzet durakları, tek rotada.',
         icerik: GM.aramaPanel({ad: 'ana-a-ara', secili: 'rota', sekmeler: [
           {ad: 'Rota Planla', deger: 'rota', yer: 'Nereye gidiyorsun? (ör. Bodrum)', git: '#/rota/planla', ikon: 'rota'},
           {ad: 'Mekân Ara', deger: 'mekan', yer: 'Mekân, mutfak ya da semt ara', git: '#/ara', ikon: 'ara_'},
@@ -48,7 +52,8 @@
       });
       return hero + GM.bolumler([
         {baslik: 'Bugünün Rotası', eylem: 'Haritada', git: `#/rota/${R.id}`, html: GM.yigin([GM.rotaKart(GM.rotaKartVeri(R, {etiket: `Pilot rota · varış ${GM.varisSaati(R.dk)}`, gorsel: duraklar[0]?.mekan.kapak}), {tur: 'genis', kaydet: false, sinif: 'gm-ka-rk'}), GM.yatay(duraklar.map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})))])},
-        B.konsept, GM.reklamYeri({kod: 'AS-T1'}), B.modul, GM.reklamYeri({kod: 'AS-M1'}), B.etkinlik, B.lezzet, B.teaser, GM.reklamYeri({kod: 'AS-B1'})
+        // Reklam yuvaları (lider kararı 15 Kas): patron kararına dek ekranda yer kaplamaz; yalnız DOM'da gizli işaret (Flutter yeri).
+        {...B.konsept, html: B.konsept.html + GM.reklamIsaret('AS-T1')}, {...B.modul, html: B.modul.html + GM.reklamIsaret('AS-M1')}, B.etkinlik, B.lezzet, B.rehber, B.teaser + GM.reklamIsaret('AS-B1')
       ]);
     }
   });

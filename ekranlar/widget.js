@@ -287,6 +287,12 @@
     ciz: ctx => { const q = sorgu(ctx.param.no); return YUZEY[q.yuzey](q, veri(q)); },
     sonra: kok => {
       const tik = ev => {
+        // Widget'a dokunmak (widgetURL / data-wg-ac) uygulamayı o ekranda açar (Görev 12 denetimi: önizlemede kutular tepkisizdi).
+        // Dinamik Ada'ya dokunmak (iOS) uygulamayı canlı etkinliğin ekranında açar (Co-Pilot); genişletme basılı tutmadır, önizlemede dokunuş açar.
+        const ada = !ev.target.closest('[data-wg-eylem]') && ev.target.closest('[data-ada]');
+        if (ada) { const h = kok.querySelector('[data-wg-ac*="#/rota/surus"]')?.dataset.wgAc || '#/rota/surus/istanbul-izmir'; GM.toast('**Dada Gourmet** açılıyor', {ikon: 'rota'}); setTimeout(() => GM.git(h), GM.azHareket() ? 0 : 450); return; }
+        const ac = !ev.target.closest('[data-wg-eylem]') && ev.target.closest('[data-wg-ac]');
+        if (ac && ac.dataset.wgAc) { GM.toast('**Dada Gourmet** açılıyor', {ikon: 'rota'}); setTimeout(() => GM.git(ac.dataset.wgAc), GM.azHareket() ? 0 : 450); return; }
         const e = ev.target.closest('[data-wg-eylem]'); if (!e) return;
         const k = e.dataset.wgEylem;
         if (k === 'hatirlat' && e.getAttribute('role') === 'switch') { const acik = e.getAttribute('aria-checked') !== 'true'; e.setAttribute('aria-checked', acik); e.classList.toggle('is-acik', acik); GM.toast(acik ? 'Hatırlatma açıldı · **1 gün önce**' : 'Hatırlatma kapandı'); }

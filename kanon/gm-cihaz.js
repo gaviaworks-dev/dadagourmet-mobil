@@ -1,6 +1,6 @@
 /* Telefon özellikleri bileşenleri (E3 + W widget kataloğu): cihaz çerçevesi, kilit ekranı ve StandBy, canlı etkinlik, Dinamik Ada, durum çubuğu çipi,
  * ana ekran widget'ları, hızlı ayar kutucuğu, sesli komut ekranı (Siri / Gemini). Stil kanon/gm-cihaz.css; renkler kanon token'larından, koyu tema çerçeve içinde yerel değişkenlerle.
- * Marka logosu çizilmez (Apple/Google yok): çerçeve sade, durum simgeleri Font Awesome solid, uygulama simgesi Dada Diet'in kendi simgesi.
+ * Marka logosu çizilmez (Apple/Google yok): çerçeve sade, durum simgeleri Font Awesome solid, uygulama simgesi Dada Gourmet'in kendi simgesi.
  *
  * Çerçeve ve sahne
  *   GM.telefonCerceve({platform:'ios'|'android', tema:'acik'|'koyu', icerik, saat, kilit:{tarih, satir, aksesuar:[html]}, durumCip, ada, adaMin, yatay, etkilesimli, cercevesiz, etiket, sinif})
@@ -44,7 +44,7 @@
  * Sağlık bağlantısı (E1; E2 aynı pencereyi kullanır)
  *   GM.sistemIzinPenceresi({platform:'ios'|'android', servis:{ad, ikon}, uygulama:{ad, simge}, oku:[{id, ad, ikon, acik}], yaz:[...], yol, aciklama, bekle})
  *     → Promise<{izin:boolean, oku:{id:bool}, yaz:{id:bool}}>. Telefonun kendi sağlık izni sayfası (iOS Sağlık erişimi / Android Health Connect):
- *     nötr sistem yüzeyi, marka rengi ve marka logosu yok (uygulama simgesi Dada Diet'in kendi simgesi). Kapatma yok; İzin Verme ya da İzin Ver.
+ *     nötr sistem yüzeyi, marka rengi ve marka logosu yok (uygulama simgesi Dada Gourmet'in kendi simgesi). Kapatma yok; İzin Verme ya da İzin Ver.
  *     iOS: üst çubukta İzin Verme / İzin Ver, gri gruplu zemin, "Tümünü Aç", yazma ve okuma grupları. Android: başlık soru cümlesi, "Tümüne izin ver" anahtarı,
  *     okuma ve yazma grupları, altta İzin verme / İzin ver. Hiçbir tür açık değilken İzin Ver pasif. bekle (ms): İzin Ver'de dönen halka, sonra kapanır.
  *     Sayfa değişip pencere kapanırsa {izin:false} döner.
@@ -123,9 +123,9 @@
   };
   // Ana ekran: dört sütunlu simge ızgarası. Widget hücre kaplar (küçük 2×2, orta 4×2, büyük 4×4); boş hücrelere uygulama simgesi ve
   // nötr simge yerleri gelir (başka uygulamanın logosu çizilmez). simge: boş simge yeri sayısı.
-  GM.anaEkran = (o = {}) => `<div class="${liste('gm-tel-ana', o.sinif)}"${o.pasif ? ' inert aria-hidden="true"' : ''}>${o.tarih ? `<p class="gm-tel-gun">${esc(o.tarih)}</p>` : ''}<div class="gm-tel-izgara">${(o.widgetlar || []).join('')}${o.uygulama === false ? '' : `<span class="gm-tel-uyg"><img src="${esc(o.uygulama?.gorsel || SIMGE)}" alt=""><small>${esc(o.uygulama?.ad || 'Dada Diet')}</small></span>`}${'<span class="gm-tel-uyg is-bos" aria-hidden="true"><i></i></span>'.repeat(o.simge || 0)}${(o.simgeler || []).map(x => `<span class="gm-tel-uyg is-simge" aria-hidden="true"><i style="--sg:var(--gm-${esc(x.renk || 'slate')})">${ik(x.ikon)}</i>${x.ad ? `<small>${esc(x.ad)}</small>` : ''}</span>`).join('')}</div>${o.ara === false ? '' : `<span class="gm-tel-ara" aria-hidden="true">${ik('magnifying-glass')}<span>Ara</span></span>`}${o.dock ? `<span class="${liste('gm-tel-dock', o.dockSimgeler && 'is-simgeli')}" aria-hidden="true">${o.dockSimgeler ? o.dockSimgeler.map(x => `<span class="gm-tel-uyg is-simge"><i style="--sg:var(--gm-${esc(x.renk || 'slate')})">${ik(x.ikon)}</i></span>`).join('') : '<i></i>'.repeat(4)}</span>` : ''}</div>`;
+  GM.anaEkran = (o = {}) => `<div class="${liste('gm-tel-ana', o.sinif)}"${o.pasif ? ' inert aria-hidden="true"' : ''}>${o.tarih ? `<p class="gm-tel-gun">${esc(o.tarih)}</p>` : ''}<div class="gm-tel-izgara">${(o.widgetlar || []).join('')}${o.uygulama === false ? '' : `<span class="gm-tel-uyg"><img src="${esc(o.uygulama?.gorsel || SIMGE)}" alt=""><small>${esc(o.uygulama?.ad || 'Dada Gourmet')}</small></span>`}${'<span class="gm-tel-uyg is-bos" aria-hidden="true"><i></i></span>'.repeat(o.simge || 0)}${(o.simgeler || []).map(x => `<span class="gm-tel-uyg is-simge" aria-hidden="true"><i style="--sg:var(--gm-${esc(x.renk || 'slate')})">${ik(x.ikon)}</i>${x.ad ? `<small>${esc(x.ad)}</small>` : ''}</span>`).join('')}</div>${o.ara === false ? '' : `<span class="gm-tel-ara" aria-hidden="true">${ik('magnifying-glass')}<span>Ara</span></span>`}${o.dock ? `<span class="${liste('gm-tel-dock', o.dockSimgeler && 'is-simgeli')}" aria-hidden="true">${o.dockSimgeler ? o.dockSimgeler.map(x => `<span class="gm-tel-uyg is-simge"><i style="--sg:var(--gm-${esc(x.renk || 'slate')})">${ik(x.ikon)}</i></span>`).join('') : '<i></i>'.repeat(4)}</span>` : ''}</div>`;
   // Widget'a dokununca açılan uygulama: hedef rotanın kendisi, telefon ekranı ölçeğinde (iframe; dokunma kapalı). Ölçek GM.telefonOlcek ile.
-  GM.telefonUygulama = (o = {}) => `<div class="gm-tel-uygulama" data-tel-uyg="${o.platform === 'android' ? 412 : 393}"><iframe src="index.html${esc(o.rota || '#/bugun')}" title="${esc(o.baslik || 'Dada Diet')}" tabindex="-1" aria-hidden="true"></iframe></div>`;
+  GM.telefonUygulama = (o = {}) => `<div class="gm-tel-uygulama" data-tel-uyg="${o.platform === 'android' ? 412 : 393}"><iframe src="index.html${esc(o.rota || '#/bugun')}" title="${esc(o.baslik || 'Dada Gourmet')}" tabindex="-1" aria-hidden="true"></iframe></div>`;
   GM.telefonOlcek = kok => {
     const ayarla = el => { const g = el.offsetWidth;   // dönüşümden bağımsız yerleşim genişliği (açılış animasyonu ölçeği karıştırmaz)
       if (g) el.style.setProperty('--tel-olcek', (g / +el.dataset.telUyg).toFixed(4)); };
@@ -166,7 +166,7 @@
     if (o.durum === 'rota') return GM.androidCanli({...o, tur: 'rota'});   // rota türü: Dada Route Co-Pilot (aşağıda, Gourmet bloğu)
     const d = o.durum || 'oruc', yuzde = Math.round(kisit(o.oran || 0, 0, 1) * 100), randevu = d === 'randevu';
     return `<div class="${liste('gm-canli', 'is-android', `is-${d}`)}">
-        <div class="gm-canli-ust"><span class="gm-canli-glif" aria-hidden="true">${ik(RITIM_IKON[d])}</span><span>Dada Diet</span><span aria-hidden="true">·</span><span>${esc(o.etiket || 'Ritim')}</span><span aria-hidden="true">·</span>${randevu ? GM.cihazGeriSayac(o.kalanSn) : GM.cihazSayac(o.gecenSn)}</div>
+        <div class="gm-canli-ust"><span class="gm-canli-glif" aria-hidden="true">${ik(RITIM_IKON[d])}</span><span>Dada Gourmet</span><span aria-hidden="true">·</span><span>${esc(o.etiket || 'Ritim')}</span><span aria-hidden="true">·</span>${randevu ? GM.cihazGeriSayac(o.kalanSn) : GM.cihazSayac(o.gecenSn)}</div>
         <div class="gm-canli-govde"><div class="gm-canli-metin"><b>${esc(o.baslik)}</b><small>${esc(randevu ? `${o.kisi || ''} · ${o.saat || ''}` : `${o.kalanMetin}${yuzde ? ` · %${yuzde}` : ''} · bitiş ${o.bit || ''}`)}</small></div><img src="${SIMGE}" alt=""></div>
         ${randevu ? '' : GM.cihazCubuk({tur: d, oran: o.oran})}
         ${o.eylem ? `<div class="gm-canli-eylemler">${canliEylem(o)}</div>` : ''}
@@ -215,7 +215,7 @@
     const sinif = liste('gm-lo-ogun', `is-${x.id}`, dolu && 'is-dolu', atlandi && 'is-atlandi', x.siradaki && 'is-siradaki', x.ayir && 'is-ayrik', x.yeni && 'is-yeni');
     const stil = `style="--cih-o:${oran.toFixed(3)}"`;
     if (!dolu && !atlandi && x.eylem?.kod) return `<button type="button" class="${sinif}" ${stil} data-wg-eylem="${esc(x.eylem.kod)}" data-id="${esc(x.eylem.id || x.id)}" aria-label="${esc(`${x.ad} ekle${x.planKcal ? `, ${sayi(x.planKcal)} kcal` : ''}${x.siradaki ? ', sıradaki öğün' : ''}`)}">${ic}</button>`;
-    if (!dolu && !atlandi && x.eylem?.ac) return `<button type="button" class="${sinif}" ${stil} data-wg-ac="${esc(x.eylem.ac)}" aria-label="${esc(`${x.ad} ekle, Dada Diet’te açılır`)}">${ic}</button>`;
+    if (!dolu && !atlandi && x.eylem?.ac) return `<button type="button" class="${sinif}" ${stil} data-wg-ac="${esc(x.eylem.ac)}" aria-label="${esc(`${x.ad} ekle, Dada Gourmet’te açılır`)}">${ic}</button>`;
     return `<span class="${sinif}" ${stil} role="img" aria-label="${esc(`${x.ad}: ${dolu ? `kaydedildi, ${sayi(x.kcal || 0)} kcal` : atlandi ? 'atlandı' : 'henüz eklenmedi'}`)}">${ic}</span>`;
   };
   // seri: {sayi, bugun (bugün sayıldı mı), yeni (sayı bu dokunuşla arttı)}
@@ -224,10 +224,10 @@
     const l = o.ogunler || [], s = o.seri || {sayi: 0}, n = l.filter(x => x.durum === 'dolu').length;
     const alt = !s.sayi && !s.bugun ? 'Seri’ni başlat!' : !s.bugun ? 'Seriyi sürdür!' : `${n} / ${l.length} öğün`;
     const kalan = o.kalan == null ? '' : `<b class="${liste('gm-lo-kalan', o.oncekiKalan != null && 'is-yeni')}"${o.oncekiKalan != null ? ` data-lo-eski="${esc(Math.max(0, o.oncekiKalan))}" data-lo-yeni="${esc(Math.max(0, Math.abs(o.kalan)))}"` : ''}>${sayi(Math.abs(o.kalan))}</b>`;
-    const etiket = `Dada Diet, günün öğünleri: ${o.kalan == null ? 'hedef yok' : o.kalan >= 0 ? `${sayi(o.kalan)} kcal kaldı` : `${sayi(-o.kalan)} kcal fazla`}, ${n} / ${l.length} öğün`;
-    return `<section class="${liste('gm-lac', 'is-ogun', o.eski && 'is-eski', o.sinif)}" aria-label="${esc(`${etiket}${o.eski ? `, son güncelleme ${o.eski}` : ''}`)}">${lacKapak(o.ac, 'Dada Diet’te Bugün’ü aç')}
+    const etiket = `Dada Gourmet, günün öğünleri: ${o.kalan == null ? 'hedef yok' : o.kalan >= 0 ? `${sayi(o.kalan)} kcal kaldı` : `${sayi(-o.kalan)} kcal fazla`}, ${n} / ${l.length} öğün`;
+    return `<section class="${liste('gm-lac', 'is-ogun', o.eski && 'is-eski', o.sinif)}" aria-label="${esc(`${etiket}${o.eski ? `, son güncelleme ${o.eski}` : ''}`)}">${lacKapak(o.ac, 'Dada Gourmet’te Bugün’ü aç')}
       <div class="gm-lac-ic">
-        <div class="gm-lo-bas"><span class="gm-lo-ozet">${kalan}<span class="${liste('gm-lo-birim', o.kalan == null && 'is-yok')}"><small>${o.kalan == null ? 'Kalori hedefin yok' : o.kalan < 0 ? 'kcal fazla' : 'kcal kaldı'}</small><small>${o.eski ? `${ik('clock-rotate-left')} ${esc(`Son güncelleme ${o.eski}`)}` : esc(o.kalan == null ? 'Hedefini Dada Diet’te belirle' : alt)}</small></span></span><span class="gm-lo-sag">${seriRozet(s)}${o.acDugme ? `<button type="button" class="gm-lac-dugme is-ac" data-wg-ac="${esc(o.acDugme)}" aria-label="Dada Diet’i aç"><span>Aç</span></button>` : ''}</span></div>
+        <div class="gm-lo-bas"><span class="gm-lo-ozet">${kalan}<span class="${liste('gm-lo-birim', o.kalan == null && 'is-yok')}"><small>${o.kalan == null ? 'Kalori hedefin yok' : o.kalan < 0 ? 'kcal fazla' : 'kcal kaldı'}</small><small>${o.eski ? `${ik('clock-rotate-left')} ${esc(`Son güncelleme ${o.eski}`)}` : esc(o.kalan == null ? 'Hedefini Dada Gourmet’te belirle' : alt)}</small></span></span><span class="gm-lo-sag">${seriRozet(s)}${o.acDugme ? `<button type="button" class="gm-lac-dugme is-ac" data-wg-ac="${esc(o.acDugme)}" aria-label="Dada Gourmet’i aç"><span>Aç</span></button>` : ''}</span></div>
         <div class="gm-lo-ogunler">${l.map(ogunHalka).join('')}</div>
       </div>${o.alt || ''}
     </section>`;
@@ -241,8 +241,8 @@
     const govde = o.bitti
       ? `<div class="gm-lr-sure is-bitti"><span class="gm-lr-tik" aria-hidden="true">${ik('check')}</span><span class="gm-lr-sayac"><b>${esc(o.bitti.baslik)}</b><small>${esc(o.bitti.metin || '')}</small></span></div>`
       : `<div class="gm-lr-sure"><span class="gm-lr-sayac">${o.kalanSn > 0 ? `<b>${GM.cihazGeriSayac(o.kalanSn)}</b><small>kaldı</small>` : `<b>Hedefine ulaştın</b>`}</span><span class="gm-lr-bitis"><small>Bitiş</small><b>${esc(o.bit || '')}</b></span></div>`;
-    const etiket = o.bitti ? `Dada Diet, oruç: ${o.bitti.baslik}` : `Dada Diet, oruç: ${o.kalanMetin || ''}, bitiş ${o.bit || ''}, yüzde ${yuzde}`;
-    return `<section class="${liste('gm-lac', 'is-oruc', o.bitti && 'is-bitti', o.eski && 'is-eski', o.sinif)}" aria-label="${esc(`${etiket}${o.eski ? `, son güncelleme ${o.eski}` : ''}`)}">${lacKapak(o.ac, 'Dada Diet’te Ritim’i aç')}
+    const etiket = o.bitti ? `Dada Gourmet, oruç: ${o.bitti.baslik}` : `Dada Gourmet, oruç: ${o.kalanMetin || ''}, bitiş ${o.bit || ''}, yüzde ${yuzde}`;
+    return `<section class="${liste('gm-lac', 'is-oruc', o.bitti && 'is-bitti', o.eski && 'is-eski', o.sinif)}" aria-label="${esc(`${etiket}${o.eski ? `, son güncelleme ${o.eski}` : ''}`)}">${lacKapak(o.ac, 'Dada Gourmet’te Ritim’i aç')}
       <div class="gm-lac-ic">
         <div class="gm-lac-bas">${lacMarka('hourglass-half', o.baslik || 'Oruç')}${o.eski ? `<small>${ik('clock-rotate-left')} ${esc(o.eski)}</small>` : o.faz ? `<small>${esc(o.faz)}</small>` : ''}${dugme}</div>
         ${govde}${cubuk}
@@ -251,7 +251,7 @@
     </section>`;
   };
   // Görüşme kartı (diyetisyen görüşmesi): kalan süre geri sayar, "Görüşmeye katıl" uygulamayı görüşmede açar (eylem.ac).
-  GM.canliRandevuKarti = (o = {}) => `<section class="gm-lac is-randevu" aria-label="${esc(`Dada Diet, ${o.baslik || 'görüşme'}: ${o.kisi || ''}, başlangıç ${o.saat || ''}`)}">${lacKapak(o.ac || '#/uzman', 'Dada Diet’te Uzmanım’ı aç')}
+  GM.canliRandevuKarti = (o = {}) => `<section class="gm-lac is-randevu" aria-label="${esc(`Dada Gourmet, ${o.baslik || 'görüşme'}: ${o.kisi || ''}, başlangıç ${o.saat || ''}`)}">${lacKapak(o.ac || '#/uzman', 'Dada Gourmet’te Uzmanım’ı aç')}
       <div class="gm-lac-ic">
         <div class="gm-lac-bas">${lacMarka('video', 'Görüşme')}<small>${esc([o.tur, o.saat ? `başlangıç ${o.saat}` : ''].filter(Boolean).join(' · '))}</small></div>
         <div class="gm-lr-sure"><span class="gm-w2-kisi"><span class="gm-w2-avatar" aria-hidden="true">${esc(o.harf || '')}</span><span><b>${esc(o.baslik || '')}</b><small>${esc(o.kisi || '')}</small></span></span><span class="gm-lr-sayac is-randevu"><b>${GM.cihazGeriSayac(o.kalanSn || 0)}</b><small>kaldı</small></span></div>
@@ -259,7 +259,7 @@
       </div>
     </section>`;
   // iOS'un ilk Canlı Etkinlik izni: kartın altında sistem satırı (marka rengi yok). data-wg-izin="red"|"ver" (ekran dinler). kapaniyor: verildi, satır kapanır.
-  GM.canliIzinSatiri = (o = {}) => `<div class="${liste('gm-lizin', o.kapaniyor && 'is-kapaniyor')}"${o.kapaniyor ? ' aria-hidden="true"' : ''}><div class="gm-lizin-ic"><p>${esc(`${o.uygulama || 'Dada Diet'} Canlı Etkinlikleri’ne İzin Verilsin mi?`)}</p><div class="gm-lizin-dugmeler"><button type="button" data-wg-izin="red"${o.kapaniyor ? ' tabindex="-1"' : ''}>İzin Verme</button><button type="button" data-wg-izin="ver"${o.kapaniyor ? ' tabindex="-1"' : ''}>İzin Ver</button></div></div></div>`;
+  GM.canliIzinSatiri = (o = {}) => `<div class="${liste('gm-lizin', o.kapaniyor && 'is-kapaniyor')}"${o.kapaniyor ? ' aria-hidden="true"' : ''}><div class="gm-lizin-ic"><p>${esc(`${o.uygulama || 'Dada Gourmet'} Canlı Etkinlikleri’ne İzin Verilsin mi?`)}</p><div class="gm-lizin-dugmeler"><button type="button" data-wg-izin="red"${o.kapaniyor ? ' tabindex="-1"' : ''}>İzin Verme</button><button type="button" data-wg-izin="ver"${o.kapaniyor ? ' tabindex="-1"' : ''}>İzin Ver</button></div></div></div>`;
   // Bildirim yığını (iOS 16+ kilit ekranı, "Yığın" düzeni): en yeni üstte; kapalıyken arkadakiler kenar olarak görünür, dokununca açılır (data-kb-yigin).
   // ogeler:[{baslik, metin, zaman, ac, kisi:{harf}|null}] kisi: iletişim bildirimi (gönderen baş harfi + uygulama simgesi rozeti).
   GM.kilitBildirim = (o = {}) => {
@@ -291,12 +291,12 @@
   const w2Bas = (ikon, metin, renk, sag = '') => `<span class="${liste('gm-w2-bas', `is-${renk}`)}">${ikon.startsWith('<') ? ikon : ik(ikon)}<b>${esc(metin)}</b>${sag ? `<small>${sag}</small>` : ''}</span>`;
   // eski: çevrimdışı; son veri soluk durur, sağ üstte son güncelleme saati (widget yeniden çizilemedi). hal: 'giris' | 'pro' (w2Hal).
   GM.w2Kabuk = (o = {}) => `<div class="${liste('gm-w2', `is-${o.boy || 'kucuk'}`, `is-${o.tur || 'ozet'}`, o.eski && 'is-eski', o.sinif)}">${o.ac ? `<button type="button" class="gm-w2-ac" data-wg-ac="${esc(o.ac)}" aria-label="${esc(`${o.etiket || ''}${o.eski ? `. Son güncelleme ${o.eski}` : ''}`)}"></button>` : ''}<div class="gm-w2-ic">${o.eski ? `<small class="gm-w2-damga" aria-hidden="true">${ik('clock-rotate-left')}${esc(o.eski)}</small>` : ''}${o.icerik || ''}</div></div>`;
-  // Giriş yok: tek mesaj, gövde #/giris açar, düğme yok. Pro'ya özel: Dada Diet Pro + GMV.uye.pro rozeti ("Yakında") ve durum metni, pasif; gövde #/pro açar.
+  // Giriş yok: tek mesaj, gövde #/giris açar, düğme yok. Pro'ya özel: Dada Gourmet Pro + GMV.uye.pro rozeti ("Yakında") ve durum metni, pasif; gövde #/pro açar.
   // Hangi widget'ın Pro'ya özel olacağı ürün kararı bekliyor (Pro satışta değil); ekran örneği tek widget'ta gösterir.
   const w2Hal = (o, tur, ikon, ad, renk) => {
     const boy = o.boy || 'kucuk';
     if (o.hal === 'giris') return GM.w2Kabuk({boy, tur, ac: '#/giris', sinif: 'is-hal', etiket: `${ad}: giriş yap`, icerik: `${w2Bas(ikon, ad, renk)}${yok('right-to-bracket', 'Giriş yap', boy === 'kucuk' ? '' : 'Günün burada görünsün', '#/giris', boy === 'kucuk' ? '' : 'Giriş yap')}`});
-    if (o.hal === 'pro') return GM.w2Kabuk({boy, tur, ac: '#/pro', sinif: 'is-hal is-pro', etiket: `${ad}: Dada Diet Pro ile açılacak, ${o.pro?.rozet || ''}`, icerik: `${w2Bas(ikon, ad, renk)}<span class="gm-w2-iskelet" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="gm-w2-yok">${ik('bolt')}<b>Dada Diet Pro</b><span class="gm-w2-rozet is-pro">${esc(o.pro?.rozet || '')}</span>${boy === 'kucuk' ? '' : `<small>${esc(o.pro?.metin || '')}</small>`}</span>`});
+    if (o.hal === 'pro') return GM.w2Kabuk({boy, tur, ac: '#/pro', sinif: 'is-hal is-pro', etiket: `${ad}: Dada Gourmet Pro ile açılacak, ${o.pro?.rozet || ''}`, icerik: `${w2Bas(ikon, ad, renk)}<span class="gm-w2-iskelet" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="gm-w2-yok">${ik('bolt')}<b>Dada Gourmet Pro</b><span class="gm-w2-rozet is-pro">${esc(o.pro?.rozet || '')}</span>${boy === 'kucuk' ? '' : `<small>${esc(o.pro?.metin || '')}</small>`}</span>`});
     return null;
   };
   const L = ml => `${(ml / 1000).toLocaleString('tr-TR', {maximumFractionDigits: 1})} L`;
@@ -312,9 +312,9 @@
     const h_ = w2Hal(o, 'ozet', 'fire-flame-curved', 'Günün özeti', 'kalori');
     if (h_) return h_;
     const boy = o.boy || 'kucuk', ac = o.ac || '#/bugun';
-    if (o.hedef == null) return GM.w2Kabuk({eski: o.eski, boy, tur: 'ozet', ac, etiket: 'Günün özeti: kalori hedefi yok. Dada Diet’te aç', icerik: `${w2Bas('fire-flame-curved', boy === 'kucuk' ? 'Kalori' : 'Günün özeti', 'kalori')}${yok('bullseye', 'Kalori hedefin yok', boy === 'kucuk' ? '' : 'Hedefini belirle, kalanın burada görünsün', ac, boy === 'kucuk' ? '' : 'Hedef belirle')}`});
+    if (o.hedef == null) return GM.w2Kabuk({eski: o.eski, boy, tur: 'ozet', ac, etiket: 'Günün özeti: kalori hedefi yok. Dada Gourmet’te aç', icerik: `${w2Bas('fire-flame-curved', boy === 'kucuk' ? 'Kalori' : 'Günün özeti', 'kalori')}${yok('bullseye', 'Kalori hedefin yok', boy === 'kucuk' ? '' : 'Hedefini belirle, kalanın burada görünsün', ac, boy === 'kucuk' ? '' : 'Hedef belirle')}`});
     const kalan = o.hedef - o.alinan, oran = o.alinan / o.hedef, n = (o.ogunler || []).filter(x => x.durum === 'dolu').length;
-    const etiket = `Günün özeti: ${kalan >= 0 ? `${sayi(kalan)} kcal kaldı` : `${sayi(-kalan)} kcal fazla`}, ${sayi(o.alinan)} / ${sayi(o.hedef)} kcal. Dada Diet’te aç`;
+    const etiket = `Günün özeti: ${kalan >= 0 ? `${sayi(kalan)} kcal kaldı` : `${sayi(-kalan)} kcal fazla`}, ${sayi(o.alinan)} / ${sayi(o.hedef)} kcal. Dada Gourmet’te aç`;
     if (boy === 'kucuk') return GM.w2Kabuk({eski: o.eski, boy, tur: 'ozet', ac, etiket, icerik: `${w2Bas('fire-flame-curved', 'Kalori', 'kalori')}<span class="gm-w2-merkez">${rh('kalori', oran, kalanOrta(kalan, boy), 'lg')}</span><small class="gm-w2-not">${sayi(o.alinan)} / ${sayi(o.hedef)} kcal</small>`});
     const ust = `<span class="gm-w2-yan">${rh('kalori', oran, kalanOrta(kalan, boy), 'xl')}<span class="gm-w2-sag">${w2Bas('fire-flame-curved', 'Günün özeti', 'kalori', `${n}/${(o.ogunler || []).length} öğün`)}${o.makro ? makroSatirlari(o.makro) : `<small class="gm-w2-not">${sayi(o.alinan)} / ${sayi(o.hedef)} kcal</small>`}</span></span>`;
     if (boy === 'orta') return GM.w2Kabuk({eski: o.eski, boy, tur: 'ozet', ac, etiket, icerik: ust});
@@ -325,7 +325,7 @@
     const h_ = w2Hal(o, 'su', 'droplet', 'Su', 'su');
     if (h_) return h_;
     const boy = o.boy || 'kucuk', ac = o.ac || '#/bugun', hedef = o.hedef || 1, icilen = o.icilen || 0, bardak = o.bardak || 200, kalan = Math.max(0, hedef - icilen);
-    const etiket = `Su: ${sayi(icilen)} / ${sayi(hedef)} ml. Dada Diet’te aç`;
+    const etiket = `Su: ${sayi(icilen)} / ${sayi(hedef)} ml. Dada Gourmet’te aç`;
     const dugme = o.eylem ? w2Dugme({...o.eylem, ikon: 'plus', metin: `${sayi(bardak)} ml`, aria: `Bir bardak su ekle, ${sayi(bardak)} ml`, ton: 'su', tam: boy === 'kucuk'}) : '';
     const halka = b => rh('su', icilen / hedef, `<img src="${TG}damla.webp" alt="">`, b);
     const deger = `<span class="gm-w2-deger is-su"><b${o.yeni ? ' class="is-yeni"' : ''}>${L(icilen)}</b><small>/ ${L(hedef)}</small></span>`;
@@ -339,7 +339,7 @@
     const h_ = w2Hal(o, 'ogunler', 'utensils', 'Öğünler', 'kalori');
     if (h_) return h_;
     const boy = o.boy || 'kucuk', ac = o.ac || '#/bugun', l = o.ogunler || [], n = l.filter(x => x.durum === 'dolu').length;
-    const etiket = `Öğünler: ${n} / ${l.length} kayıtlı${o.kalan != null ? `, ${sayi(Math.max(0, o.kalan))} kcal kaldı` : ''}. Dada Diet’te aç`;
+    const etiket = `Öğünler: ${n} / ${l.length} kayıtlı${o.kalan != null ? `, ${sayi(Math.max(0, o.kalan))} kcal kaldı` : ''}. Dada Gourmet’te aç`;
     const sag = o.kalan != null ? `${sayi(Math.max(0, o.kalan))} kcal kaldı` : `${n}/${l.length}`;
     if (boy === 'kucuk') {
       const s = l.find(x => x.siradaki) || l.find(x => x.durum === 'bos');
@@ -359,18 +359,18 @@
     const h_ = w2Hal(o, 'oruc', 'hourglass-half', 'Oruç', 'oruc');
     if (h_) return h_;
     const boy = o.boy || 'kucuk', ac = o.ac || '#/ritim', baslik = `Oruç${o.ad ? ` · ${o.ad}` : ''}`;
-    if (o.tur === 'plansiz' || o.tur === 'kapali') return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç: ${o.baslik || 'plan yok'}. Dada Diet’te aç`, icerik: `${w2Bas('hourglass-half', 'Oruç', 'oruc')}${yok('moon', o.baslik || 'Oruç planı yok', boy === 'kucuk' ? '' : o.alt || 'Ritim’de bir plan seç')}`});
+    if (o.tur === 'plansiz' || o.tur === 'kapali') return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç: ${o.baslik || 'plan yok'}. Dada Gourmet’te aç`, icerik: `${w2Bas('hourglass-half', 'Oruç', 'oruc')}${yok('moon', o.baslik || 'Oruç planı yok', boy === 'kucuk' ? '' : o.alt || 'Ritim’de bir plan seç')}`});
     const dugme = o.eylem ? w2Dugme({...o.eylem, ikon: /baslat/.test(o.eylem.kod || '') || o.eylem.ac ? 'play' : 'stop', metin: o.eylem.metin, ton: 'oruc', tam: boy === 'kucuk'}) : '';
     // Bitir'den sonra: onay halkası, süre ve yeniden "Başlat"
     if (o.bitti) return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç bitti, ${o.bitti}`, icerik: `${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-yan is-sik">${rh('pencere', 1, ik('check'), 'md')}<small class="gm-w2-not"><b>Oruç bitti</b><br>${esc(o.bitti)}</small></span>${dugme}`});
     if (o.tur !== 'oruc') {
       const metin = o.tur === 'pencere' ? `Pencere ${o.kapanis}’e kadar` : 'Başlamaya hazır';
       const orta = `<b>${o.hedefSaat || 16}</b><small>sa hedef</small>`;
-      if (boy === 'kucuk') return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç başlamadı: ${metin}. Dada Diet’te aç`, icerik: `${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-yan is-sik">${rh('oruc', 0, orta, 'md')}<small class="gm-w2-not">${esc(metin)}</small></span>${dugme}`});
-      return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç başlamadı: ${metin}. Dada Diet’te aç`, icerik: `<span class="gm-w2-yan">${rh('oruc', 0, orta, 'xl')}<span class="gm-w2-sag">${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-deger is-oruc"><b>${esc(o.tur === 'pencere' ? 'Yeme penceresi açık' : 'Oruç başlamadı')}</b></span><small class="gm-w2-not">${esc(metin)}${o.tur === 'pencere' && o.kalanDk != null ? ` · ${sure(o.kalanDk)} kaldı` : ''}</small>${dugme}</span></span>`});
+      if (boy === 'kucuk') return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç başlamadı: ${metin}. Dada Gourmet’te aç`, icerik: `${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-yan is-sik">${rh('oruc', 0, orta, 'md')}<small class="gm-w2-not">${esc(metin)}</small></span>${dugme}`});
+      return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket: `Oruç başlamadı: ${metin}. Dada Gourmet’te aç`, icerik: `<span class="gm-w2-yan">${rh('oruc', 0, orta, 'xl')}<span class="gm-w2-sag">${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-deger is-oruc"><b>${esc(o.tur === 'pencere' ? 'Yeme penceresi açık' : 'Oruç başlamadı')}</b></span><small class="gm-w2-not">${esc(metin)}${o.tur === 'pencere' && o.kalanDk != null ? ` · ${sure(o.kalanDk)} kaldı` : ''}</small>${dugme}</span></span>`});
     }
     const kalanSn = Math.max(0, o.hedefSaat * 3600 - o.gecenSn), sayac = kalanSn > 0 ? GM.cihazGeriSayac(kalanSn, {bicim: boy === 'kucuk' ? 'sa' : 'dk'}) : 'Tamam';
-    const etiket = `Oruç: ${kalanSn > 0 ? `${sure(Math.ceil(kalanSn / 60))} kaldı` : 'hedefine ulaştın'}, bitiş ${o.bit}. Dada Diet’te aç`;
+    const etiket = `Oruç: ${kalanSn > 0 ? `${sure(Math.ceil(kalanSn / 60))} kaldı` : 'hedefine ulaştın'}, bitiş ${o.bit}. Dada Gourmet’te aç`;
     if (boy === 'kucuk') return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket, icerik: `${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-yan is-sik">${rh('oruc', o.oran, `<b>${sayac}</b><small>kaldı</small>`, 'md')}<small class="gm-w2-not">Bitiş<br><b>${esc(o.bit)}</b></small></span>${dugme}`});
     const cubuk = `<span class="gm-lr-cubuk is-w2" style="--cih-o:${kisit(o.oran, 0, 1).toFixed(3)}" aria-hidden="true"><i></i>${(o.isaretler || []).map(x => `<span class="gm-lr-isaret" style="--x:${kisit(x, 0, 1).toFixed(3)}"></span>`).join('')}</span>`;
     return GM.w2Kabuk({eski: o.eski, boy, tur: 'oruc', ac, etiket, icerik: `<span class="gm-w2-yan">${rh('oruc', o.oran, `<b>${Math.round(o.oran * 100)}%</b><small>${esc(o.faz || '')}</small>`, 'xl')}<span class="gm-w2-sag">${w2Bas('hourglass-half', baslik, 'oruc')}<span class="gm-w2-deger is-oruc"><b>${sayac}</b><small>kaldı</small></span>${cubuk}<small class="gm-w2-not">${esc(o.bas)} → ${esc(o.bit)}</small>${dugme}</span></span>`});
@@ -383,7 +383,7 @@
     if (!d) return GM.w2Kabuk({eski: o.eski, boy, tur: 'diyetisyen', ac: '#/uzman/bul', etiket: 'Diyetisyen: henüz diyetisyenin yok. Diyetisyen bul', icerik: `${w2Bas('user-doctor', 'Diyetisyen', 'diyetisyen')}${yok('user-doctor', 'Diyetisyenin yok', boy === 'kucuk' ? '' : 'Sana uygun diyetisyeni bul, görüşmen burada görünsün', '#/uzman/bul', boy === 'kucuk' ? '' : 'Diyetisyen bul')}`});
     const kisi = `<span class="gm-w2-kisi"><span class="gm-w2-avatar" aria-hidden="true">${esc(d.harf)}</span><span><b>${esc(d.kisaAd)}</b><small>${esc(d.unvan || '')}</small></span></span>`;
     const r = d.randevu, rv = r ? `<span class="gm-w2-randevu"><span class="gm-w2-takvim" aria-hidden="true"><small>${esc(r.ay)}</small><b>${esc(r.gunNo)}</b></span><span><b>${esc(`${r.gun} ${r.saat}`)}</b><small>${esc([r.kalan, r.tur].filter(Boolean).join(' · '))}</small></span></span>` : '<small class="gm-w2-not">Planlı görüşme yok</small>';
-    const etiket = `Diyetisyen ${d.kisaAd}${r ? `, görüşme ${r.gun} ${r.saat}` : ''}${d.mesajlar?.length ? `, son mesaj: ${d.mesajlar[d.mesajlar.length - 1].metin}` : ''}. Dada Diet’te aç`;
+    const etiket = `Diyetisyen ${d.kisaAd}${r ? `, görüşme ${r.gun} ${r.saat}` : ''}${d.mesajlar?.length ? `, son mesaj: ${d.mesajlar[d.mesajlar.length - 1].metin}` : ''}. Dada Gourmet’te aç`;
     if (boy === 'kucuk') {
       const kisiK = `<span class="gm-w2-kisi"><span class="gm-w2-avatar" aria-hidden="true">${esc(d.harf)}</span><span><b>${esc(d.kisaAd)}</b></span></span>`;
       const rvK = r ? `<span class="gm-w2-randevu"><span class="gm-w2-takvim" aria-hidden="true"><small>${esc(r.ay)}</small><b>${esc(r.gunNo)}</b></span><span><b>${esc(`${r.gun} ${r.saat}`)}</b><small>${esc(r.kalan || '')}</small></span></span>` : '<small class="gm-w2-not">Planlı görüşme yok</small>';
@@ -401,7 +401,7 @@
     if (h_) return h_;
     const boy = o.boy || 'kucuk', l = o.gunler || [], hedef = o.hedef || Math.max(1, ...l.map(x => x.kcal || 0)), tavan = Math.max(hedef * 1.25, ...l.map(x => x.kcal || 0)), kayitli = l.filter(x => x.kcal != null && !x.bugun);
     const ort = kayitli.length ? Math.round(kayitli.reduce((t, x) => t + x.kcal, 0) / kayitli.length) : null;
-    const etiket = `Haftalık ilerleme: ${o.seri?.sayi || 0} günlük seri${ort ? `, son 7 gün ortalaması ${sayi(ort)} kcal` : ''}. Dada Diet’te aç`;
+    const etiket = `Haftalık ilerleme: ${o.seri?.sayi || 0} günlük seri${ort ? `, son 7 gün ortalaması ${sayi(ort)} kcal` : ''}. Dada Gourmet’te aç`;
     const cubuklar = (alan, h, renk) => `<span class="${liste('gm-w2-grafik', `is-${renk}`)}" style="--h:${kisit(h / tavan, 0, 1).toFixed(3)}" aria-hidden="true">${l.map(x => `<span class="${liste('gm-w2-gun', x.bugun && 'is-bugun', x[alan] == null && 'is-bos', x[alan] > h * 1.08 && 'is-ustunde')}" style="--o:${kisit((x[alan] || 0) / tavan, 0, 1).toFixed(3)}"><i></i><small>${esc(x.gun.slice(0, 1))}</small></span>`).join('')}<i class="gm-w2-hedef"></i></span>`;
     const seri = `<span class="${liste('gm-lo-seri', !o.seri?.bugun && 'is-sonuk')}" role="img" aria-label="${esc(`${o.seri?.sayi || 0} günlük seri`)}"><img src="${ALEV}" alt=""><b>${sayi(o.seri?.sayi || 0)}</b></span>`;
     if (boy === 'kucuk') return GM.w2Kabuk({eski: o.eski, boy, tur: 'hafta', ac: '#/saglik', etiket, icerik: `<span class="gm-w2-ust">${w2Bas('chart-simple', 'Hafta', 'kalori')}${seri}</span>${cubuklar('kcal', hedef, 'kalori')}<small class="gm-w2-not">${ort ? `Ort. ${sayi(ort)} kcal` : 'Kayıtlar burada birikir'}</small>`});
@@ -446,7 +446,7 @@
   // 'mesaj': MessagingStyle (gönderen, mesaj, Yanıtla uygulamayı açar). Eylem düğmeleri bildirim eylemi (48 dp).
   GM.androidCanli = (o = {}) => {
     if (o.tur === 'rota' || o.tur === 'bildirim') return GM.androidRota(o);
-    const t = o.tur || 'oruc', ust = (ikon, metin, sag) => `<span class="gm-acb-ust"><span class="gm-acb-glif">${ik(ikon)}</span><span>Dada Diet</span><span aria-hidden="true">·</span><span>${esc(metin)}</span>${o.eski ? `<span aria-hidden="true">·</span><small class="gm-acb-eski">${ik('clock-rotate-left')} ${esc(o.eski)}</small>` : sag ? `<span aria-hidden="true">·</span>${sag}` : ''}</span>`;
+    const t = o.tur || 'oruc', ust = (ikon, metin, sag) => `<span class="gm-acb-ust"><span class="gm-acb-glif">${ik(ikon)}</span><span>Dada Gourmet</span><span aria-hidden="true">·</span><span>${esc(metin)}</span>${o.eski ? `<span aria-hidden="true">·</span><small class="gm-acb-eski">${ik('clock-rotate-left')} ${esc(o.eski)}</small>` : sag ? `<span aria-hidden="true">·</span>${sag}` : ''}</span>`;
     const eylem = e => `<button type="button"${e.kod ? ` data-wg-eylem="${esc(e.kod)}"${e.id ? ` data-id="${esc(e.id)}"` : ''}` : ` data-wg-ac="${esc(e.ac)}"`}>${esc(e.metin)}</button>`;
     if (t === 'mesaj') return `<div class="${liste('gm-acb', 'is-mesaj', o.eski && 'is-eski')}">${ust('comment', 'Diyetisyen', `<small>${esc(o.zaman || '')}</small>`)}<span class="gm-acb-govde"><span class="gm-w2-avatar" aria-hidden="true">${esc(o.harf || '')}</span><span class="gm-acb-metin"><b>${esc(o.baslik)}</b><span>${esc(o.metin)}</span></span></span><span class="gm-acb-eylemler">${eylem({ac: '#/uzman/sohbet', metin: 'Yanıtla'})}</span></div>`;
     if (t === 'gunluk') {
@@ -483,7 +483,7 @@
 
   // ---------- Sesli komut ----------
   GM.komutSonuc = (o = {}) => `<div class="${liste('gm-ksonuc', `is-${o.ton || 'kalori'}`)}">
-    <span class="gm-ksonuc-ust"><img src="${SIMGE}" alt=""><span>Dada Diet</span></span>
+    <span class="gm-ksonuc-ust"><img src="${SIMGE}" alt=""><span>Dada Gourmet</span></span>
     <span class="gm-ksonuc-bas"><span class="gm-ksonuc-ikon">${ik(o.ikon || 'check')}</span><span><b>${esc(o.baslik)}</b>${o.metin ? `<small>${esc(o.metin)}</small>` : ''}</span></span>
     ${o.deger != null ? `<span class="gm-ksonuc-deger"><b>${esc(o.deger)}</b><small>${esc(o.birim || '')}</small></span>` : ''}
     ${o.oran != null ? GM.cihazCubuk({tur: o.ton === 'su' ? 'su' : 'kalori', oran: o.oran}) : ''}
@@ -530,7 +530,7 @@
       yaz: u => `${u} uygulamasının yazmasına izin ver`, oku: u => `${u} uygulamasının okumasına izin ver`, aciklama: 'Bu uygulama verilerini neden kullanıyor?'}
   };
   GM.sistemIzinPenceresi = (o = {}) => new Promise(coz => {
-    const p = o.platform === 'android' ? 'android' : 'ios', M = SIZIN[p], u = o.uygulama?.ad || 'Dada Diet', simge = o.uygulama?.simge || SIMGE;
+    const p = o.platform === 'android' ? 'android' : 'ios', M = SIZIN[p], u = o.uygulama?.ad || 'Dada Gourmet', simge = o.uygulama?.simge || SIMGE;
     const oku = o.oku || [], yaz = o.yaz || [], hepsi = [...oku.map(t => ['oku', t]), ...yaz.map(t => ['yaz', t])];
     const sec = {oku: Object.fromEntries(oku.map(t => [t.id, !!t.acik])), yaz: Object.fromEntries(yaz.map(t => [t.id, !!t.acik]))};
     const tumuAcik = () => hepsi.every(([y, t]) => sec[y][t.id]), biri = () => hepsi.some(([y, t]) => sec[y][t.id]);
@@ -590,8 +590,8 @@
 /* ---------- Biyometrik istem (E4): telefonun kimlik doğrulama penceresi ----------
  * GM.biyometrikIstem({platform:'ios'|'ios-touch'|'android', neden, sonuc:'basari'|'basarisiz', sure}) → Promise<'basari'|'basarisiz'|'iptal'|'sifre'>
  *   ios: ortada kare sistem kutusu (yüz tarama simgesi + "Face ID"), tararken köşeler nabız atar; altta İptal.
- *   ios-touch: sistem uyarısı ("“Dada Diet” için Touch ID", gerekçe, parmak izi), altta İptal.
- *   android: alttan sayfa (BiometricPrompt): uygulama simgesi, "Dada Diet’i aç", gerekçe, halkalı parmak izi, durum satırı, "Şifre kullan" metin düğmesi.
+ *   ios-touch: sistem uyarısı ("“Dada Gourmet” için Touch ID", gerekçe, parmak izi), altta İptal.
+ *   android: alttan sayfa (BiometricPrompt): uygulama simgesi, "Dada Gourmet’i aç", gerekçe, halkalı parmak izi, durum satırı, "Şifre kullan" metin düğmesi.
  *   Haller data-hal: tarama → basari (simge onay işaretine döner, çizilerek) | basarisiz (hata tonu, sallanma). Sonuçta İptal ve Şifre kullan kalkar.
  *   Süreler hareket ayarından bağımsızdır: azaltılmış harekette istem aynı süre görünür, yalnız animasyonlar durur. Perdeye dokunmak, Esc ve sayfa değişimi = iptal.
  *   Nötr sistem yüzeyi: marka rengi ve resmi glif yok; yüz tarama simgesi genel çizim (köşe çerçeve + ifadesiz yüz).
@@ -607,15 +607,15 @@
     android: {ad: 'Parmak izi', tarama: 'Parmak izi sensörüne dokun', basari: 'Doğrulandı', basarisiz: 'Tanınmadı'}
   };
   GM.biyometrikIstem = (o = {}) => new Promise(coz => {
-    const p = M[o.platform] ? o.platform : 'ios', m = M[p], neden = o.neden || 'Dada Diet’i açmak için';
+    const p = M[o.platform] ? o.platform : 'ios', m = M[p], neden = o.neden || 'Dada Gourmet’i açmak için';
     const kat = document.getElementById('gm-katman') || document.body;
     const glif = `<span class="gm-bistem-glif">${p === 'ios' ? YUZ : ik('fingerprint', 'gm-bistem-parmak')}${ONAY}</span>`;
     const durum = `<span class="gm-bistem-durum" aria-live="polite">${esc(m.tarama)}</span>`;
     const govde = p === 'ios'
       ? `<div class="gm-bistem-kutu" tabindex="-1">${glif}${durum}</div><button type="button" class="gm-bistem-iptal" data-bistem="iptal">İptal</button>`
       : p === 'ios-touch'
-        ? `<div class="gm-bistem-kutu" tabindex="-1"><div class="gm-bistem-ic"><b class="gm-bistem-baslik">“Dada Diet” için Touch ID</b><p>${esc(neden)}</p>${glif}${durum}</div><button type="button" class="gm-bistem-dugme" data-bistem="iptal">İptal</button></div>`
-        : `<div class="gm-bistem-kutu" tabindex="-1"><div class="gm-bistem-ic"><span class="gm-bistem-simge" aria-hidden="true"><img src="${SIMGE}" alt=""></span><b class="gm-bistem-baslik">Dada Diet’i aç</b><p>${esc(neden)}</p>${glif}${durum}</div><div class="gm-bistem-ayak"><button type="button" class="gm-bistem-dugme" data-bistem="sifre">Şifre kullan</button></div></div>`;
+        ? `<div class="gm-bistem-kutu" tabindex="-1"><div class="gm-bistem-ic"><b class="gm-bistem-baslik">“Dada Gourmet” için Touch ID</b><p>${esc(neden)}</p>${glif}${durum}</div><button type="button" class="gm-bistem-dugme" data-bistem="iptal">İptal</button></div>`
+        : `<div class="gm-bistem-kutu" tabindex="-1"><div class="gm-bistem-ic"><span class="gm-bistem-simge" aria-hidden="true"><img src="${SIMGE}" alt=""></span><b class="gm-bistem-baslik">Dada Gourmet’i aç</b><p>${esc(neden)}</p>${glif}${durum}</div><div class="gm-bistem-ayak"><button type="button" class="gm-bistem-dugme" data-bistem="sifre">Şifre kullan</button></div></div>`;
     const kap = document.createElement('div');
     kap.className = `gm-bistem is-${p}`;
     kap.dataset.hal = 'tarama';

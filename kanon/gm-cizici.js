@@ -69,7 +69,8 @@
   const secimEt = (o, tur) => `<label class="gm-secim"><input type="${tur}" name="${esc(o.ad || '')}" value="${esc(o.deger ?? '1')}"${o.secili ? ' checked' : ''}${o.pasif ? ' disabled' : ''}><span>${o.alt ? `<span class="gm-satir-metin"><span>${o.etiketHtml || esc(o.etiket)}</span><small>${esc(o.alt)}</small></span>` : o.etiketHtml || esc(o.etiket)}</span></label>`;
   // Dosya alanı (Gastro ayarlar.js dosyaAlan): ikincil tam genişlik düğme görünümlü etiket + gizli file input; seçilince adı düğmede görünür (gm-ui.js).
   // {ad, etiket, metin ('Dosya seç'), ikon, kabul (accept), yardim}. Prototipte dosya yüklenmez, yalnız adı kayda geçer.
-  GM.dosyaAlan = (o = {}) => `<div class="gm-alan"><span class="gm-etiket">${esc(o.etiket || 'Ek dosya')} <span class="gm-ops">(isteğe bağlı)</span></span><label class="gm-btn gm-btn--ikincil gm-btn--tam gm-dosya">${ik(o.ikon || 'paperclip')}<span data-dosya-ad data-bos="${esc(o.metin || 'Dosya seç')}">${esc(o.metin || 'Dosya seç')}</span><input class="gm-sr" type="file" name="${esc(o.ad || 'dosya')}" accept="${esc(o.kabul || 'image/jpeg,image/png,image/webp,application/pdf')}"></label>${o.yardim ? `<p class="gm-yardim">${esc(o.yardim)}</p>` : ''}</div>`;
+  // Görev 12 (isletme önerisi): zorunlu → etikette " *", "(isteğe bağlı)" yok; hata → .is-hata + aria-invalid + hata satırı (GM.input ile aynı).
+  GM.dosyaAlan = (o = {}) => `<div class="${liste('gm-alan', o.hata && 'is-hata')}"><span class="gm-etiket">${esc(o.etiket || 'Ek dosya')}${o.zorunlu ? '<span aria-hidden="true"> *</span>' : ' <span class="gm-ops">(isteğe bağlı)</span>'}</span><label class="gm-btn gm-btn--ikincil gm-btn--tam gm-dosya">${ik(o.ikon || 'paperclip')}<span data-dosya-ad data-bos="${esc(o.metin || 'Dosya seç')}">${esc(o.metin || 'Dosya seç')}</span><input class="gm-sr" type="file" name="${esc(o.ad || 'dosya')}" accept="${esc(o.kabul || 'image/jpeg,image/png,image/webp,application/pdf')}"${o.zorunlu ? ' required aria-required="true"' : ''}${o.hata ? ' aria-invalid="true"' : ''}></label>${o.hata ? `<p class="gm-hata" role="alert">${ik('uyari')}${esc(o.hata)}</p>` : o.yardim ? `<p class="gm-yardim">${esc(o.yardim)}</p>` : ''}</div>`;
   GM.checkbox = (o = {}) => secimEt(o, 'checkbox');
   GM.radio = (o = {}) => secimEt(o, 'radio');
   GM.anahtar = (o = {}) => `<label class="gm-anahtar"><input type="checkbox" name="${esc(o.ad || '')}"${o.secili ? ' checked' : ''}${o.pasif ? ' disabled' : ''} aria-label="${esc(o.etiket || o.ad || '')}"><i></i></label>`;
@@ -103,7 +104,7 @@
   // Mesaj kutusu (Instagram'daki gibi zilin yanında): diyetisyen sohbeti; rozet okunmamış diyetisyen mesajı (uzman.js / profil.js ile aynı kural).
   GM.ustVarsayilan = () => [ARA, ZIL(), MENU];
   // Okunmamış sayısı: veri + kullanıcının okuduğu ve sildiği id'ler. Yığındaki bütün üst barlar birlikte tazelenir.
-  GM.bildirimSayi = () => { if (!GM.uye()) return 0; const dus = new Set([...GM.durum.oku('bildirim-okundu', []), ...GM.durum.oku('bildirim-silinen', [])].map(String)); return [...(GM.yeniHesap() ? [] : window.GMV?.bildirimler || []), ].filter(b => !b.okundu && !dus.has(String(b.id))).length; };
+  GM.bildirimSayi = () => { if (!GM.uye()) return 0; const dus = new Set([...GM.durum.oku('bildirim-okundu', []), ...GM.durum.oku('bildirim-silinen', [])].map(String)); return [...(GM.yeniHesap() ? [] : [...(window.GMV?.bildirimler || []), ...(window.GMX?.bildirimler || [])])].filter(b => !b.okundu && !dus.has(String(b.id))).length; };
   GM.zilTazele = () => { [['[data-zil]', GM.bildirimSayi()]].forEach(([sec, n]) => document.querySelectorAll(sec).forEach(b => { const r = b.querySelector('.gm-sayac'); if (!n) r?.remove(); else if (r) r.textContent = n; else b.insertAdjacentHTML('beforeend', GM.sayacRozet(n)); })); };
   document.addEventListener('gm-bildirim', GM.zilTazele);
   // tur sekme | alt | banner | modal; saydam: görsel üstünde başlar. sekme: logo · ara · zil · menü. alt: geri · başlık · eylem · menü.
@@ -150,9 +151,11 @@
   GM.hataEkran = (o = {}) => { const h = {...HATA[o.tur || 'genel'], ...o}; return GM.durumSahne({...h, ana: o.eylem || {metin: 'Tekrar dene', ikon: 'yenile', veri: {'gm-tazele': 1}}, ikinciller: o.ikinciller ?? (o.tur === 'bulunamadi' ? [] : [{metin: 'Keşfet’e dön', ikon: 'house', yerine: '#/kesfet'}])}); };
   // Kilitli (premium) hal: durum sahnesi + Pro kademesinin özellikleri (GMV.uye.kademeler, uydurma yok) + Pro'ya geç / Şimdi değil.
   GM.premiumKilit = (o = {}) => {
-    const k = (window.GMV?.uye?.kademeler || []).find(x => x.kod === (o.kademe || 'pro')) || {tamAd: 'Dada Gourmet Pro', ozellikler: [], fiyat: null};
+    // Görev 12: Gourmet kademe verisi hesap paketinde (GMX.hesap.kademeler {k, ad, fiyat '₺99'}, proDurum); Diet biçimi (GMV.uye) önceliklidir.
+    const kl = window.GMV?.uye?.kademeler || window.GMX?.hesap?.kademeler || [], kk = kl.find(x => (x.kod || x.k) === (o.kademe || 'pro'));
+    const k = kk ? {...kk, tamAd: kk.tamAd || `Dada Gourmet ${kk.ad}`, ozellikler: kk.ozellikler || [], fiyat: typeof kk.fiyat === 'number' ? kk.fiyat : null} : {tamAd: 'Dada Gourmet Pro', ozellikler: [], fiyat: null};
     // Karar 1 (11 Kasım): Pro satışa açılmadıysa (GMV.uye.pro.satista === false) her girişte aynı dil: durum metni, "Yakında", pasif düğme.
-    const p = window.GMV?.uye?.pro || {}, kapali = p.satista === false, ad = k.ad || 'Pro';
+    const p = window.GMV?.uye?.pro || window.GMX?.hesap?.proDurum || {}, kapali = p.satista === false, ad = k.ad || 'Pro';
     return GM.durumSahne({isaret: 'lock', baslik: o.baslik || `${k.tamAd} ile açılır`, metin: o.metin || `Bu bölüm **${ad}** üyelikte. ${kapali ? p.durumMetni : (k.ozet || '')}`.trim(), ipucuBaslik: `${ad} ile gelenler`,
       ipuclari: [...(kapali ? [['clock', p.rozet, p.fiyatNotu]] : []), ...(k.ozellikler || []).slice(0, 5).map(x => ['circle-check', x])],
       ana: kapali ? {metin: `${p.dugme} · ${p.rozet}`, ikon: k.ikon || 'bolt', pasif: true} : {metin: k.fiyat ? `${ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${ad}’ya geç`, ikon: k.ikon || 'bolt', git: GM.uye() ? '#/paketlerim' : '#/pro'},
@@ -340,10 +343,23 @@
     return `<article class="${liste('gm-uzk-kart', uzTon(d), git && 'is-link')}" aria-label="${esc(d.ad)}"><span class="gm-uzk-bant" aria-hidden="true">${ik(UZ_IKON[d.uzmanliklar?.[0]] || 'leaf')}</span><span class="gm-uzk-kart-avatar" aria-hidden="true">${uzHarf(d)}</span>${uzLink(d, git, `<b class="gm-uzk-ad">${esc(d.kisaAd || d.ad)}</b>`)}${d.unvan ? `<small class="gm-uzk-unvan">${esc(d.unvan)}</small>` : ''}${d.uzmanliklar?.length ? `<div class="gm-uzk-cipler">${uzCipler(d.uzmanliklar, 1)}</div>` : ''}${metaK ? `<small class="gm-uzk-kart-meta">${esc(metaK)}</small>` : ''}${e?.secili ? GM.durumRozet({metin: e.metin, ton: 'basari', ikon: 'onay'}) : ''}<span class="gm-uzk-git" aria-hidden="true">Profili gör${ik('arrow-right')}</span></article>`;
   };
   // Sonsuz liste ve meşgul düğme: Gastro DG.sonsuz, DG.mesgul.
+  // Hata dalı (Görev 12, envanter E3; Gastro KAPSAM LISTE sayfa=hata): yukle() hata fırlatır ya da {hata: true} dönerse satır içi uyarı + Tekrar dene; aynı sayfa yeniden denenir.
+  // Prototipte ?hal=sayfa-hata: listenin İLK ek sayfası bir kez yüklenemez (Tekrar dene ile gelir). Ekran tarafında iş yok; bütün sonsuz listeler alır.
   GM.sonsuz = (kap, yukle, {bas = 2} = {}) => {
-    let n = bas, bekle = false; const son = document.createElement('div'); son.className = 'gm-sonsuz-son'; kap.after(son);
+    let n = bas, bekle = false, ilkHata = /[?&]hal=sayfa-hata\b/.test(location.hash); const son = document.createElement('div'); son.className = 'gm-sonsuz-son'; kap.after(son);
     const g = document.createElement('div'); g.className = 'gm-alt-yukleniyor'; g.setAttribute('role', 'status'); g.setAttribute('aria-label', 'Yükleniyor'); g.innerHTML = '<i></i><i></i><i></i>'; g.hidden = true; son.before(g);
-    const io = new IntersectionObserver(es => { if (!es[0].isIntersecting || bekle) return; bekle = true; g.hidden = false; setTimeout(() => { const h = yukle(n++); g.hidden = true; bekle = false; if (!h) { io.disconnect(); son.remove(); g.remove(); return; } kap.insertAdjacentHTML('beforeend', h); }, GM.azHareket() ? 0 : TK.motion.reveal); }, {root: kap.closest('.gm-kaydir'), rootMargin: '200px'});
+    const hataEl = document.createElement('div'); hataEl.className = 'gm-sonsuz-hata'; hataEl.setAttribute('role', 'alert'); hataEl.hidden = true;
+    hataEl.innerHTML = `${GM.bilgi ? GM.bilgi({ikon: 'uyari', ton: 'uyari', metin: 'Sonraki sayfa **yüklenemedi**. Bağlantını kontrol edip tekrar dene.'}) : ''}${GM.btn({metin: 'Tekrar dene', ikon: 'yenile', tur: 'secondary', boyut: 'sm', attrs: 'data-sonsuz-tekrar'})}`; son.before(hataEl);
+    const getir = () => { bekle = true; hataEl.hidden = true; g.hidden = false; setTimeout(() => {
+      let h; try { if (ilkHata) { ilkHata = false; throw new Error('sayfa'); } h = yukle(n); } catch { h = {hata: true}; }
+      g.hidden = true;
+      if (h && h.hata) { hataEl.hidden = false; return; }   // bekle true kalır: gözlemci yeniden tetiklemez, yalnız Tekrar dene
+      bekle = false; n++;
+      if (!h) { io.disconnect(); son.remove(); g.remove(); hataEl.remove(); return; }
+      kap.insertAdjacentHTML('beforeend', h);
+    }, GM.azHareket() ? 0 : TK.motion.reveal); };
+    hataEl.addEventListener('click', ev => { if (ev.target.closest('[data-sonsuz-tekrar]')) getir(); });
+    const io = new IntersectionObserver(es => { if (!es[0].isIntersecting || bekle) return; getir(); }, {root: kap.closest('.gm-kaydir'), rootMargin: '200px'});
     io.observe(son); return io;
   };
   GM.mesgul = (b, is = TK.motion.reveal * 2) => { if (!b) return Promise.resolve(); b.setAttribute('aria-busy', 'true'); b.disabled = true; const bit = () => { b.removeAttribute('aria-busy'); b.disabled = false; }; return (is && is.then ? is : new Promise(r => setTimeout(r, is))).then(v => { bit(); return v; }); };

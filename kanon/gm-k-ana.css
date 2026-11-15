@@ -366,3 +366,7 @@
 .gm-ka-secim .gm-bilet{box-shadow:none;border:var(--gm-size-border) solid var(--gm-line)}
 .gm-ka-secim .gm-mk-harita{position:relative;inset:auto;width:auto;margin:0;box-shadow:none;border:var(--gm-size-border) solid var(--gm-line)}
 @media (prefers-reduced-motion: reduce){.gm-ka-secim > *{animation:none}}
+
+/* Denetim tur 1 #3: ana şerit kartlarında tek satır başlık iki satırlık yer tutmasın (kanon .gm-card__text min-height ve .gm-puf-metin b 2lh). */
+.gm-serit.gm-ka-iki .gm-ek .gm-card__text{min-height:0;align-content:start}
+.gm-ka-puf:not(.is-iki-satir) .gm-puf-metin b{min-height:0}

@@ -87,6 +87,17 @@ body.is-tekli #duzen{display:none}
 .secim .seg button[aria-pressed=true]{background:var(--gm-paper);color:var(--gm-primary);font-family:var(--gm-font-bold);box-shadow:var(--gm-sh-sm)}
 .secim .seg button:disabled{opacity:.4;cursor:default}
 .not{display:none;margin:0 0 var(--gm-s-16);font-size:14px;color:var(--gm-slate)}
+/* Görev 12: patron seçimi — seçilen çeşit üstte (telefon solda, açıklama sağda), seçilmeyenler katlanır Arşiv'de (silinmez). */
+.cesit.is-secili{grid-column:1/-1;grid-template-columns:auto minmax(0,560px);justify-content:start;column-gap:32px;justify-items:start;align-items:start}
+.cesit.is-secili .ust{grid-column:1/-1}
+.cesit.is-secili .kap{grid-column:1;grid-row:2/span 6}
+.cesit.is-secili>:not(.kap):not(.ust){grid-column:2}
+.secildi{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:13px;background:var(--gm-primary);color:var(--gm-paper);font:700 12px/1 var(--gm-font-bold)}
+.arsiv{grid-column:1/-1;border-top:1px solid var(--gm-line);padding-top:var(--gm-s-16)}
+.arsiv summary{cursor:pointer;font:700 15px/1.4 var(--gm-font-bold);color:var(--gm-slate)}
+.arsiv .sira{padding-top:var(--gm-s-16)}
+.arsiv .cesit{opacity:.92}
+.bekliyor{grid-column:1/-1;margin:0;padding:var(--gm-s-16);border:1px dashed var(--gm-line);border-radius:var(--gm-r-surface);color:var(--gm-slate)}
 </style>
 </head>
 <body>
@@ -126,11 +137,17 @@ const ciz = k => {
   const tek = x.length === 1 && x[0].secenekler;
   AKTIFA = tek ? x[0] : null;
   document.body.classList.toggle('is-tekli', !!tek);
-  document.getElementById('not').textContent = `${AD[k]}: ${x.length} çeşit. Her biri ayrı, tam ve çalışan bir telefon ekranı (ekrana sığacak kadar küçültüldü; "Tek başına aç" gerçek boyut).`;
-  document.getElementById('sira').innerHTML = x.map((a, i) => { const ac = `<a class="ac" href="${e(a.secenekler ? secAdres(a) : '../index.html' + a.git)}" target="_blank"><i class="fa-solid fa-up-right-from-square"></i>Tek başına aç</a>`, metin = `<span class="ref">${e(a.referans)}</span><p><span>Alınan:</span> ${e(a.alinan)}</p><p><span>Neden:</span> ${e(a.gerekce)}</p>`;
-    return tek ? `<section class="cesit is-tek">${telefonHtml(a, i)}<div class="panel"><div class="ust"><span class="no">${i + 1}</span><h2>${e(a.ad)}</h2></div>${secimHtml(a)}<details class="bilgi"><summary>Referans ve gerekçe</summary>${metin}</details>${ac}</div></section>`
-      : `<section class="cesit"><div class="ust"><span class="no">${i + 1}</span><h2>${e(a.ad)}</h2></div>${telefonHtml(a, i)}${metin}${ac}</section>`; }).join('');
+  document.getElementById('not').textContent = `${AD[k]}: patron seçimi üstte, seçilmeyen çeşitler Arşiv’de. Her biri ayrı, tam ve çalışan bir telefon ekranı (ekrana sığacak kadar küçültüldü; "Tek başına aç" gerçek boyut).`;
+  const kart = (a, i) => { const ac = `<a class="ac" href="${e(a.secenekler ? secAdres(a) : '../index.html' + a.git)}" target="_blank"><i class="fa-solid fa-up-right-from-square"></i>Tek başına aç</a>`, metin = `<span class="ref">${e(a.referans)}</span><p><span>Alınan:</span> ${e(a.alinan)}</p><p><span>Neden:</span> ${e(a.gerekce)}</p>`, rozet = a.secildi ? '<span class="secildi"><i class="fa-solid fa-check"></i>Seçildi · Yasin Bey, 15 Kas</span>' : '';
+    return tek ? `<section class="cesit is-tek">${telefonHtml(a, i)}<div class="panel"><div class="ust"><span class="no">${i + 1}</span><h2>${e(a.ad)}</h2>${rozet}</div>${secimHtml(a)}<details class="bilgi"><summary>Referans ve gerekçe</summary>${metin}</details>${ac}</div></section>`
+      : `<section class="cesit${a.secildi ? ' is-secili' : ''}"><div class="ust"><span class="no">${a.secildi ? '<i class="fa-solid fa-star"></i>' : i + 1}</span><h2>${e(a.ad)}</h2>${rozet}</div>${telefonHtml(a, a.secildi ? 0 : 9)}${metin}${ac}</section>`; };
+  const sec = x.filter(a => a.secildi), ars = x.filter(a => !a.secildi);
+  document.getElementById('sira').innerHTML = tek ? x.map(kart).join('')
+    : (sec.length ? sec.map(kart).join('') : `<p class="bekliyor"><b>Patron kararı:</b> Dada Route mimari belgesine göre (Roadtrippers iskeleti + Google Maps listesi + Komoot istatistik çekmecesi + Ana yön girişi) yeniden kuruluyor; hazır olunca burada “Seçildi” olarak görünecek.</p>`)
+      + (ars.length ? `<details class="arsiv"${ARSIV_ACIK ? ' open' : ''}><summary>Arşiv · seçilmeyen ${ars.length} çeşit</summary><div class="sira">${ars.map((a, i) => kart(a, i)).join('')}</div></details>` : '');
 };
+let ARSIV_ACIK = false;
+document.addEventListener('toggle', ev => { if (ev.target.matches && ev.target.matches('.arsiv')) { ARSIV_ACIK = ev.target.open; olcekle(); } }, true);
 document.addEventListener('toggle', ev => { if (ev.target.matches && ev.target.matches('.is-diger')) DIGER_ACIK = ev.target.open; }, true);
 document.addEventListener('click', ev => { const b = ev.target.closest('.secim button'); if (!b) return; if (b.dataset.sunum != null) { const s = AKTIFA?.sunumlar?.[+b.dataset.sunum]; if (s) Object.assign(SEC, s.secim); } else SEC[b.dataset.a] = b.dataset.d; try { localStorage.setItem('karar-secim', JSON.stringify(SEC)); } catch {} ciz(AKTIF); olcekle(); });
 try { Object.assign(SEC, JSON.parse(localStorage.getItem('karar-secim') || '{}')); } catch {}

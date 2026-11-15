@@ -58,7 +58,8 @@
     return l.genis ? [GM.acikDurum(m.acik, {foto: l.foto}), ek] : [ek || GM.acikDurum(m.acik)];
   };
   // Meta satırı: parçalar nokta ile, .gm-tek-satir (asla kırılmaz; yer kısalır, gerekirse kaydırılır ve sağda solar).
-  GM.mekanMetaSatir = (l = [], o = {}) => { const p = l.flat().filter(Boolean); return p.length ? `<span class="${liste('gm-mk-meta gm-tek-satir', o.foto && 'is-foto', o.sinif)}">${p.join(nokta)}</span>` : ''; };
+  // Görev 12 (denetim): görünür metni ya da ikonu olmayan parça (boş fiyat kabı) süzülür; "Ürgüp · · Açık" gibi çift ayraç kalmaz.
+  GM.mekanMetaSatir = (l = [], o = {}) => { const p = l.flat().filter(x => x && (String(x).replace(/<[^>]*>/g, '').trim() || /<(i|svg|img)\b/.test(String(x)))); return p.length ? `<span class="${liste('gm-mk-meta gm-tek-satir', o.foto && 'is-foto', o.sinif)}">${p.join(nokta)}</span>` : ''; };
   const kaydet = (m, o, kutu) => `<button class="${liste('gm-save', kutu && 'gm-mk-kaydet')}" type="button" aria-label="Favorilere ekle" aria-pressed="${!!o.kayitli}" data-eylem="kaydet" data-id="${esc(m.slug)}">${ik('favori')}</button>`;
   const ad = (m, o, git, etiketli) => `<a class="gm-card__text" href="${esc(git)}" data-git="${esc(git)}">${etiketli ? GM.mekanEtiketSpan(m) : ''}<h3 class="gm-card__title">${o.sira ? `<span class="gm-mk-sira">${esc(o.sira)}</span>` : ''}${esc(m.ad)}</h3></a>`;
   // Satır türleri: etiket · ad · tek meta (puan · yer · ₺ · durum).
@@ -83,10 +84,15 @@
   // durak: kullanıcının rotaya eklediği duraklar; mekan: önerilen gurme durak sayısı (GM.rotaOneri, tek kaynak).
   GM.rotaOzet = r => [r.km != null ? `${GM.sayi(r.km)} km` : '', r.dk != null ? GM.sure(r.dk) : '', r.durak != null ? `${r.durak} durak` : r.mekan != null ? `${r.mekan} önerilen durak` : ''].filter(Boolean).join(' · ');
   // Rota kartı: tur kapak (dikey dergi kapağı + rota silueti) · satir (küçük şema + metin) · genis (yatay kapak). ilerleme: {n, toplam}
+  // Sayıya iyelik eki (3. tekil): okunuşun son sözcüğüne göre ünlü uyumu ve kaynaştırma. 1’i 2’si 3’ü 6’sı 9’u 10’u 40’ı 100’ü 0’ı.
+  GM.sayiEk = n => { const v = Math.abs(Math.trunc(+n || 0)), s = String(v);
+    const EK1 = ['ı', 'i', 'si', 'ü', 'ü', 'i', 'sı', 'si', 'i', 'u'], EK10 = ['', 'u', 'si', 'u', 'ı', 'si', 'ı', 'i', 'i', 'ı'];
+    const ek = v === 0 ? 'ı' : v % 10 ? EK1[v % 10] : v % 100 ? EK10[(v % 100) / 10] : v % 1000 ? 'ü' : v % 1e6 ? 'i' : 'u';
+    return `${s}’${ek}`; };
   GM.rotaKart = (r, o = {}) => {
     const tur = o.tur || 'kapak', git = o.git || `#/rota/${r.id}`;
     const sema = tur === 'satir' ? GM.rotaCizgi({rota: {cizgi: r.cizgi}, pinler: (r.duraklar || []).map((d, i, a) => ({lng: d.lng, lat: d.lat, uc: i === 0 || i === a.length - 1})), w: 112, h: 112, dolgu: {top: 14, right: 14, bottom: 14, left: 14}}) : GM.rotaKapakCizgi({rota: {cizgi: r.cizgi}, iller: r.iller, w: 280, h: tur === 'genis' ? 150 : 200});
-    const ilerleme = o.ilerleme ? `<span class="gm-rk-ilerleme" role="progressbar" aria-valuenow="${o.ilerleme.n}" aria-valuemax="${o.ilerleme.toplam}" aria-label="${esc(`${o.ilerleme.toplam} duraktan ${o.ilerleme.n} tamam`)}"><i style="--oran:${(o.ilerleme.n / o.ilerleme.toplam).toFixed(3)}"></i></span><small class="gm-rk-ilerleme-metin">${esc(o.ilerleme.toplam)} duraktan ${esc(o.ilerleme.n)}’i</small>` : '';
+    const ilerleme = o.ilerleme ? `<span class="gm-rk-ilerleme" role="progressbar" aria-valuenow="${o.ilerleme.n}" aria-valuemax="${o.ilerleme.toplam}" aria-label="${esc(`${o.ilerleme.toplam} duraktan ${o.ilerleme.n} tamam`)}"><i style="--oran:${(o.ilerleme.n / o.ilerleme.toplam).toFixed(3)}"></i></span><small class="gm-rk-ilerleme-metin">${esc(o.ilerleme.toplam)} duraktan ${esc(GM.sayiEk(o.ilerleme.n))}</small>` : '';
     if (tur === 'satir') return `<a class="gm-rk-satir" href="${esc(git)}" data-git="${esc(git)}"><span class="gm-rk-satir-sema">${sema}</span><span class="gm-satir-metin"><small class="gm-card__category">${esc(r.etiket || r.tema || 'Rota')}</small><b>${esc(r.ad)}</b><small>${esc(GM.rotaOzet(r))}</small>${ilerleme}</span>${ik('satirOk', 'gm-satir-ok')}</a>`;
     return `<article class="${liste('gm-rk', `is-${tur}`, o.sinif)}"><a class="gm-rk-kapak" href="${esc(git)}" data-git="${esc(git)}" aria-label="${esc(r.ad)}">${r.gorsel ? `<span class="gm-photo"${bg(r.gorsel)}></span><span class="gm-rk-perde" aria-hidden="true"></span>` : ''}<span class="gm-rk-sema">${sema}</span><span class="gm-rk-metin"><small class="gm-rk-etiket">${esc(r.etiket || r.tema || 'Dada Route')}</small><b class="gm-rk-ad">${esc(r.ad)}</b><span class="gm-rk-ozet">${esc(GM.rotaOzet(r))}</span>${ilerleme}</span></a>${o.kaydet === false ? '' : `<button class="gm-save" type="button" aria-label="Rotayı kaydet" aria-pressed="${!!o.kayitli}" data-eylem="kaydet" data-id="${esc(r.id)}">${ik('kaydet')}</button>`}</article>`;
   };

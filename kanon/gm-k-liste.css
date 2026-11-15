@@ -339,3 +339,41 @@
 .gm-liste-status__on .gm-kl-konum-yol{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gm-kl-manset-ozet.gm-tek-satir{flex-wrap:nowrap;gap:0}
 .gm-kl-manset-ozet.gm-tek-satir > *{flex:none}
+
+/* ---------- Mekân Bul (ekranlar/mekan-bul.js; GM.sihirbazBas / sihirbazAyak / eslesmeKart / eslesmeBas) ---------- */
+.gm-kl-mb{display:grid;gap:var(--gm-s-24);padding:var(--gm-s-16) var(--gm-gutter) 0}
+.gm-kl-mb-bas{display:grid;gap:var(--gm-s-8)}
+.gm-kl-mb-bas p{margin:0}
+.gm-kl-mb-bas .gm-metin-blok,.gm-kl-mb-bas>:last-child{margin-top:var(--gm-s-8)}
+.gm-kl-mb-bolum{display:grid;gap:var(--gm-s-12);min-width:0}
+.gm-kl-mb-altbas{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-12);min-width:0}
+.gm-kl-mb-altbas h2{margin:0}
+.gm-kl-mb [hidden]{display:none!important}
+/* Ayak: dock'un hemen üstüne yapışır (sekme ekranı; .gm-icerik alt boşluğu dock yüksekliği kadar). */
+.gm-kl-mb-ayak{position:sticky;bottom:calc(var(--gm-size-nav-bar) + var(--gm-s-40) + env(safe-area-inset-bottom,0px));z-index:3;display:flex;gap:var(--gm-s-12);margin:0 calc(-1 * var(--gm-gutter));padding:var(--gm-s-12) var(--gm-gutter);background:var(--gm-paper);box-shadow:0 calc(-1 * var(--gm-size-border)) 0 var(--gm-line)}
+.gm-kl-mb-ayak>.gm-btn{flex:1;min-width:0}
+.gm-kl-mb-ayak>.gm-btn:only-child{flex:1}
+.gm-kl-mb-gecis>*{animation:gm-rz-gir var(--gm-m-page) var(--gm-e-emphasized-decel) both}
+.gm-kl-mb-gecis>:nth-child(2){animation-delay:var(--gm-m-stagger)}
+.gm-kl-mb-gecis>:nth-child(n+3){animation-delay:calc(var(--gm-m-stagger) * 2)}
+@media (prefers-reduced-motion:reduce){.gm-kl-mb-gecis>*{animation:none!important}}
+/* Sonuç: seçim özeti tek satır + Düzenle aynı satırda (yığılma kuralı 1-2). */
+.gm-kl-mb-ozet{display:flex;align-items:center;gap:var(--gm-s-8);min-width:0}
+.gm-kl-mb-ozet>.gm-etiket-bulut{flex:1;min-width:0;margin:0;padding:0}
+.gm-kl-mb-ozet>.gm-btn{flex:none}
+.gm-kl-mb-hesap{margin:0;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+/* Eşleşme ızgarası: grup başlığı tam satır; oran rozeti düğme. */
+.gm-kl-esles-bas{grid-column:1/-1;display:grid;gap:var(--gm-s-4);padding-top:var(--gm-s-8)}
+.gm-kl-esles-bas+.gm-kl-esles,.gm-kl-esles-bas:first-child{margin-top:0}
+.gm-kl-esles-bas h2{display:flex;align-items:baseline;gap:var(--gm-s-8);margin:0}
+.gm-kl-esles-bas h2 .icon{color:var(--gm-primary)}
+.gm-kl-esles-bas h2 small{color:var(--gm-slate);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font)}
+.gm-kl-esles-bas p{margin:0;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+.gm-kl-esles .gm-mk-ust>.gm-kl-oran{display:inline-flex;align-items:center;gap:var(--gm-s-4);border:0;cursor:pointer;line-height:1}
+.gm-kl-esles .gm-kl-oran .icon{font-size:var(--gm-t-card-category-size)}
+/* Neden sheet'i: tutan / eksik kriter satırları */
+.gm-kl-neden{display:grid;gap:var(--gm-s-8);margin:0;padding:0;list-style:none}
+.gm-kl-neden li{display:flex;align-items:flex-start;gap:var(--gm-s-12);font-size:var(--gm-t-body-size);line-height:var(--gm-t-body-line)}
+.gm-kl-neden li .icon{flex:none;margin-top:var(--gm-s-4);color:var(--gm-basari-fg)}
+.gm-kl-neden li.is-eksik{color:var(--gm-slate)}
+.gm-kl-neden li.is-eksik .icon{color:var(--gm-hata-fg)}

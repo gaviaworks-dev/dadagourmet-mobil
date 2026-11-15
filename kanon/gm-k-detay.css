@@ -374,3 +374,20 @@ body.gm .gm-iskelet.is-hs-foto{height:calc(var(--gm-s-48) * 3);border-radius:var
 .gm-ekran:is([data-ekran^="mekan-"],[data-ekran^="ref-detay-"]) .gm-aciklama:has(>.gm-devam[aria-expanded=true]){position:relative}
 .gm-ekran:is([data-ekran^="mekan-"],[data-ekran^="ref-detay-"]) .gm-aciklama:has(>.gm-devam[aria-expanded=true]) .gm-aciklama-metin::after{content:'';display:inline-block;width:calc(var(--gm-s-48) * 3)}
 .gm-ekran:is([data-ekran^="mekan-"],[data-ekran^="ref-detay-"]) .gm-aciklama>.gm-devam[aria-expanded=true]{position:absolute;right:0;bottom:0;margin:0}
+/* Detay-A tutamağı (detay-kanon-oneri #2, Gastro detay paneli): panelin üst kenarında küçük çizgi; yapıştıkça (--gm-yapis → 0) söner. Yalnız seçilen çeşit (mekan-a). */
+.gm-ekran[data-ekran="mekan-a"] .gm-detay-bas::before{content:"";position:absolute;top:var(--gm-s-8);left:50%;width:var(--gm-s-40);height:var(--gm-s-4);border-radius:var(--gm-r-control);background:var(--gm-line);transform:translateX(-50%);opacity:var(--gm-yapis,1);pointer-events:none}
+.gm-ekran[data-ekran="mekan-a"] .gm-detay-bas>.gm-ipucu{margin-top:var(--gm-s-16)}
+/* Rezervasyon (denetim tur 2): adım başlığı sheet gövdesinde sabit; tarih 14 günlük tek satır şerit (seçili vurgulu, kapalı pasif). */
+.gm-rz-sheet .gm-rz-adim{position:sticky;top:calc(-1 * var(--gm-s-16));z-index:2;margin-top:calc(-1 * var(--gm-s-16));padding:calc(var(--gm-s-16) + var(--gm-s-4)) 0 var(--gm-s-12);background:var(--gm-paper);box-shadow:0 var(--gm-size-border) 0 var(--gm-line)}
+.gm-rz-sheet [data-rz-hata]:empty{display:none}
+.gm-rz-gunler{display:flex;gap:var(--gm-s-8);padding:var(--gm-s-2) 0;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}
+.gm-rz-gunler::-webkit-scrollbar{display:none}
+.gm-rz-gun{display:grid;justify-items:center;gap:var(--gm-s-2);flex:none;min-width:calc(var(--gm-s-48) + var(--gm-s-8));padding:var(--gm-s-8) var(--gm-s-4);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-ink);scroll-snap-align:start;cursor:pointer;transition:transform var(--gm-m-press) var(--gm-ease)}
+.gm-rz-gun:active{transform:scale(.95)}
+.gm-rz-gun small{color:var(--gm-slate);font-size:var(--gm-t-label-size);line-height:var(--gm-t-label-line)}
+.gm-rz-gun b{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-subheading-size);line-height:var(--gm-t-subheading-line);font-variant-numeric:tabular-nums}
+.gm-rz-gun[aria-pressed=true]{border-color:var(--gm-primary);background:var(--gm-primary);color:var(--gm-paper)}
+.gm-rz-gun[aria-pressed=true] small{color:color-mix(in srgb,var(--gm-paper) 82%,transparent)}
+.gm-rz-gun:disabled{opacity:.45;cursor:not-allowed}
+.gm-rz-gunler+.gm-btn{justify-self:start}
+.gm-rz-sheet{isolation:isolate} /* sabit adım başlığının z-index'i sheet içinde kalsın (üstte açılan takvim sheet'inin perdesinin altında) */

@@ -545,3 +545,28 @@ body.gm :is(.gm-mk,.gm-mk-satir,.gm-mk-harita) .gm-card__text{gap:var(--gm-s-4);
 .gm-tek-satir.is-sigar{-webkit-mask-image:none;mask-image:none}
 /* Alt sayfa en üste yapışınca: yarıçap 0, tam genişlik (Gastro detay). */
 .is-yapisik{border-radius:0!important;margin-inline:0!important;transition:border-radius .2s ease}
+
+/* Görev 12 (envanter E3): sonsuz kaydırmada "sonraki sayfa yüklenemedi" satır içi hâli (GM.sonsuz hata dalı). */
+.gm-sonsuz-hata{display:grid;gap:var(--gm-s-12);justify-items:center;padding:var(--gm-s-16) 0 var(--gm-s-24)}
+.gm-sonsuz-hata[hidden]{display:none}
+.gm-sonsuz-hata .gm-bilgi{justify-self:stretch}
+
+/* Görev 12 (ana-liste-detay isteği): pasif çip her grupta aynı görünür (dolu slot, tükenmiş seçenek). */
+.gm-chip:disabled{opacity:.45;text-decoration:line-through;cursor:not-allowed}
+
+/* Görev 12 (lezzet-ara isteği): kapaksız içerik kartı kategori tonunda (gm-hareket'in gri zemini yerine); ton kartın taşıdığı token değişkeniyle. */
+body.gm .gm-puf-foto.is-yok{background-color:var(--gm-puf-ton,var(--gm-primary-tint));color:var(--gm-puf-ton-fg,var(--gm-primary-dark));font-size:var(--gm-size-icon-xxl)}
+/* Kart başlığı en çok 2 satır (yığılma kuralı 3: kart altında ≤ 2 satır; meta yoksa başlık 2 satır kullanabilir). */
+.gm-ka-puf.is-iki-satir .gm-puf-metin b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;overflow:hidden}
+
+/* Görev 12 (mekan-bul notu): büyük kartta foto üstü metinde Açık/Kapalı koyu ton okunmuyordu → açık tonlar (kontrast koyu foto örtüsünde). */
+.gm-mk.is-buyuk .gm-card__text .gm-acik.is-acik{color:var(--gm-basari-line)}
+.gm-mk.is-buyuk .gm-card__text .gm-acik.is-kapali{color:var(--gm-tehlike-line)}
+
+/* Görev 12 (denetim sistemik, kural 5: başlık bloğu ≤ 3 satır): kapak/bant açıklaması TEK satır. Üst yazı + başlık + tek satır açıklama.
+   7 ekranda (Keşfet, Hazır rotalar, İşletme, başvuru, Giriş, Karşılama, Kilit) "2 satır açıklama" 4 satıra çıkarıyordu. Metin sığmazsa kısaltılır (ekran metni kısa yazılır). */
+.gm-foto-metin > p,.gm-banner-metin > p{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* Görev 12 (hesap isteği): satır metninde tek satır kırpma her satırda çalışsın (span inline kaldığı için kesilmiyordu). */
+.gm-satir-metin{min-width:0}
+.gm-satir-metin .gm-kirp-1{display:block;max-width:100%}

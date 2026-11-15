@@ -13,6 +13,8 @@
   // Varış saati (Citymapper "Arrive 17:04" / Flighty): uygulamanın şimdisinden (GM.simdi, veriden gelir) dk sonrası, "16.50" biçiminde.
   GM.varisSaati = dk => { const d = new Date(GM.simdi().getTime() + Math.round(+dk || 0) * 60000); return `${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')}`; };
   // Keşif modülü ızgarası: GM.modulKart dizgelerinin 2×2 kabı (gm-gourmet.css .gm-modul-izgara); ekran dosyası ham sınıf yazmasın diye.
+  // Reklam yuvası işareti (lider kararı 15 Kas: reklam patron kararını bekliyor): görünmez, yer kaplamaz; Flutter'da yuvanın yeri belli olsun diye DOM'da kalır.
+  GM.reklamIsaret = kod => `<span data-reklam-yuva="${esc(kod)}" hidden></span>`;
   GM.modulIzgara = (l = []) => `<div class="gm-modul-izgara">${l.join('')}</div>`;
   // Bindirmeli bant (GM.selamBas türevi): görselli mor bandın altı uzar, ardından gelen GM.bindirYuva içeriği banda biner (Citymapper paneli, Komoot tur kartı).
   GM.bindirBant = (o = {}) => GM.selamBas({...o, sinif: liste('gm-ka-bindir', o.sinif)});

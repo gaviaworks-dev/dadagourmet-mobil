@@ -1,7 +1,8 @@
 /* Mekân listesi parçaları (ekranlar/mekanlar.js: mekanlar-a, -b, -c). Gastro/Diet'te karşılığı olmayan Gourmet liste parçaları; her biri en yakın kanon ailesinden türer, satır başı yorumda yazılı.
    Veri: GMV.mekanlar[].f = web süzgeç değerleri (GMV.mekanSecenek[grup][].deger, web sayılarıyla birebir). Puan, yorum, görüntülenme uydurulmaz.
    API: GM.MEKAN_GRUPLAR · GM.MEKAN_SIRALA · GM.mekanSuz · GM.mekanSirala · GM.filtreSay · GM.mekanFiltreSheet · GM.konumSecici · GM.konumSheet · GM.konumYaz
-        GM.kaydetBagla · GM.cekmece · GM.cekmeceDurak · GM.haritaArama · GM.yuzenDugme · GM.aracSutun · GM.haritaSec · GM.rehberManset · GM.mekanEditoryal · GM.haritaKartlar */
+        GM.kaydetBagla · GM.cekmece · GM.cekmeceDurak · GM.haritaArama · GM.yuzenDugme · GM.aracSutun · GM.haritaSec · GM.rehberManset · GM.mekanEditoryal · GM.haritaKartlar
+        GM.listeSon · GM.sonsuzListe (sayfalı sonsuz liste + "Hepsi bu kadar") · Mekân Bul: GM.eslesmeKart · GM.eslesmeBas · GM.sihirbazBas · GM.sihirbazAyak · GM.sihirbazAltBas */
 (() => {
   const esc = s => GM.esc(s), ik = GM.ik, at = GM.at, liste = (...a) => a.filter(Boolean).join(' ');
   const SEC = () => window.GMV?.mekanSecenek || {};
@@ -79,14 +80,25 @@
 
   // ---------- Kaydet (favori) ----------
   // Kart kaydet düğmesi (gm-save, kanon kart ailesi) bağlamı: misafirde GM.uyeDuvar açılır, kart değişmez; üyede kanon geçişi + GM.durum'da saklama.
-  GM.kayitliMekanlar = () => new Set(GM.durum.oku('favori-mekan', []) || []);
+  // Tek anahtar: favoriler GM.mekanKayit('favori') ile aynı yerde, 'mekan-favori' ([{slug}]); liste kalbi = detay kalbi = profil favorileri.
+  // Eski 'favori-mekan' (slug dizisi) varsa ilk okumada bir kez birleştirilip silinir.
+  const FAV = 'mekan-favori';
+  const favOku = () => { const eski = GM.durum.oku('favori-mekan', null); let l = GM.durum.oku(FAV, []) || []; if (Array.isArray(eski)) { const var_ = new Set(l.map(x => x.slug || x)); eski.forEach(sl => { if (!var_.has(sl)) l.push({slug: sl}); }); GM.durum.yaz(FAV, l); GM.durum.sil('favori-mekan'); } return l; };
+  GM.kayitliMekanlar = () => new Set(favOku().map(x => x.slug || x));
+  try { favOku(); } catch { /* özel pencere */ } // açılışta birleştir: detay (GM.mekanKayit) da ilk dokunuştan tek anahtarı okur
+  // Kart kalbi: misafirde üye duvarı; üyede kayıt + 'gm-mekan-kayit' olayı (açık detay ve yığındaki listeler aynı kalbi boyar).
+  // Başka ekrandan gelen değişimde (detay üst bar kalbi) bu kökteki aynı mekânın kalpleri yeniden boyanır.
   GM.kaydetBagla = kok => {
     const h = ev => {
       const b = ev.target.closest('.gm-save[data-eylem="kaydet"]'); if (!b || !kok.contains(b)) return;
       if (!GM.uye()) { ev.preventDefault(); ev.stopPropagation(); GM.uyeDuvar({baslik: 'Kaydetmek için üye ol', metin: GM.UYE_KILIT.favoriler.metin}); return; }
-      const s = GM.kayitliMekanlar(), id = b.dataset.id; s.has(id) ? s.delete(id) : s.add(id); GM.durum.yaz('favori-mekan', [...s]);
+      const id = b.dataset.id, l = favOku(), on = !l.some(x => (x.slug || x) === id);
+      GM.durum.yaz(FAV, on ? [...l, {slug: id}] : l.filter(x => (x.slug || x) !== id));
+      document.dispatchEvent(new CustomEvent('gm-mekan-kayit', {detail: {slug: id, kaynak: kok}}));
     };
-    kok.addEventListener('click', h); return () => kok.removeEventListener('click', h);
+    const boya = ev => { if (ev.detail?.kaynak === kok || !ev.detail?.slug) return; const on = GM.kayitliMekanlar().has(ev.detail.slug); kok.querySelectorAll(`.gm-save[data-eylem="kaydet"][data-id="${CSS.escape(ev.detail.slug)}"]`).forEach(b => b.setAttribute('aria-pressed', on)); };
+    kok.addEventListener('click', h); document.addEventListener('gm-mekan-kayit', boya);
+    return () => { kok.removeEventListener('click', h); document.removeEventListener('gm-mekan-kayit', boya); };
   };
 
   // ---------- Harita üstü liste: 3 duraklı sürüklenebilir çekmece ----------
@@ -294,6 +306,7 @@
 /* Cila turu (Görev 6) parçaları: Gourmet'e özgü rota bağlamı ve harita alanında arama. */
 (() => {
   const esc = s => GM.esc(s), ik = GM.ik, liste = (...a) => a.filter(Boolean).join(' ');
+  const bg = src => (src ? ` style="background-image:url('${esc(src)}')"` : '');
   // Mekânın hazır rotalardaki yeri: önerilen duraklardan (GM.rotaOneri, tek kaynak) en az sapmalı olan. {rota:{id, ad}, sapma, km, uzak} ya da null. Bir kez kurulur.
   let dizin = null;
   GM.mekanRotada = slug => {
@@ -310,4 +323,37 @@
   };
   // "Bu alanda ara" hapı (Google Maps): GM.yuzenDugme gövdesinin kâğıt hali, harita üstünde ortada.
   GM.alanDugme = (o = {}) => `<button type="button" class="${liste('gm-kl-alan', o.sinif)}" data-eylem="${esc(o.eylem || 'alan-ara')}">${ik(o.ikon || 'ara_')}<span>${esc(o.metin || 'Bu alanda ara')}</span></button>`;
+  // ---------- Mekân Bul (ekranlar/mekan-bul.js) ----------
+  // Eşleşme kartı: GM.mekanKart 'kompakt' ızgara kartından türer (aynı sınıflar). Yığılma kuralı 3: oran foto üstünde rozet (≥ %80 başarı tonu, dokununca
+  // "Neden bu oran?" sheet'i, data-eylem="mb-neden"), altta iki satır: ad · tek meta (ilçe · ₺ · açık/kapalı; Liste-A kartıyla aynı). Tutan/toplam kriter rozet etiketinde ve sheet'te. o: {yuzde, tut, toplam, kayitli}
+  GM.eslesmeKart = (m, o = {}) => {
+    const git = `#/mekan/${m.slug}`, g = `href="${esc(git)}" data-git="${esc(git)}"`, rozet = `<button type="button" class="${liste('gm-mk-rozet gm-kl-oran', o.yuzde >= 80 && 'is-basari')}" data-eylem="mb-neden" data-id="${esc(m.slug)}" aria-label="${esc(`%${o.yuzde} uygun${o.toplam ? `, ${o.tut} / ${o.toplam} kriter` : ''}; nedenini gör`)}">${ik('bolt')}%${esc(o.yuzde)}</button>`;
+    return `<article class="gm-card gm-mk is-kompakt gm-kl-esles" data-mekan="${esc(m.slug)}"><div class="gm-card__media"><a class="gm-card__visual" ${g} tabindex="-1" aria-label="${esc(m.ad)}">${m.kapak ? `<span class="gm-photo"${bg(m.kapak)}></span>` : `<span class="gm-photo is-yok" aria-hidden="true">${ik('mekan')}</span>`}</a><div class="gm-mk-ust">${rozet}</div><button class="gm-save gm-mk-kaydet" type="button" aria-label="Favorilere ekle" aria-pressed="${!!o.kayitli}" data-eylem="kaydet" data-id="${esc(m.slug)}">${ik('favori')}</button></div><div class="gm-card__body"><a class="gm-card__text" ${g}><h3 class="gm-card__title">${esc(m.ad)}</h3></a>${GM.mekanMetaSatir([GM.mekanYer(m), GM.fiyat(m.fiyat), GM.acikDurum(m.acik)])}</div></article>`;
+  };
+  // Eşleşme grubu başlığı: ızgarada tam satır (GM.bas ailesi) — "En Uygun Seçenekler 12" + tek satır not. o: {baslik, sayi, not, ikon}
+  GM.eslesmeBas = (o = {}) => `<header class="gm-kl-esles-bas"><h2 class="gm-t-section">${o.ikon ? ik(o.ikon) : ''}<span>${esc(o.baslik)}</span>${o.sayi != null ? `<small>${esc(GM.sayi(o.sayi))}</small>` : ''}</h2>${o.not ? `<p class="gm-tek-satir">${esc(o.not)}</p>` : ''}</header>`;
+  // Sihirbaz adım başlığı (GM.rezervasyonAkis .gm-rz-adim ailesi): adım göstergesi + "Adım n / N · ad" + başlık + kısa açıklama. o: {adim, toplam, ad, baslik, metin}
+  GM.sihirbazBas = (o = {}) => `<header class="gm-kl-mb-bas">${GM.adimGosterge({adim: o.adim, toplam: o.toplam})}<p class="gm-t-label gm-ton-ikincil">Adım ${esc(o.adim)} / ${esc(o.toplam)} · ${esc(o.ad)}</p>${GM.metinBlok({baslik: o.baslik, metin: o.metin, rol: 'page', h: 1})}</header>`;
+  // Sihirbaz ayağı: dock'un hemen üstüne yapışan Geri / Devam (sekme ekranında altBar dock'la çakışır). html: düğmeler
+  GM.sihirbazAyak = html => `<div class="gm-kl-mb-ayak">${html}</div>`;
+  // Sihirbaz alt başlığı: bölüm içi küçük başlık + sağda yardımcı (seçim sayısı / temizle). o: {baslik, sag}
+  GM.sihirbazAltBas = (o = {}) => `<div class="gm-kl-mb-altbas"><h2 class="gm-t-sub">${esc(o.baslik)}</h2>${o.sag || ''}</div>`;
+  // Liste sonu (Gastro/Diet sonsuz liste bitişi, .gm-liste-son): "Hepsi bu kadar · N mekân". o: {sayi, birim, metin}
+  GM.listeSon = (o = {}) => `<p class="gm-liste-son" role="status">${ik('onay')}<span>${esc(o.metin || 'Hepsi bu kadar')}${o.sayi != null ? ` · ${esc(GM.sayi(o.sayi))} ${esc(o.birim || 'sonuç')}` : ''}</span></p>`;
+  // Sayfalı sonsuz liste: GM.sonsuz'u sarar; ilk sayfa ekranda çizili varsayılır, sonraki sayfalar kart(öğe, sıra) ile eklenir,
+  // son sayfa gelince gözcü kapanır ve kabın ardına GM.listeSon düşer. Liste bir sayfadan kısaysa bitiş hemen yazılır (o.kisaSon !== false).
+  // Döner: {disconnect} (GM.sonsuz gözcüsüyle aynı arayüz). o: {sayfa = 24, birim, sayi (bitişte yazılan sayı; başlık öğeleri sayılmasın), kisaSon}
+  GM.sonsuzListe = (kap, l = [], kart, o = {}) => {
+    const n = o.sayfa || 24, son = () => { kap.parentNode?.querySelector(':scope > .gm-liste-son')?.remove(); kap.insertAdjacentHTML('afterend', GM.listeSon({sayi: o.sayi ?? l.length, birim: o.birim})); };
+    if (!kap) return {disconnect() {}};
+    if (l.length <= n) { if (l.length && o.kisaSon !== false) son(); return {disconnect() {}}; }
+    let io = null, bitti = false;
+    io = GM.sonsuz(kap, s => {
+      if (bitti) return '';
+      const p = l.slice((s - 1) * n, s * n); if (!p.length) return '';
+      if (s * n >= l.length) { bitti = true; setTimeout(() => { io?.disconnect(); kap.parentNode?.querySelectorAll(':scope > .gm-sonsuz-son, :scope > .gm-alt-yukleniyor, :scope > .gm-sonsuz-hata').forEach(x => x.remove()); son(); }); }
+      return p.map((x, i) => kart(x, (s - 1) * n + i)).join('');
+    });
+    return io;
+  };
 })();

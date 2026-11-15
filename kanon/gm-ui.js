@@ -135,7 +135,16 @@
     katkilar: {ikon: 'ekle', baslik: 'Topluluk katkıların', metin: 'Önerdiğin mekân ve etkinliklerin **durumunu** izlemek için giriş yap.'},
     puan: {ikon: 'puanDada', baslik: 'Dada Puan', metin: 'Puan biriktirip **rütbeni yükseltmek** için giriş yap.'},
     rotalarim: {ikon: 'rota', baslik: 'Rotaların', metin: 'Planladığın ve web’den gönderdiğin **rotaları** saklamak için giriş yap.'},
-    bildirimler: {ikon: 'bildirim', baslik: 'Bildirimlerin', metin: 'Rezervasyon hatırlatmalarını ve **yakındaki önerileri** almak için giriş yap.'}
+    bildirimler: {ikon: 'bildirim', baslik: 'Bildirimlerin', metin: 'Rezervasyon hatırlatmalarını ve **yakındaki önerileri** almak için giriş yap.'},
+    // Görev 12 (envanter L2): ekran adlarıyla eşleşen anahtarlar.
+    'rota-rotalarim': {ikon: 'rota', baslik: 'Rotaların', metin: 'Planladığın ve web’den gönderdiğin **rotaları** saklamak için giriş yap.'},
+    listelerim: {ikon: 'liste', baslik: 'Listelerin', metin: 'Mekânları **kendi listelerinde** toplamak için giriş yap.'},
+    liste: {ikon: 'liste', baslik: 'Listen', metin: 'Bu listeyi görmek ve düzenlemek için **giriş yap**.'},
+    etkinliklerim: {ikon: 'etkinlik', baslik: 'Etkinliklerin', metin: 'Katılacağın etkinlikleri ve **biletlerini** tek yerde görmek için giriş yap.'},
+    tercihler: {ikon: 'ayarlar', baslik: 'Keşif tercihlerin', metin: 'Önerileri **zevkine göre** ayarlamak için giriş yap.'},
+    'profil-duzenle': {ikon: 'profil', baslik: 'Profilin', metin: 'Profil bilgilerini düzenlemek için **giriş yap**.'},
+    rezervasyon: {ikon: 'rezervasyon', baslik: 'Rezervasyonun', metin: 'Rezervasyon ayrıntısını görmek için **giriş yap**.'},
+    odemelerim: {ikon: 'credit-card', baslik: 'Ödemelerin', metin: 'Ödeme geçmişini, faturalarını ve **kayıtlı kartlarını** görmek için giriş yap.'}
   };
   const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
   // Misafirin cihazda biriktirdikleri (favori, rota taslağı) üye olunca hesaba geçer; Gourmet'te sağlık verisi yoktur, açık rıza adımı gerekmez.
@@ -676,6 +685,12 @@
     if (t.matches?.('.gm-anahtar input,.gm-secim input')) degisim(t, t.name || t.closest('[data-ad]')?.dataset.ad, t.type === 'radio' ? t.value : t.checked);
   });
   // Bağlantı gibi çalışan a[href="#/..."]
+  // Şifreyi göster/gizle (Görev 12, denetim + kimlik ajanı): GM.input şifre alanındaki data-sifre-goster düğmesinin kanon davranışı (Diet'te de eksikti).
+  // type password ↔ text, ikon eye ↔ eye-slash, aria-pressed ve aria-label. Bütün şifre alanları (giriş, kayıt, ayarlar › güvenlik …) alır.
+  GM.sifreGosterKanon = true;
+  belge.addEventListener('click', ev => { const b = ev.target.closest?.('[data-sifre-goster]'), i = b?.closest('.gm-girdi')?.querySelector('input'); if (!i) return;
+    const ac = i.type === 'password'; i.type = ac ? 'text' : 'password'; b.setAttribute('aria-pressed', String(ac)); b.setAttribute('aria-label', ac ? 'Şifreyi gizle' : 'Şifreyi göster');
+    const ic = b.querySelector('.icon, i'); if (ic) { ic.classList.toggle('fa-eye', !ac); ic.classList.toggle('fa-eye-slash', ac); } });
   belge.addEventListener('click', ev => { const a = ev.target.closest?.('a[href^="#/"]'); if (!a || !R.hazir) return; ev.preventDefault(); if (!bastirTik) GM.git(a.getAttribute('href')); }, true);
 
   // Adımlayıcı (Gastro DG.adimlayici işaretlemesi)

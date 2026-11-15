@@ -178,6 +178,8 @@
       // Etiket dili: Türkçe ad varsa o, yoksa Latin harfli uluslararası ad (Kiril/Arap alfabeli çift satır yok).
       if (l.type === 'symbol' && l.layout?.['text-field']) { try { m.setLayoutProperty(id, 'text-field', ['coalesce', ['get', 'name:tr'], ['get', 'name_int'], ['get', 'name:latin'], ['get', 'name']]); } catch { /* yok */ } }
       if (l.type === 'symbol') { set('text-color', R.yazi); set('text-halo-color', R.hale); if (/poi/.test(id)) { try { m.setLayoutProperty(id, 'visibility', 'none'); } catch { /* yok */ } } }
+      // Görev 12 (route/denetim): koyu kipte yol kalkanı ve tek yön gibi simgeli katmanlar metinsiz beyaz kutu olarak çiziliyordu → gizli; yer adları (place) kalır.
+      if (koyu && l.type === 'symbol' && l.layout?.['icon-image'] && /shield|highway|road|oneway|transit|aeroway|ferry/.test(id) && !/place/.test(id)) { try { m.setLayoutProperty(id, 'visibility', 'none'); } catch { /* yok */ } }
     });
   };
   // Yedek altlık: OSM standart raster karosu (tile.openstreetmap.org; atıf "© OpenStreetMap" haritada zaten yazılı). Renkleri sakinleştirilir, koyu kipte karartılır.
