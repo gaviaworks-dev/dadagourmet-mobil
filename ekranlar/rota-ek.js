@@ -50,9 +50,7 @@
       sonra: i < P.l.length - 1 ? `${GM.sure(P.l[i + 1].surus)} sürüş · ${GM.sayi(P.l[i + 1].surusKm)} km` : `${GM.sure(P.son)} sürüş · ${GM.sayi(Math.round(R.km - x.km))} km`})),
     {uc: true, ad: R.varis, alt: 'Varış', saat: `~${saat(P.varis)}`}];
   // Kayıtlı güzergâhlar (web Güzergâhlarım): kaydedilenler + prototip örneği üç rota; favori, yolculuk tarihi ve ziyaret durumdan (rota-favori, rota-tarih), ziyaret sayısı seyahat günlüğünden.
-  const kayitlilar = () => [...new Set([...(GM.durum.oku('rota-kayitli', []) || []), 'istanbul-izmir', 'izmir-cesme', 'istanbul-ankara'])];
-  const favoriler = () => GM.durum.oku('rota-favori', ['izmir-cesme']) || [];
-  const tarihler = () => GM.durum.oku('rota-tarih', {'istanbul-ankara': '2026-11-21'}) || {};
+  const kayitlilar = GM.rotaKayitlilar, favoriler = GM.rotaFavoriler, tarihler = GM.rotaTarihler;   // ortak kaynak (gm-k-route.js)
   const tarihMetin = t => (t ? new Date(`${t}T12:00:00`).toLocaleDateString('tr-TR', {day: 'numeric', month: 'short', year: 'numeric'}) : '');
   const paketler = () => GM.rotaPaketler();                         // ortak kaynak (gm-k-route.js): aktif harita, Kaydet ve bu ekranlar aynı listeyi okur
 
@@ -65,7 +63,7 @@
       const iller = (R.iller || []).map(i => ({...i, k: (GMV.ilKimlik || []).find(x => x.ad === i.ad)})).filter(i => i.k);
       const harita = GM.harita({ad: 'oz-h', yukseklik: '200px', etkilesim: false, kontroller: false, rota: {cizgi: R.cizgi}, dolgu: {top: 28, right: 28, bottom: 28, left: 28},
         pinler: [{lng: R.cizgi[0][0], lat: R.cizgi[0][1], tur: 'baslangic', ikon: 'baslangic'}, {lng: R.cizgi.at(-1)[0], lat: R.cizgi.at(-1)[1], tur: 'varis', ikon: 'varis'}, ...P.l.map((x, i) => ({lng: x.d.lng, lat: x.d.lat, sira: i + 1}))]});
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.yigin([GM.rehberManset({sinif: 'is-ic', etiket: R.tema || 'Dada Route', baslik: `${R.kalkis} → ${R.varis}`, ozet: [`Kalkış 08.00`, `Varış ~${saat(P.varis)}`, `${P.l.length} durak`, `${GM.rotaSayi(R).yolUstu} yol üstü mekân`]}), harita,
           // Web Güzergâh Planım toplamı: normal yolculuk · duraklarla birlikte (eklenen süre ve mesafe alt satırda).
           GM.rotaMetrik([{etiket: 'Mesafe', deger: GM.sayi(Math.round(R.km)), birim: 'km'}, {etiket: 'Normal yolculuk', deger: GM.sure(R.dk)}, {etiket: 'Duraklarla', deger: GM.sure(P.surus + P.mola), alt: `+${GM.sure(ek)} · +${P.ekKm} km`}])], 16)},
@@ -100,7 +98,7 @@
         GM.eylem(kap, 'oz-kopya', () => GM.toast(`**${R.ad} (kopya)** Güzergâhlarım’a eklendi`, {tur: 'basari', ikon: 'copy'})),
         GM.eylem(kap, 'oz-sil', () => GM.dialog({baslik: 'Bu güzergâh silinsin mi?', metin: `**${R.ad}** Güzergâhlarım’dan kalkar; ziyaret işaretleri de silinir.`, eylem: 'Sil', iptal: 'Vazgeç', yikici: true}).then(ok => { if (!ok) return; const l = new Set(GM.durum.oku('rota-kayitli', []) || []); l.delete(id); GM.durum.yaz('rota-kayitli', [...l]); GM.toast(`**${R.ad}** silindi`); GM.git('#/rota/rotalarim'); })),
         GM.eylem(kap, 'oz-yola', () => GM.sheet({baslik: 'Yola çık', html: GM.yigin([
-          GM.eylemKart({ikon: 'sesli', baslik: 'Dada Co-Pilot ile', alt: 'Durak uyarıları uygulamada, navigasyon harita uygulamasında', rozet: 'Önerilen', altSatir: 2, veri: {eylem: 'yc-copilot'}}),
+          GM.eylemKart({ikon: 'sesli', baslik: 'Dada yol takibiyle', alt: 'Durak uyarıları uygulamada, navigasyon harita uygulamasında', rozet: 'Önerilen', altSatir: 2, veri: {eylem: 'yc-copilot'}}),
           GM.eylemKart({ikon: 'navigasyon', baslik: 'Yalnız harita uygulamasına aktar', alt: 'Google, Apple, Yandex ya da GPX', veri: {eylem: 'yc-aktar'}})], 12),
           sonra: (k, h) => { const a = GM.eylem(k, 'yc-copilot', () => { h.kapat(); GM.git(`#/rota/surus/${id}`); }), b = GM.eylem(k, 'yc-aktar', () => { h.kapat(); aktar(); }); return () => { a(); b(); }; }})),
         GM.on(kok, 'oz-cevrimdisi', v => {
@@ -161,25 +159,25 @@
       } else if (g.gor === 'ada') {
         telefon = GM.alan({etiket: 'Telefon açıkken: durum çubuğu', yardim: 'Kalan mesafe saatin yanında çip olarak durur (Android 16 ve sonrası).', html: GM.cihazKesit({platform: 'android', tema: g.tema, duvar: 'gorsel', sinif: 'is-duvar-rota', saat: sa, durumCip: GM.androidCip({tur: 'rota', metin: e.durak.uzak}), icerik: GM.kilitAlt([andCanli]), etiket: `Durum çubuğunda ${e.durak.uzak}`})});
       } else if (ios) {
-        telefon = GM.telefonCerceve({platform: 'ios', tema: g.tema, saat: sa, etkilesimli: true, duvar: 'gorsel', sinif: 'is-duvar-rota', sigdir: true, kilit: {tarih, satir: GM.kilitWidget({tur: 'satir', ikon: 'route', metin: `Varış ${e.varis}`, ac: `#/rota/surus/${s.R.id}`, aria: `Varış ${e.varis}, Co-Pilot’ta aç`}), aksesuar: aks, acik: s.B.length > 0},
+        telefon = GM.telefonCerceve({platform: 'ios', tema: g.tema, saat: sa, etkilesimli: true, duvar: 'gorsel', sinif: 'is-duvar-rota', sigdir: true, kilit: {tarih, satir: GM.kilitWidget({tur: 'satir', ikon: 'route', metin: `Varış ${e.varis}`, ac: `#/rota/surus/${s.R.id}`, aria: `Varış ${e.varis}, Yol takibinde aç`}), aksesuar: aks, acik: s.B.length > 0},
           icerik: GM.kilitAlt([kart, iosB]), etiket: `iPhone kilit ekranı, ${SEN[g.senaryo].ad}: Dada Route Canlı Etkinliği, sıradaki ${e.durak.ad} ${e.durak.uzak}${s.B.length ? `, ${s.B.length} bildirim` : ''}`});
       } else {
         telefon = GM.telefonCerceve({platform: 'android', tema: g.tema, saat: sa, etkilesimli: true, duvar: 'gorsel', sinif: 'is-duvar-rota', sigdir: true, kilit: {tarih}, durumCip: s.bitti ? '' : GM.androidCip({tur: 'rota', metin: e.durak.uzak}),
           icerik: GM.kilitAlt([s.bitti ? '' : andCanli, andB]), etiket: `Android kilit ekranı, ${SEN[g.senaryo].ad}: Dada Route canlı bildirimi${s.B.length ? ` ve ${s.B.length} bildirim` : ''}`});
       }
       const metin = {
-        cikis: `**Yola çıkış.** Co-Pilot ilk açıldığında iPhone **Canlı Etkinlik izni** ister; ret halinde uyarılar yalnız uygulama açıkken gelir. Kart: sıradaki durak, kalan km ve dk, kalkış–varış çubuğu.`,
+        cikis: `**Yola çıkış.** Yol takibi ilk açıldığında iPhone **Canlı Etkinlik izni** ister; ret halinde uyarılar yalnız uygulama açıkken gelir. Kart: sıradaki durak, kalan km ve dk, kalkış–varış çubuğu.`,
         il: `**İl girişi.** Bursa sınırı geçilince il kimliği **yalnız bildirim** olarak gelir; kart araç durunca açılır. Ürünler TÜRKPATENT coğrafi işaret kayıtlarından.`,
         yemek: `**12.30 ve 19.00 önerisi.** Yemek saatinde rotanın önündeki en az saptıran Dada mekânı önerilir (şartname: akıllı bildirim).`,
-        yaklasma: `**3 km kala.** Yaklaşma uyarısı sesli okunur, aynı cümle bildirimde ve Co-Pilot’ta görünür. **Geç** durağı atlar, **Ekle** rotaya alır.`,
+        yaklasma: `**3 km kala.** Yaklaşma uyarısı sesli okunur, aynı cümle bildirimde ve yol takibinde görünür. **Geç** durağı atlar, **Ekle** rotaya alır.`,
         sekiz: `**8. saat.** iPhone bir Canlı Etkinliği en çok 8 saat günceller. Uzun rotada (Ankara–Trabzon) etkinlik **“Yolculuk sürüyor”** bitiş içeriğiyle biter, Ada’dan kalkar; kalan yol uygulamada ve widget’ta sürer. Android’de bu sınır yok.`
       }[g.senaryo];
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.yigin([GM.segment({ad: 'tel-gor', etiket: 'Görünüm', secili: g.gor, ogeler: [{ad: 'Kilit ekranı', deger: 'kilit', ikon: 'lock'}, {ad: ios ? 'Dinamik Ada' : 'Durum çubuğu', deger: 'ada', ikon: 'mobile-screen'}]}), telefon], 16)},
         {html: GM.yigin([GM.cipler({ad: 'tel-senaryo', tur: 'tek', etiket: 'An', secili: g.senaryo, ogeler: Object.entries(SEN).map(([k, x]) => ({metin: x.ad, deger: k, ikon: x.ikon}))}), GM.p(metin, {ton: 'ikincil'})], 12)},
         {html: GM.yigin([GM.alan({etiket: 'Telefon', html: GM.segment({ad: 'tel-platform', etiket: 'Telefon', secili: g.platform, ogeler: [{ad: 'iPhone', deger: 'ios'}, {ad: 'Android', deger: 'android'}]})}),
           GM.alan({etiket: 'Görünüm', html: GM.segment({ad: 'tel-tema', etiket: 'Tema', secili: g.tema, ogeler: [{ad: 'Açık', deger: 'acik', ikon: 'sun'}, {ad: 'Koyu', deger: 'koyu', ikon: 'moon'}]})})], 16)},
-        {baslik: 'Kurallar', html: GM.maddeler([['route', 'Turn-by-turn yok', 'Navigasyon harita uygulamasında; Dada yalnız durakları söyler.'], ['saat', '8 saat sınırı', 'Canlı Etkinlik 8 saat güncellenir, bitiş içeriği kilit ekranında kısa süre kalır.'], ['bell', 'İzin tetikte', 'Bildirim izni ilk yaklaşma uyarısında, “Her zaman” konum izni Co-Pilot ilk açıldığında istenir.'], ['sesli', 'Sesli uyarı', '3 km kala tek cümle okunur; komut dinlenmez.']])}
+        {baslik: 'Kurallar', html: GM.maddeler([['route', 'Turn-by-turn yok', 'Navigasyon harita uygulamasında; Dada yalnız durakları söyler.'], ['saat', '8 saat sınırı', 'Canlı Etkinlik 8 saat güncellenir, bitiş içeriği kilit ekranında kısa süre kalır.'], ['bell', 'İzin tetikte', 'Bildirim izni ilk yaklaşma uyarısında, “Her zaman” konum izni Yol takibi ilk açıldığında istenir.'], ['sesli', 'Sesli uyarı', '3 km kala tek cümle okunur; komut dinlenmez.']])}
       ]);
     },
     sonra: (kok, ctx) => {
@@ -219,7 +217,7 @@
         uyari: g.gor === 'uyari' ? {baslik: `3 km sonra sağda: ${ilk.ad}`, metin: `${ilk.alt} · ${ilk.sapma <= 2 ? 'yol üstü' : `+${ilk.sapma} dk`}`} : null,
         harita: {cizgi: R.cizgi, gecilen: R.cizgi.slice(0, i + 1), konum: R.cizgi[i], yon: 200},
         etiket: `${g.platform === 'carplay' ? 'CarPlay' : 'Android Auto'} ekranı: ${g.gor === 'uyari' ? `yaklaşma uyarısı, ${ilk.ad}` : g.gor === 'durak' ? `seçili durak ${l[secili]?.ad}, Yol tarifi ve Geç` : `rotandaki ${l.length} durak listesi ve harita`}`});
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.yigin([ekran, GM.segment({ad: 'arac-gor', etiket: 'Ekran', secili: g.gor, ogeler: [{ad: 'Liste', deger: 'liste'}, {ad: 'Durak', deger: 'durak'}, {ad: 'Uyarı', deger: 'uyari'}]}),
           GM.p({liste: '**Rotandaki duraklar:** sıradaki en çok 12 durak, rotadan sapma süresiyle; harita aynı sırayı numaralı gösterir.', durak: '**İkinci adım:** durak seçilince yalnız iki düğme kalır. **Yol tarifi** harita uygulamasına devreder, **Geç** listeden düşürür.', uyari: '**Yaklaşma uyarısı:** 3 km kala sesli okunur; ekranda tek cümle ve iki düğme. Liste kapanmaz, uyarı üstte durur.'}[g.gor], {ton: 'ikincil'})], 16)},
         {html: GM.alan({etiket: 'Araç', html: GM.segment({ad: 'arac-platform', etiket: 'Araç', secili: g.platform, ogeler: [{ad: 'CarPlay', deger: 'carplay', ikon: 'carplay'}, {ad: 'Android Auto', deger: 'auto', ikon: 'arac'}]})})},
@@ -244,7 +242,7 @@
       const top = L.reduce((t, p) => t + MB(p.r), 0), kayitli = ['ankara-antalya', 'ankara-trabzon'].map(GM.rotaBul).filter(r => r && !L.some(p => p.id === r.id) && r.id !== iniyor);
       if (!L.length && !I) return GM.bos({tam: true, ikon: 'cevrimdisi', baslik: 'Henüz indirilen rota yok', metin: 'Rota özetinde **Çevrimdışı indir**’i aç; harita, duraklar, adres ve telefonlar internet çekmeyen yolda da açılır.', eylem: {metin: 'Rotalarıma git', git: '#/rota/rotalarim'}});
       const R = L[0]?.r || R0();
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.depolama({parcalar: [{ad: 'Harita karoları', mb: Math.round(top * .8), ton: 'karo'}, {ad: 'Duraklar, adres ve telefonlar', mb: top - Math.round(top * .8), ton: 'rota'}], alt: 'Dada Gourmet · cihazda 23,4 GB boş', olcek: top})},
         I ? {baslik: 'İndiriliyor', html: GM.paketSatir({rota: I, durum: 'iniyor', oran: .62, inen: `${Math.round(MB(I) * .62)} MB`, boyut: `${MB(I)} MB`, pinSayi: pin(I)})} : null,
         L.length ? {baslik: `İndirilen rotalar · ${L.length}`, html: GM.yigin([`${L.map(p => GM.paketSatir({rota: p.r, durum: p.durum, boyut: `${MB(p.r)} MB`, tarih: p.tarih, pinSayi: pin(p.r)})).join('')}`, kayitli.length ? GM.btn({metin: `Kayıtlı ${kayitli.length} rotamı indir`, ikon: 'cevrimdisi', tur: 'secondary', tam: true, veri: {eylem: 'pk-toplu'}}) : ''], 8)} : null,
@@ -269,7 +267,7 @@
 
   // ---------- (l) Seyahat günlüğü ----------
   // Tamamlanan rotalar prototip örneğidir (tarih, ziyaret edilen ve atlanan duraklar); puan ve yorum yazılmaz, yalnız "Değerlendir" eylemi.
-  const GUNLUK = [{id: 'istanbul-izmir', tarih: '12 Eki 2026', ziyaret: 2, atla: 1}, {id: 'istanbul-ankara', tarih: '21 Eyl 2026', ziyaret: 1, atla: 1}, {id: 'izmir-cesme', tarih: '16 Ağu 2026', ziyaret: 2, atla: 0}, {id: 'istanbul-bursa', tarih: '5 Tem 2026', ziyaret: 1, atla: 1}];
+  const GUNLUK = GM.ROTA_GUNLUK;                                   // ortak kaynak (gm-k-route.js): #/rota "Rotaların" şeridi de okur
   // Duraklar: şehirden çıkarken ilk yol üstü mekân, varışa yakın biri (atlanan) ve son mekân; km sırasıyla.
   const yolculuk = g => { const R = GM.rotaBul(g.id), O = GM.rotaOneri(R).filter(d => d.uzak <= 2), a = O.find(d => d.km >= 10) || O[0], z = O.at(-1), m = O.filter(d => d !== a && d !== z).at(-1);
     const sec = [a, m, z].filter((x, i, l) => x && l.indexOf(x) === i).slice(0, g.ziyaret + g.atla).sort((p, q) => p.km - q.km); return {...g, R, D: sec.map((d, i) => ({d, ziyaret: i !== 1 || !g.atla}))}; };
@@ -285,7 +283,7 @@
         y.D.forEach(({d, ziyaret: z}, i) => { t += Math.round((d.km - (y.D[i - 1]?.d.km || 0)) * hiz); ogeler.push({saat: saat(t), baslik: d.mekan.ad, hal: z ? 'tamam' : 'soluk', metin: `${d.mekan.kategori} · ${d.mekan.ilce} · ${d.km}. km`, rozetler: [z ? {metin: 'Ziyaret edildi', ton: 'basari', ikon: 'onay'} : {metin: 'Atlandı', ton: 'notr', ikon: 'forward'}], eylemler: [z ? {metin: 'Değerlendir', ikon: 'yildiz', veri: {eylem: 'gn-deger', id: d.slug}} : {metin: 'Ziyaret ettim', ikon: 'ziyaret', veri: {eylem: 'gn-ziyaret', id: d.slug}}]}); if (z) t += 50; });
         t += Math.round((R.km - (y.D.at(-1)?.d.km || 0)) * hiz); ogeler.push({saat: saat(t), baslik: `${R.varis} · varış`, hal: 'tamam', ikon: 'varis'});
         const n = y.D.filter(x => x.ziyaret).length;
-        return GM.gruplar([
+        return GM.bolumler([
           {html: GM.yigin([GM.rehberManset({sinif: 'is-ic', etiket: `Tamamlandı · ${y.tarih}`, baslik: R.ad, ozet: [`${GM.sayi(R.km)} km`, `${(R.iller || []).length || 1} il`, `${n}/${y.D.length} durak`]}),
             GM.harita({ad: 'gn-h', yukseklik: '220px', etkilesim: false, kontroller: false, rota: {cizgi: R.cizgi}, dolgu: {top: 28, right: 28, bottom: 28, left: 28}, pinler: [{lng: R.cizgi[0][0], lat: R.cizgi[0][1], tur: 'baslangic', ikon: 'baslangic'}, {lng: R.cizgi.at(-1)[0], lat: R.cizgi.at(-1)[1], tur: 'varis', ikon: 'varis'}, ...y.D.map(({d, ziyaret: z}, i) => ({lng: d.lng, lat: d.lat, sira: i + 1, soluk: !z}))]}),
             GM.ozetSerit([{ikon: 'rota', etiket: 'Mesafe', deger: GM.sayi(R.km), birim: 'km'}, {ikon: 'saat', etiket: 'Yolda', deger: GM.sure(t - 555)}, {ikon: 'ziyaret', etiket: 'Ziyaret', deger: `${n}/${y.D.length}`}])], 16)},
@@ -295,7 +293,7 @@
       }
       const iller = [...new Set(Y.flatMap(x => (x.R.iller || []).map(i => i.ad)))], kimlik = iller.map(a => (GMV.ilKimlik || []).find(k => k.ad === a)).filter(Boolean);
       const ilkTarih = a => Y.slice().reverse().find(x => (x.R.iller || []).some(i => i.ad === a))?.tarih.split(' ').slice(0, 2).join(' ');
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.pasaport({yil: '2026', sayilar: [{deger: GM.sayi(Y.reduce((s, x) => s + x.R.km, 0)), etiket: 'km yol'}, {deger: String(iller.length), etiket: 'il'}, {deger: String(kimlik.reduce((s, k) => s + k.tescilli.length, 0)), etiket: 'coğrafi işaretli lezzet'}, {deger: String(Y.reduce((s, x) => s + x.D.filter(d => d.ziyaret).length, 0)), etiket: 'ziyaret ettiğin durak'}],
           iller: iller.map(a => ({ad: a, tarih: ilkTarih(a)})), not: 'Coğrafi işaret sayısı geçtiğin illerin TÜRKPATENT kayıtlarıdır.'})},
         {baslik: 'Tamamlanan rotalar', html: GM.satirlar(Y.map(x => GM.rotaKart(GM.rotaKartVeri(x.R, {etiket: `${x.tarih} · ${x.D.filter(d => d.ziyaret).length}/${x.D.length} ziyaret`, durak: x.D.length}), {tur: 'satir', git: `#/rota/gunluk?id=${x.id}`})))}
@@ -325,7 +323,7 @@
       const kayit = tum.filter((KAT.find(k => k.deger === kat) || KAT[0]).f);
       const ilerleme = r => { const g = GUNLUK.find(x => x.id === r.id); return g ? {n: g.ziyaret, toplam: g.ziyaret + g.atla} : undefined; };
       const etiket = r => { const g = ilerleme(r); return [fav.includes(r.id) ? 'Favori' : 'Kayıtlı', tar[r.id] ? tarihMetin(tar[r.id]) : '', paket.has(r.id) ? 'çevrimdışı' : '', g ? `${g.n}/${g.toplam} ziyaret` : ''].filter(Boolean).join(' · '); };
-      return GM.gruplar([
+      return GM.bolumler([
         GM.uye() ? null : {html: GM.bant({ton: 'bilgi', baslik: 'Güzergâhların hesabına bağlı', metin: 'Misafir olarak kurduğun rota **yalnız bu cihazda** saklanır. Her cihazdan açmak ve ziyaretlerini işaretlemek için giriş yap.', eylem: {metin: 'Giriş yap', veri: {eylem: 'rr-giris'}}})},
         {baslik: 'Webden gelen', html: GM.yigin([(W => (W ? GM.webdenRota({ust: `Webden gönderildi · ${W.zaman}`, ad: W.ad, alt: W.alt, git: `#/rota/web/${W.id}`}) : ''))(GM.rotaWebden()), GM.p('Webde **Dada Route**’ta çizdiğin rota, aynı hesapla açtığında burada belirir.', {ton: 'ikincil', meta: true})], 12)},
         {baslik: `Kaydettiklerin · ${tum.length}`, html: GM.yigin([GM.cipler({ad: 'rr-kat', tur: 'tek', etiket: 'Kategori', secili: kat, ogeler: KAT.map(k => ({deger: k.deger, metin: k.metin, sayi: tum.filter(k.f).length || undefined}))}),
@@ -346,7 +344,7 @@
     cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
     ciz: () => {
       const t = GM.durum.oku('rota-hazir-tema', 'tumu'), l = hazirListe(t);
-      return GM.gruplar([
+      return GM.bolumler([
         {html: GM.yigin([GM.rehberManset({sinif: 'is-ic', etiket: 'Dada Route seçkisi', baslik: 'Yola lezzetle çık', metin: 'Durak, mola ve **il lezzetleri** hazır.'}),
           GM.cipler({ad: 'hazir-tema', tur: 'tek', etiket: 'Tema', secili: t, ogeler: TEMA})], 12)},
         {html: GM.sonucYuva(GM.yigin(l.map(r => GM.rotaKart(kapakli(r), {tur: 'genis', git: `#/rota/ozet/${r.id}`})), 16))},

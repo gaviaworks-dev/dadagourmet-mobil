@@ -313,7 +313,7 @@
 
 /* Yol satırı (GM.yolSatir): Google Maps satırı; yüzen hali kâğıt kart. */
 .gm-ra-satirlar{display:grid;min-width:0}
-.gm-ra-satir{--gm-ra-kutu:var(--gm-size-thumb);position:relative;display:grid;grid-template-columns:var(--gm-ra-kutu) minmax(0,1fr) auto auto;align-items:center;gap:var(--gm-s-12);min-width:0;padding:var(--gm-s-12) 0;background:var(--gm-paper);transition:background var(--gm-m-fast) var(--gm-e-standard),box-shadow var(--gm-m-fast) var(--gm-e-standard)}
+.gm-ra-satir{--gm-ra-kutu:var(--gm-size-thumb);position:relative;display:grid;grid-template-columns:var(--gm-ra-kutu) minmax(0,1fr) auto auto;align-items:center;gap:var(--gm-s-12);min-width:0;padding:var(--gm-s-12) 0;background:transparent;transition:background var(--gm-m-fast) var(--gm-e-standard),box-shadow var(--gm-m-fast) var(--gm-e-standard)}
 .gm-ra-satirlar > .gm-ra-satir + .gm-ra-satir{border-top:var(--gm-size-border) solid var(--gm-line)}
 .gm-ra-satir.is-secili{background:var(--gm-primary-tint);box-shadow:0 0 0 var(--gm-s-8) var(--gm-primary-tint)}
 .gm-ra-foto,.gm-ra-ikon{position:relative;display:grid;place-items:center;width:var(--gm-ra-kutu);height:var(--gm-ra-kutu);border-radius:var(--gm-r-control);background:var(--gm-bg)}
@@ -342,7 +342,7 @@
 .gm-ra-ekle.is-il > span{background:var(--gm-cografi-tint);color:var(--gm-cografi)}
 .gm-ra-ekle:focus-visible{outline:var(--gm-size-focus) solid var(--gm-primary);outline-offset:var(--gm-s-2);border-radius:var(--gm-r-control)}
 /* Yüzen mini kart (belge §4 tek el kullanımı): büyük foto solda; ad + tek meta; altında aynı yol üstü rozeti yatay ve sağda "+ Ekle" hapı; × sağ üstte. */
-.gm-ra-satir.is-yuzen{--gm-ra-kutu:var(--gm-size-venue-thumb);grid-template-columns:var(--gm-ra-kutu) minmax(0,1fr) auto;grid-template-areas:"kutu metin metin" "kutu sapma ekle";align-items:center;row-gap:var(--gm-s-8);padding:var(--gm-s-12);border-radius:var(--gm-r-surface);box-shadow:var(--gm-sh-lg)}
+.gm-ra-satir.is-yuzen{--gm-ra-kutu:var(--gm-size-venue-thumb);background:var(--gm-paper);grid-template-columns:var(--gm-ra-kutu) minmax(0,1fr) auto;grid-template-areas:"kutu metin metin" "kutu sapma ekle";align-items:center;row-gap:var(--gm-s-8);padding:var(--gm-s-12);border-radius:var(--gm-r-surface);box-shadow:var(--gm-sh-lg)}
 .gm-ra-satir.is-yuzen > :is(.gm-ra-foto,.gm-ra-ikon){grid-area:kutu}
 .gm-ra-satir.is-yuzen > .gm-ra-metin{grid-area:metin;align-self:end;padding-right:calc(var(--gm-size-badge) + var(--gm-s-4))}
 .gm-ra-satir.is-yuzen > .gm-ra-sapma{grid-area:sapma;display:flex;align-items:center;justify-self:start;gap:var(--gm-s-4);min-width:0}
@@ -389,7 +389,7 @@
 
 /* Güzergâh ihtiyaç özeti (GM.ihtiyacOzet): ikon + sayı + ad hücreleri, tek satır. */
 .gm-ra-iht{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:var(--gm-s-4);margin:0;padding:0;list-style:none}
-.gm-ra-iht-oge{--k:var(--gm-slate);display:grid;justify-items:center;gap:var(--gm-s-4);width:100%;padding:var(--gm-s-8) 0;border:0;border-radius:var(--gm-r-control);background:var(--gm-bg);color:var(--gm-ink);cursor:pointer}
+.gm-ra-iht-oge{--k:var(--gm-slate);display:grid;justify-items:center;gap:var(--gm-s-4);width:100%;padding:var(--gm-s-8) 0;border:0;border-radius:var(--gm-r-control);background:transparent;box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-line);color:var(--gm-ink);cursor:pointer}
 .gm-ra-iht-oge.is-yakit{--k:var(--gm-yakit)}.gm-ra-iht-oge.is-sarj{--k:var(--gm-sarj)}.gm-ra-iht-oge.is-ibadet{--k:var(--gm-ibadet)}.gm-ra-iht-oge.is-dinlenme{--k:var(--gm-dinlenme)}.gm-ra-iht-oge.is-karavan{--k:var(--gm-karavan)}
 .gm-ra-iht-ikon{display:grid;place-items:center;width:var(--gm-size-box-sm);height:var(--gm-size-box-sm);border-radius:var(--gm-r-round);background:color-mix(in srgb,var(--k) 12%,var(--gm-paper));color:var(--k)}
 .gm-ra-iht-oge b{font:var(--gm-t-stat-weight) var(--gm-t-stat-size)/1 var(--gm-font-bold);font-variant-numeric:tabular-nums}
@@ -404,3 +404,28 @@
 .gm-ra-bar-oge[aria-pressed=true]{color:var(--gm-primary)}
 .gm-ra-bar-oge:active{background:var(--gm-bg)}
 .gm-ra-bar .gm-bar-ic > .gm-ra-bar-ana{flex:1 1 auto;margin-left:var(--gm-s-4)}
+
+/* Araç tipi seçimi (GM.aracSecim, Görev 14/16): seçili primary dolgu + beyaz yazı + onay; seçili olmayan sönük. */
+.gm-seg.gm-ra-arac{background:var(--gm-bg);box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-line)}
+.gm-seg.gm-ra-arac button{color:var(--gm-muted);font-family:var(--gm-font)}
+.gm-seg.gm-ra-arac button[aria-selected=true]{background:var(--gm-primary);color:var(--gm-paper);font-family:var(--gm-font-bold);box-shadow:var(--gm-sh-sm)}
+.gm-seg.gm-ra-arac button[aria-selected=true]::after{content:"\f00c";margin-left:var(--gm-s-2);font:var(--gm-fa-solid-weight) var(--gm-size-icon-check)/1 "Font Awesome 6 Free"}
+body.gm .gm-seg.gm-ra-arac.has-gosterge::before{background:var(--gm-primary);box-shadow:var(--gm-sh-sm)}
+
+/* Görev 14/18: aktif harita çekmecesinde zebra bölümler tam genişlik (çekmece gövdesinin yan dolgusu geri alınır), bölüm dolgusu 24. */
+.gm-ra .gm-kl-cekmece-govde > .gm-icerikler{margin:0 calc(-1 * var(--gm-gutter))}
+.gm-ra .gm-kl-cekmece-govde > .gm-icerikler > section{padding-block:var(--gm-s-24)}
+
+/* Kendi rota kartı (GM.kendiRotaKart, Görev 14/17): şerit kartı; siluet kâğıt ızgarada, üstünde durum rozeti; altta ad + tek meta. */
+.gm-ra-kr{flex:0 0 var(--gm-size-rail-card);display:grid;gap:var(--gm-s-4);min-width:0;color:var(--gm-ink);text-decoration:none;scroll-snap-align:start}
+.gm-ra-kr-sema{position:relative;display:block;aspect-ratio:5/3;border-radius:var(--gm-r-media);overflow:hidden;background:var(--gm-yuzey,var(--gm-paper));box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-line)}
+.gm-ra-kr-sema > svg{position:absolute;inset:0;width:100%;height:100%}
+.gm-ra-kr-rozet{position:absolute;left:var(--gm-s-8);top:var(--gm-s-8);display:inline-flex;align-items:center;gap:var(--gm-s-4);padding:var(--gm-s-2) var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-paper);box-shadow:var(--gm-sh-sm);font:var(--gm-t-card-category-weight,700) var(--gm-t-nav-size)/1.4 var(--gm-font-bold);color:var(--gm-slate)}
+.gm-ra-kr-rozet .icon{font-size:var(--gm-size-icon-check);color:var(--gm-primary)}
+.gm-ra-kr.is-gezildi .gm-ra-kr-rozet .icon{color:var(--gm-basari-fg)}
+.gm-ra-kr-ad{margin-top:var(--gm-s-4);font:var(--gm-t-card-weight) var(--gm-t-card-size)/1.25 var(--gm-font-bold)}
+.gm-ra-kr-meta{font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/var(--gm-t-meta-line) var(--gm-font);color:var(--gm-slate)}
+
+/* Konum seçimi (GM.konumSec, Görev 14/15): Konumumu kullan satırı primary ikonlu; öneri şehirler sarılan çipler. */
+.gm-ra-ks-yer.is-konum .icon{color:var(--gm-konum)}
+.gm-ra-ks-sheet .gm-sira{flex-wrap:wrap}

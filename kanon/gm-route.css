@@ -17,6 +17,8 @@
 .gm-dd-eylem{display:flex;justify-content:flex-end}
 .gm-dd-ekle{grid-template-columns:var(--gm-size-stop-node) minmax(0,1fr);min-height:var(--gm-size-control-lg)}
 .gm-dd-ekle .gm-btn{justify-self:start}
+/* Görev 14 denetim 12: Nereden / ara durak / Nereye kutuları yapışmasın; ray satır dolgusunu da kapsar, çizgi kesilmez. */
+.gm-dd-satir{padding-block:var(--gm-s-4)}
 .gm-rs-secler{display:grid;gap:var(--gm-s-12)}
 .gm-rs-sec{display:grid;grid-template-columns:var(--gm-size-venue-thumb) minmax(0,1fr) auto;gap:var(--gm-s-12);align-items:center;width:100%;padding:var(--gm-s-12);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-surface);background:var(--gm-paper);text-align:left;font:inherit;color:var(--gm-ink);cursor:pointer}
 .gm-rs-sec[aria-pressed=true]{border-color:var(--gm-primary);box-shadow:0 0 0 var(--gm-size-border) var(--gm-primary);background:linear-gradient(90deg,var(--gm-primary-tint),var(--gm-paper) 60%)}
@@ -260,3 +262,32 @@
 .gm-ae .gm-harita-durum{display:none}
 /* Rehber manşeti iç içerikte (GM.gruplar içinde): kendi dolgusu olmadan, gm-ic hizasında. */
 .gm-kl-manset.is-ic{padding:0}
+
+/* ===== Yol takibi (Görev 14/19): açık tema, büyük harita, üstte sıradaki durak kartı, altta çekmece ===== */
+.gm-yt .gm-kl-hekran-ust{gap:var(--gm-s-8)}
+.gm-yt-bar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--gm-s-8)}
+.gm-yt-bar .gm-ibtn{background:var(--gm-paper);box-shadow:var(--gm-sh-md)}
+.gm-yt-bar-metin{display:grid;justify-items:center;min-width:0;padding:var(--gm-s-4) var(--gm-s-12);border-radius:var(--gm-r-switch);background:var(--gm-paper);box-shadow:var(--gm-sh-md);justify-self:center;max-width:100%}
+.gm-yt-bar-metin b{font:var(--gm-t-photo-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font-bold);color:var(--gm-ink)}
+.gm-yt-bar-metin small{font:var(--gm-t-nav-weight) var(--gm-t-nav-size)/1.2 var(--gm-font);color:var(--gm-slate)}
+.gm-yt-sira{display:grid;gap:var(--gm-s-8);padding:var(--gm-s-12) var(--gm-s-16);border-radius:var(--gm-r-surface);background:var(--gm-paper);box-shadow:var(--gm-sh-md)}
+.gm-yt-sira [data-yt-uyari]:empty{display:none}
+.gm-yt-sira .gm-yaklas{margin:0}
+.gm-yt-sira-ust{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--gm-s-12)}
+.gm-yt-sira-mesafe{display:grid;justify-items:center;min-width:var(--gm-size-box-xl);padding-right:var(--gm-s-12);border-right:var(--gm-size-border) solid var(--gm-line)}
+.gm-yt-sira-mesafe b{font:var(--gm-t-numeral-md-weight) var(--gm-t-numeral-md-size)/1 var(--gm-font-bold);letter-spacing:var(--gm-t-numeral-md-track);color:var(--gm-primary);white-space:nowrap}
+.gm-yt-sira-mesafe small{margin-top:var(--gm-s-2);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1.2 var(--gm-font);color:var(--gm-slate);white-space:nowrap}
+.gm-yt-sira-metin{display:grid;gap:var(--gm-s-2);min-width:0}
+.gm-yt-sira-metin .gm-t-label{color:var(--gm-primary)}
+.gm-yt-sira-metin > b{font:var(--gm-t-card-weight) var(--gm-t-card-size)/1.25 var(--gm-font-bold);color:var(--gm-ink)}
+.gm-yt-foto,.gm-yt-ikon{position:relative;display:grid;place-items:center;width:var(--gm-size-box-lg);height:var(--gm-size-box-lg);border-radius:var(--gm-r-control);overflow:hidden;background:var(--gm-bg);color:var(--gm-slate)}
+.gm-yt-sira.is-varis .gm-yt-ikon{background:var(--gm-ink);color:var(--gm-paper)}
+.gm-yt-eylem{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--gm-s-8)}
+.gm-yt-eylem:has(> :nth-child(2):last-child){grid-template-columns:minmax(0,1fr) auto}
+.gm-yt-eylem .gm-btn{min-width:0;padding-inline:var(--gm-s-8);white-space:nowrap}
+.gm-yt .gm-kl-cekmece-bas .gm-uclu{flex:1}
+.gm-yt .gm-kr-za-oge.is-simdi .gm-kr-za-baslik{color:var(--gm-primary)}
+/* Yol takibi çekmecesi: başta metrik + eylem satırı her zaman görünür (kapalı yükseklik büyür), çizelge çekince açılır. */
+.gm-kl-hekran.gm-yt{--gm-kl-kapali-h:calc(var(--gm-s-24) + var(--gm-size-touch) * 3 + var(--gm-s-32) + env(safe-area-inset-bottom,0px))}
+.gm-yt .gm-kl-cekmece-bas{display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;align-items:stretch}
+.gm-yt .gm-kl-cekmece-bas > *{width:100%;min-width:0}
