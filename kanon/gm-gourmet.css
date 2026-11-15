@@ -570,3 +570,17 @@ body.gm .gm-puf-foto.is-yok{background-color:var(--gm-puf-ton,var(--gm-primary-t
 /* Görev 12 (hesap isteği): satır metninde tek satır kırpma her satırda çalışsın (span inline kaldığı için kesilmiyordu). */
 .gm-satir-metin{min-width:0}
 .gm-satir-metin .gm-kirp-1{display:block;max-width:100%}
+
+/* Görev 13 (Beyar iPhone Safari): ana hero.
+   1) iOS WebKit katman kusuru: will-change:transform'lu fotoğraf kendi katmanına alınıp kendi katmanı olmayan kardeşlerin (perde, slayt başlığı)
+      ÜSTÜNE çiziliyor ve düşük çözünürlükte rasterleşiyordu → bulanık foto, koyu perde yerine "beyaz sis", mekân adı/konumu görünmüyor.
+      Sıra açık: foto 0, perde 1, bilgi 2; perde ve bilgi kendi katmanında; fotoğrafta kalıcı will-change yok (kaydırma efekti satır içi transform). */
+.gm-hero-slide{isolation:isolate}
+.gm-hero-foto{z-index:0;will-change:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.gm-hero-perde{z-index:1;transform:translateZ(0)}
+.gm-hero-info{transform:translateZ(0)}
+/* 2) Yükseklik görünür alana göre: Safari'nin araç çubukları açıkken (küçük görünüm, svh) "Bugünün Rotası" başlığı alt menünün üstünde görünür.
+      Masaüstü önizlemede (844) hesap aynı kalır (0.72 × 844 = 608 < 844 − 144). */
+.gm-hero{height:calc(min(clamp(var(--gm-size-hero-min),calc(var(--gm-ekran-h) * .72),var(--gm-size-hero-max)),calc(min(100svh,var(--gm-ekran-h)) - var(--gm-s-48) * 3 - var(--gm-s-8))) - var(--gm-scene-collapse,0px))}
+/* Hero'dan sonraki ilk bölüm: üst boşluk yarıya (alt menünün beyaz geçişi başlığı örtmesin; telefonda "Bugünün Rotası" görünür). */
+.gm-hero + .gm-icerikler > section:first-child{padding-top:var(--gm-s-16)}
