@@ -67,7 +67,10 @@
         rota: R.filter(r => (r.iller || []).some(i => i.ad === ad)).map(r => r.id),
         etkinlik: E.filter(e => e.ulke === 'Türkiye' && e.yer === ad).map(e => e.slug),
         yazi: yazi.map(l => l.slug),
-        gorsel: foto?.kapakB || mk.find(m => m.kapak)?.kapak || yazi.find(l => l.gorsel)?.gorsel || null
+        // Kapak (uydurma yok): şehrin mekân kapağı → şehirle ilgili yazının kapağı → coğrafi işaretli ürün yazısının kapağı → şehirdeki etkinliğin görseli.
+        gorsel: foto?.kapakB || mk.find(m => m.kapak)?.kapak || yazi.find(l => l.gorsel)?.gorsel
+          || (kim?.tescilli || []).map(t => (V.lezzetler || []).find(l => l.slug === X.tescilYazi[t.ad])?.gorsel).find(Boolean)
+          || E.find(e => e.ulke === 'Türkiye' && e.yer === ad && e.gorsel)?.gorsel || null
       };
     }).sort((a, b) => b.editor - a.editor || b.mekan - a.mekan || b.tescil.length - a.tescil.length || a.ad.localeCompare(b.ad, 'tr'));
     return sehirler;

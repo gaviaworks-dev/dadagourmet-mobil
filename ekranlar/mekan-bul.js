@@ -146,8 +146,10 @@
   ][i]();
   const giris = d => {
     const var_ = d.ortam.length > 0, s = var_ ? sonuc(d) : null, n = s ? sonucSay(s) : 0;
-    const ust = GM.selamBas({gorsel: 'assets/gorsel/hero/tabak.webp', ust: 'Mekân Bul', baslikHtml: 'Sana göre <em>mekânı</em> bulalım', html: GM.btn({metin: var_ ? 'Yeni aramaya başla' : 'Aramaya başla', ikon: 'bul', tam: true, veri: {eylem: var_ ? 'mb-sifirla' : 'mb-basla'}})});
-    return ust + GM.bolumler([
+    // Görev 14/6: arama düğmesi hero'nun içinden çıktı, hero'nun hemen altında.
+    const ust = GM.selamBas({gorsel: 'assets/gorsel/hero/tabak.webp', ust: 'Mekân Bul', baslikHtml: 'Sana göre <em>mekânı</em> bulalım'});
+    const dugme = `<div class="gm-ic">${GM.btn({metin: var_ ? 'Yeni aramaya başla' : 'Aramaya başla', ikon: 'bul', tam: true, veri: {eylem: var_ ? 'mb-sifirla' : 'mb-basla'}})}</div>`;
+    return ust + dugme + GM.bolumler([
       var_ ? {baslik: 'Son araman', html: `<div class="gm-yigin-12">${GM.etiketBulut(ozetCipler(d, s.k))}${GM.p(n ? `Seçimlerine **${GM.sayi(n)} mekân** uyuyor; ${GM.sayi(s.uygun.length)} tanesi %80 ve üzeri.` : 'Bu seçimde **sonuç yok**; seçimi değiştirmeyi dene.')}${GM.btnIkili({metin: 'Düzenle', ikon: 'sliders', git: adimAdres(1, true)}, {metin: 'Sonuçları gör', ikon: 'tumu', git: '#/mekan-bul/sonuclar'})}</div>`} : null,
       {baslik: '4 kısa adım', html: GM.satirlar(ADIM.map(([ad, baslik], i) => ({ikon: ADIM_IKON[i], baslik: `${i + 1}. ${ad}`, alt: (var_ && adimOzet(d, i)) || baslik, git: adimAdres(i + 1), ok: true})))},
       {baslik: 'Nasıl eşleştiriyoruz?', html: GM.p('Her mekânı seçtiğin kriterlerle karşılaştırırız: **ortam 40**, bütçe 20, mutfak 15, her nitelik 15, şimdi açık 15, rezervasyon 10 puan. Oran yalnız seçtiklerinden hesaplanır; **%80 ve üzeri** en uygun, %40 ve üzeri yakın alternatif.')},
@@ -299,7 +301,8 @@
   // Kartları gruplarına yerleştirir: her grup kendi bölümünde (başlık + ızgara/liste); tek kalan son kart ızgaranın altında liste satırı.
   const yerlestir = (kap, l, ks) => l.forEach(x => {
     const izgara = R.gorunum !== 'liste';
-    if (x.onBas || !kap.lastElementChild) kap.insertAdjacentHTML('beforeend', `<section>${x.onBas ? GM.eslesmeBas(x.onBas) : ''}${GM.listeSonuc([], {gorunum: R.gorunum})}</section>`);
+    // Görev 14/7: her grup zebra bölüm (.gm-icerikler > section) + kanon bölüm başlığı GM.bas (sağda sayı) + tek satır gm-t-meta açıklama.
+    if (x.onBas) kap.insertAdjacentHTML('beforeend', `<section>${GM.bas(x.onBas.baslik, {html: `<span class="gm-t-meta gm-ton-ikincil">${GM.sayi(x.onBas.sayi)} mekân</span>`})}<p class="gm-t-meta gm-ton-ikincil gm-tek-satir">${GM.esc(x.onBas.not)}</p>${GM.listeSonuc([], {gorunum: R.gorunum})}</section>`);
     const sec = kap.lastElementChild;
     if (izgara && x.sonTek) { sec.insertAdjacentHTML('beforeend', GM.listeSonuc([GM.mekanKart(x.m, {tur: 'buyuk', kayitli: ks.has(x.m.slug), etiket: `%${x.yuzde} uyum`, etiketTon: x.oran >= ESIK.uygun ? 'basari' : null})], {gorunum: 'liste'})); return; }
     [...sec.querySelectorAll('.gm-liste-grid, .gm-liste-rows')].pop().insertAdjacentHTML('beforeend', kart(x, ks, !izgara));
@@ -342,18 +345,18 @@
       const s = sonuc(d), ks = GM.kayitliMekanlar(), liste = s.tur === 'tamam' || (R.gevsek && s.diger?.length) ? birlestir(ogeler(s)) : [];
       SD = {d, s, liste};
       const n = liste.length;
-      const bas = GM.metinBlok({etiket: 'Mekân Bul', baslik: n ? 'Sana uygun mekânlar' : 'Sonuç bulunamadı', metin: n ? `**${GM.sayi(n)} mekân** · ${s.uygun.length ? `**${GM.sayi(s.uygun.length)}** tanesi %80 üzeri` : '**en yakınlar** oranla'}` : '**Düzenle** ile seçimini değiştir.', rol: 'page', h: 1});
+      // Görev 14/7: başlık Gastro/Diet bölüm başlığı kanonu (GM.bas / .gm-head) + tek satır gm-t-meta; bölümler zebra (.gm-icerikler).
+      const bas = `${GM.bas(n ? 'Sana uygun mekânlar' : 'Sonuç bulunamadı')}<p class="gm-t-meta gm-ton-ikincil">${GM.vurgu(n ? `**${GM.sayi(n)} mekân** · ${s.uygun.length ? `**${GM.sayi(s.uygun.length)}** tanesi %80 üzeri` : '**en yakınlar** oranla'}` : '**Düzenle** ile seçimini değiştir.')}</p>`;
       // Seçim satırı (yığılma kuralı 1-2): solda tek satır seçim çipleri (.gm-tek-satir solması), sağda sırala + görünüm; sonuçsuzken Düzenle.
       // GM.listeDurum kullanılmaz: `:root .gm-liste-status` üst payı (24) çiple sayaç arasında boşluk açıyordu; sayı başlık metninde.
       const ozet = `<div class="gm-kl-mb-ozet">${GM.etiketBulut(ozetCipler(d, s.k)) || '<span></span>'}${n ? GM.ikonBtn({ikon: 'sirala', etiket: 'Sırala', tur: 'kutu', secili: R.sira !== 'oran', veri: {eylem: 'sirala'}}) + GM.ikonBtn({ikon: R.gorunum === 'liste' ? 'table-cells-large' : 'list', etiket: R.gorunum === 'liste' ? 'Izgara görünümü' : 'Liste görünümü', tur: 'kutu', veri: {eylem: 'mb-gorunum'}}) : GM.btn({metin: 'Düzenle', ikon: 'sliders', tur: 'text', boyut: 'sm', veri: {eylem: 'mb-duzenle'}})}</div>`;
       const gevset = n && !R.gevsek && s.diger.length ? GM.btn({metin: `Eşiği gevşet · %40 altı ${GM.sayi(s.diger.length)} mekân`, ikon: 'sliders', tur: 'secondary', tam: true, veri: {eylem: 'mb-gevset'}}) : '';
-      // Sonuç satırı seçim çiplerinin hemen altında (yalnız kendi üst payı, yığın boşluğu eklenmez); kartlar sonra'da yerleştirilir (çizimle aynı karede, boş görünmez).
-      const durum = '';
-      const govde = n ? `<div class="gm-yigin-24" data-mb-sonuc></div>${gevset}` : bosSonuc(s, d);
-      // Oran açıklaması başlık yığınında (çip satırının altında); sonuç grupları yığın aralığıyla başlar (paragraf sonrası ek pay yok).
+      // Oran açıklaması üst bölümde (çip satırının altında); kartlar sonra'da grup bölümlerine yerleştirilir (çizimle aynı karede, boş görünmez).
       const hesap = n ? `<p class="gm-kl-mb-hesap">${GM.vurgu(hesapSatir(s.k))}</p>` : '';
+      const ust = `<section><div class="gm-yigin-12">${bas}${ozet}${hesap}</div></section>`;
       const son = GM.teaser({ikon: 'mekan', baslik: 'Aradığın mekân listede yok mu?', metin: 'Bildiğin bir mekânı öner; editör onayından geçerse **+50 Dada Puan** kazanırsın.', btn: {metin: 'Mekân öner', ikon: 'ekle', tur: 'secondary', git: '#/mekan-oner'}});
-      return `<div class="gm-kl-mb"><div class="gm-yigin">${bas}${ozet}${durum}${hesap}</div>${govde}${n ? son : ''}</div>`;
+      // Sonuçlu: üst bölüm + grup bölümleri aynı .gm-icerikler içinde (sonsuz kaydırma yeni grubu yeni bölüm olarak ekler); gevşet + öneri altta.
+      return n ? `<div class="gm-icerikler" data-mb-sonuc>${ust}</div><div class="gm-ic gm-yigin-24">${gevset}${son}</div>` : GM.bolumler([ust.replace(/^<section>|<\/section>$/g, ''), {html: bosSonuc(s, d)}]);
     },
     sonra: (kok, ctx) => {
       const c = [], {d, s, liste = []} = SD || {}; let io = null;

@@ -391,3 +391,19 @@ body.gm .gm-iskelet.is-hs-foto{height:calc(var(--gm-s-48) * 3);border-radius:var
 .gm-rz-gun:disabled{opacity:.45;cursor:not-allowed}
 .gm-rz-gunler+.gm-btn{justify-self:start}
 .gm-rz-sheet{isolation:isolate} /* sabit adım başlığının z-index'i sheet içinde kalsın (üstte açılan takvim sheet'inin perdesinin altında) */
+/* Görev 14/3 (Beyar): Detay-A gövde bölümleri Diet zebrası (GM.bolumler, .gm-icerikler > section tek gri / çift beyaz, 32 dikey); tam genişlik. */
+.gm-ekran[data-ekran="mekan-a"] .gm-pane>.gm-icerikler,.gm-ekran[data-ekran="mekan-a"] .gm-kuyruk>.gm-icerikler{margin:0 calc(-1 * var(--gm-gutter))}
+.gm-ekran[data-ekran="mekan-a"] .gm-pane:has(>.gm-icerikler){padding-top:0}
+.gm-ekran[data-ekran="mekan-a"] .gm-kuyruk:has(>.gm-icerikler){margin-top:0}
+.gm-ekran[data-ekran="mekan-a"] .gm-detay-icerik:has(>.gm-kuyruk>.gm-icerikler){padding-bottom:0}
+.gm-ekran[data-ekran="mekan-a"] .gm-icerikler>section>section{padding:0}
+/* Zebra sürekliliği: açık sekmenin bölüm sayısı tekse kuyruk beyazla başlar (yan yana iki gri bölüm olmasın). */
+.gm-ekran[data-ekran="mekan-a"] .gm-detay-panel:has(.gm-pane:not([hidden])>.gm-icerikler>section:last-child:nth-child(odd)) .gm-kuyruk>.gm-icerikler>section:nth-child(odd){background:var(--gm-paper);--gm-yuzey-cizgi:var(--gm-line)}
+.gm-ekran[data-ekran="mekan-a"] .gm-detay-panel:has(.gm-pane:not([hidden])>.gm-icerikler>section:last-child:nth-child(odd)) .gm-kuyruk>.gm-icerikler>section:nth-child(even){background:var(--gm-bg);--gm-yuzey-cizgi:transparent}
+/* Görev 14/4 (Beyar): Detay-A özellik çipleri (üst ÖZELLİKLER şeridi + "Mekân Özellikleri") kalın. */
+.gm-ekran[data-ekran="mekan-a"] .gm-ozellik>span{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+/* Görev 14/5: bilgi kartı şeridi (Mekân Deneyimi) — kart genişliği bir sonraki kartı gösterir; açıklama tek satır. */
+.gm-serit>.gm-bks-kart{flex:0 0 calc(100% - var(--gm-s-64));display:grid;gap:var(--gm-s-8);align-content:start;min-width:0;padding:var(--gm-s-16);border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-surface);background:var(--gm-paper)}
+.gm-bks-kart b{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-subheading-size);line-height:var(--gm-t-subheading-line)}
+.gm-bks-kart small{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+.gm-serit.gm-bks{gap:var(--gm-s-12)}

@@ -21,20 +21,31 @@
     {id: 'ayar', label: 'Hesap Ayarları', icon: 'gear', git: '#/ayarlar'},
     {id: 'cozum', label: 'Çözüm Merkezi', icon: 'headset', git: '#/cozum-merkezi'},
     {id: 'cikis', label: 'Çıkış', icon: 'right-from-bracket', eylem: 'cikis'}]};
+  // Görev 14/13 (Beyar): gruplama Dada Diet çekmecesiyle aynı kalıp — Ana Sayfa + konu grupları (tek açık akordeon), ikinci blok Hesabım · Pro · Görüş Bildir.
+  // Gruplar web ana menüsünün modülleri: Mekânlar · Dada Route · Lezzet ve Etkinlik. Mekân Öner ve İşletmeni Ekle satır değil, öne çıkan eylem kartları (14/14, eylemler()).
   const BLOKLAR = () => [[
     {id: 'kesfet', label: 'Ana Sayfa', icon: 'house', git: '#/kesfet'},
-    {id: 'mekanlar', label: 'Mekânlar', icon: 'utensils', git: '#/mekanlar'},
-    {id: 'bul', label: 'Mekân Bul', icon: 'wand-magic-sparkles', git: '#/mekan-bul'},
-    {id: 'lezzet', label: 'Gurme Lezzetler', icon: 'bowl-food', git: '#/lezzetler'},
-    {id: 'rota', label: 'Dada Route', icon: 'route', git: '#/rota'},
-    {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/etkinlikler'},
-    {id: 'rehber', label: 'Şehir Rehberleri', icon: 'city', git: '#/rehberler'}
+    {id: 'mekan-grup', label: 'Mekânlar', icon: 'utensils', children: [
+      {id: 'mekanlar', label: 'Tüm Mekânlar', icon: 'utensils', git: '#/mekanlar'},
+      {id: 'bul', label: 'Mekân Bul', icon: 'wand-magic-sparkles', git: '#/mekan-bul'},
+      {id: 'rehber', label: 'Şehir Rehberleri', icon: 'city', git: '#/rehberler'}]},
+    {id: 'rota-grup', label: 'Dada Route', icon: 'route', children: [
+      {id: 'rota', label: 'Rota Planla', icon: 'route', git: '#/rota'},
+      {id: 'rotalarim', label: 'Rotalarım', icon: 'bookmark', git: '#/rota/rotalarim'},
+      {id: 'hazir', label: 'Hazır Rotalar', icon: 'map', git: '#/rota/hazir'},
+      {id: 'cevrimdisi', label: 'Çevrimdışı Rotalar', icon: 'cloud-arrow-down', git: '#/rota/cevrimdisi'},
+      {id: 'gunluk', label: 'Seyahat Günlüğü', icon: 'book-open', git: '#/rota/gunluk'}]},
+    {id: 'icerik-grup', label: 'Lezzet ve Etkinlik', icon: 'bowl-food', children: [
+      {id: 'lezzet', label: 'Gurme Lezzetler', icon: 'bowl-food', git: '#/lezzetler'},
+      {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/etkinlikler'},
+      {id: 'etkinlik-oner', label: 'Etkinlik Öner', icon: 'calendar-plus', git: '#/etkinlik-oner'}]}
   ], [
     ...(GM.uye() ? [hesapGrubu] : []),
-    {id: 'oner', label: 'Mekân Öner', icon: 'plus', git: '#/mekan-oner'},
-    {id: 'isletme', label: 'İşletmeni Ekle', icon: 'store', git: '#/isletme'},
+    {id: 'pro', label: 'Dada Gourmet Pro', icon: 'bolt', git: '#/pro'},
     {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'}
   ]];
+  // 14/14: öne çıkan eylem kartları (Diet "Diyetisyen Ol" kalıbı .gm-uzman-ol: kesikli çerçeve, ikon, kalın başlık, kısa alt satır), yan yana iki kart.
+  const eylemler = () => `<div class="gm-menu-eylemler">${[['#/mekan-oner', 'circle-plus', 'Mekân Öner', '+50 Dada Puan'], ['#/isletme', 'store', 'İşletmeni Ekle', 'Ücretsiz başvuru']].map(([g, i, b, a]) => `<a class="gm-uzman-ol" href="${esc(g)}" data-menu-git="${esc(g)}">${ik(i)}<b>${esc(b)}</b><span>${esc(a)}</span></a>`).join('')}</div>`;
   const kisayollar = () => [['#/rota/rotalarim', 'route', 'Rotalarım'], ['#/profil/rezervasyonlar', 'calendar-check', 'Rezervasyonlarım'], ['#/profil/favoriler', 'heart', 'Favorilerim'], ['#/profil/puan', 'medal', 'Dada Puan']];
   // Dil: Ayarlar > Dil ile aynı iki dil ve aynı kayıt (hesap-ayar.dil.dil). Tasarım öğesi: uygulama TR çalışır, diller Flutter aşamasında gelir.
   const DILLER = [['tr', 'Türkçe'], ['en', 'English']];
@@ -60,7 +71,7 @@
     if (acikEl) return;
     const kat = document.getElementById('gm-katman') || document.body, k = document.createElement('div');
     k.className = 'gm-menu-kap';
-    k.innerHTML = `<div class="gm-perde" data-menu-kapat></div><div class="gm-menu" role="dialog" aria-modal="true" aria-label="Menü" tabindex="-1"><div class="gm-menu-panel"><div class="gm-menu-head"><a class="gm-menu-logo" href="#/kesfet" data-menu-git="#/kesfet" aria-label="Dada Gourmet ana sayfa"><img src="assets/marka/dadagourmet-renkli.svg" alt="Dada Gourmet"></a><button class="gm-menu-close" type="button" data-menu-kapat aria-label="Kapat">${ik('kapat')}</button></div><div class="gm-menu-scroll"><div class="gm-menu-user">${kullanici()}</div><nav class="gm-menu-nav" aria-label="Menü">${BLOKLAR().map(b => `<div class="gm-menu-blok">${b.map(x => (x.children ? grup(x) : `<div class="gm-menu-item">${satir(x)}</div>`)).join('')}</div>`).join('')}</nav>${ayak()}</div></div></div>`;
+    k.innerHTML = `<div class="gm-perde" data-menu-kapat></div><div class="gm-menu" role="dialog" aria-modal="true" aria-label="Menü" tabindex="-1"><div class="gm-menu-panel"><div class="gm-menu-head"><a class="gm-menu-logo" href="#/kesfet" data-menu-git="#/kesfet" aria-label="Dada Gourmet ana sayfa"><img src="assets/marka/dadagourmet-renkli.svg" alt="Dada Gourmet"></a><button class="gm-menu-close" type="button" data-menu-kapat aria-label="Kapat">${ik('kapat')}</button></div><div class="gm-menu-scroll"><div class="gm-menu-user">${kullanici()}</div><nav class="gm-menu-nav" aria-label="Menü">${BLOKLAR().map(b => `<div class="gm-menu-blok">${b.map(x => (x.children ? grup(x) : `<div class="gm-menu-item">${satir(x)}</div>`)).join('')}</div>`).join('')}${eylemler()}</nav>${ayak()}</div></div></div>`;
     kat.append(k); acikEl = k;
     requestAnimationFrame(() => k.querySelector('.gm-menu').classList.add('is-in'));
     k.querySelector('.gm-menu').focus({preventScroll: true});

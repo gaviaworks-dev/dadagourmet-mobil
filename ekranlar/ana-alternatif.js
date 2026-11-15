@@ -13,6 +13,8 @@
     const lez = GMV.lezzetler.filter(l => l.gorsel).sort((a, b) => b.tarih.split('.').reverse().join('').localeCompare(a.tarih.split('.').reverse().join(''))).slice(0, 8);
     const bloklar = {
       konsept: {baslik: 'Konseptler', eylem: 'Tamamını Gör', git: '#/mekanlar', html: GM.konseptSerit(konsept.map(x => ({ad: x.k.ad, alt: `${x.k.sayi} mekân`, gorsel: x.m.kapak, git: `#/mekanlar?konsept=${x.k.deger}`})))},
+      // Görev 14/2 (patron): Konsept'in altında "Mekânlar" şeridi — önerilen sıradan, rota ve konsept kartlarında kullanılmamış kapaklı mekânlar.
+      mekan: {baslik: 'Mekânlar', eylem: 'Tümü', git: '#/mekanlar', html: GM.yatay(GM.mekanSirala(M.filter(m => m.kapak && !kullanilan.has(m.slug)), 'onerilen').slice(0, 8).map(m => GM.mekanKart(m, {kayitli: GM.kayitliMekanlar().has(m.slug)})))},
       modul: {baslik: 'Nasıl keşfetmek istersin?', html: GM.modulIzgara([
         GM.modulKart({ikon: 'rota', baslik: 'Dada Route', alt: 'Yol üstü lezzet durakları', fiil: 'Rota çiz', git: '#/rota', ana: true}),
         GM.modulKart({ikon: 'bul', baslik: 'Mekân Bul', alt: '4 soruda sana uygun mekân', fiil: 'Başla', git: '#/mekan-bul'}),
@@ -33,6 +35,8 @@
     ustBar: () => ({saydam: true}),
     // Çekip yenile: etkinlik ve lezzet rayı veriden yeniden kurulur (sabit an GM.simdi).
     cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
+    // Mekân kartı kalbi tek favori anahtarına yazar (GM.kaydetBagla; misafirde üye duvarı).
+    sonra: kok => GM.kaydetBagla(kok),
     ciz: () => {
       const {R, M, duraklar, etk, lez, bloklar: B} = ortak();
       const slayt = GMV.mekanlar.filter(m => m.kapakB).sort((a, b) => (b.slug === 'narimor-urla') - (a.slug === 'narimor-urla')).slice(0, 3);
@@ -53,7 +57,7 @@
       return hero + GM.bolumler([
         {baslik: 'Bugünün Rotası', eylem: 'Haritada', git: `#/rota/${R.id}`, html: GM.yigin([GM.rotaKart(GM.rotaKartVeri(R, {etiket: `Pilot rota · varış ${GM.varisSaati(R.dk)}`, gorsel: duraklar[0]?.mekan.kapak}), {tur: 'genis', kaydet: false, sinif: 'gm-ka-rk'}), GM.yatay(duraklar.map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})))])},
         // Reklam yuvaları (lider kararı 15 Kas): patron kararına dek ekranda yer kaplamaz; yalnız DOM'da gizli işaret (Flutter yeri).
-        {...B.konsept, html: B.konsept.html + GM.reklamIsaret('AS-T1')}, {...B.modul, html: B.modul.html + GM.reklamIsaret('AS-M1')}, B.etkinlik, B.lezzet, B.rehber, B.teaser + GM.reklamIsaret('AS-B1')
+        {...B.konsept, html: B.konsept.html + GM.reklamIsaret('AS-T1')}, B.mekan, {...B.modul, html: B.modul.html + GM.reklamIsaret('AS-M1')}, B.etkinlik, B.lezzet, B.rehber, B.teaser + GM.reklamIsaret('AS-B1')
       ]);
     }
   });

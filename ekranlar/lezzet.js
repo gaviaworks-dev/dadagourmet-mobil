@@ -55,9 +55,9 @@
     return [...l].sort({populer: (a, b) => okunma(a) - okunma(b), kisa: (a, b) => (dk(a) ?? 99) - (dk(b) ?? 99) || ad(a, b), ad}[sira]);
   };
 
-  // Kart (yığılma kuralı 3): kategori foto üstünde hap (gm-ka-puf; tek kelimelik kısa ad, "…" ile bitmez), başlık tek satır, altında okuma süresi (kart altı ≤ 2 satır; denetim Tur 8).
+  // Kart (yığılma kuralı 3): kategori foto üstünde hap (gm-ka-puf; tek kelimelik kısa ad, "…" ile bitmez), başlık en çok 2 satır, altında okuma süresi (Görev 14/9, Beyar: kırpma yerine 2 satır; kart altı en çok 3 satır).
   // Kapaksız yazı (193/440, canlıda kapak yok): kategori tonlu zemin + büyük kategori ikonu (token değişkeni; kanon: .gm-puf-foto.is-yok). Sıra görsele göre değişmez.
-  const kart = l => { const k = katBul(l.kategori); return GM.icerikKart({gorsel: l.gorsel, ikon: katIkon(l.kategori), kategori: k?.kisa || l.kategori, baslik: l.ad, meta: l.sure, git: yaziGit(l), sinif: 'gm-ka-puf', attrs: !l.gorsel && k?.ton ? `style="--gm-puf-ton:var(--gm-${k.ton});--gm-puf-ton-fg:var(--gm-${k.tonFg})"` : ''}); };
+  const kart = l => { const k = katBul(l.kategori); return GM.icerikKart({gorsel: l.gorsel, ikon: katIkon(l.kategori), kategori: k?.kisa || l.kategori, baslik: l.ad, meta: l.sure, git: yaziGit(l), sinif: 'gm-ka-puf is-iki-satir', attrs: !l.gorsel && k?.ton ? `style="--gm-puf-ton:var(--gm-${k.ton});--gm-puf-ton-fg:var(--gm-${k.tonFg})"` : ''}); };
   const satir = l => GM.satir({sol: GM.gorsel({src: l.gorsel, ikon: katIkon(l.kategori)}), baslik: l.ad, alt: `${l.kategori} · ${l.sure}`, git: yaziGit(l)});
   const ogeler = (l, s) => l.map(s.gorunum === 'liste' ? satir : kart);
   const sonucHtml = (l, s) => GM.listeSonuc(s.gorunum === 'liste' ? [GM.satirlar(ogeler(l, s))] : ogeler(l, s), {gorunum: s.gorunum});
@@ -74,10 +74,11 @@
     const durum = GM.listeDurum({sayi: l.length, birim: 'yazı', gorunum: s.gorunum, siraliAktif: s.sira !== 'yeni'});
     return `${bas}${durum}${l.length ? sonucHtml(l.slice(0, SAYFA), s) : bosHtml(s)}`;
   };
-  // Liste başı kısayolları (süzgeçsizken): kaydedilen yazılar (üye) ve Şehir Rehberleri.
+  // Liste başı kısayolu (süzgeçsizken): Şehir Rehberleri.
   const ustKartlar = () => {
-    const n = GM.uye() ? kayitlar().length : 0, sh = X().sehirler?.().length || 0;
-    return `${n ? GM.eylemKart({ikon: 'kaydet', baslik: 'Kaydettiğin yazılar', alt: `${n} yazı · Gurme Favorilerim`, git: '#/profil/favoriler?sekme=lezzet'}) : ''}${sh ? GM.eylemKart({ikon: 'sehir', baslik: 'Şehir Rehberleri', alt: `${sh} şehir · coğrafi işaretli lezzetler`, git: '#/rehberler'}) : ''}`;
+    // Görev 14/8: kaydedilen yazılar burada gösterilmez; Hesabım › Gurme Favorilerim › Lezzet ('lezzet-kayit').
+    const sh = (X().sehirler?.() || []).filter(s => s.gorsel).length;
+    return `${sh ? GM.eylemKart({ikon: 'sehir', baslik: 'Şehir Rehberleri', alt: `${sh} şehir rehberi · coğrafi işaretli lezzetler`, git: '#/rehberler'}) : ''}`;
   };
 
   let A = null, hataListe = false;
@@ -177,7 +178,7 @@
   };
   const sehirKartlari = l => yaziIller(l).map(il => X().sehir?.(X().slug(il))).filter(Boolean).map(s => GM.eylemKart({ikon: 'sehir', baslik: `${s.ad} şehir rehberi`, alt: [s.mekan && `${s.mekan} mekân`, s.tescil.length && `${s.tescil.length} coğrafi işaret`].filter(Boolean).join(' · ') || 'Şehir kimliği', git: `#/rehber/${s.slug}`})).join('');
   // Etiket şeridi kaydırmalı (gm-serit): gm-yigin ızgarasının dışında, kendi bölümünde durur (ızgara kolonu şerit genişliğine açılmasın).
-  const etiketler = l => GM.bolum({baslik: 'Etiketler', html: GM.cipler({ad: 'etiket', etiket: 'Etiketler', ogeler: l.etiket.map(e => ({metin: e, ikon: 'tag', kucuk: true, git: `#/lezzetler?q=${encodeURIComponent(e)}`}))})});
+  const etiketler = l => ({baslik: 'Etiketler', html: GM.cipler({ad: 'etiket', etiket: 'Etiketler', ogeler: l.etiket.map(e => ({metin: e, ikon: 'tag', kucuk: true, git: `#/lezzetler?q=${encodeURIComponent(e)}`}))})});
   const kayitBoya = (kok, slug) => { const on = kayitlar().includes(slug); kok.querySelectorAll('[data-eylem="lz-kaydet"]').forEach(b => { b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Kaydedildi' : 'Kaydet'); }); };
   const yazilmadi = () => GM.hataEkran({tur: 'bulunamadi', baslik: 'Bu yazı burada değil', metin: 'Bağlantı eskimiş olabilir. **Gurme Lezzetler**’de aynı konudaki yazıları bulabilirsin.', eylem: {metin: 'Gurme Lezzetler', ikon: 'book-open', yerine: '#/lezzetler'}});
   const dVeri = ctx => (ctx.sorgu.hal === 'bulunamadi' ? null : bul(ctx.param.slug));
@@ -200,9 +201,9 @@
       return GM.kubbe({
         // Başlık bloğu ≤ 3 satır (kural 5): kategori · başlık; okuma ve tarih künye satırında.
         perde: 'kart', gorsel: l.gorsel, etiket: l.kategori, baslik: l.ad,
-        html: `<section class="gm-ic gm-yigin">${kunye(l, g)}${g ? govdeHtml(l, g) : `${GM.makale(GM.p(ilkCumle(l.ozet)))}${GM.veriYok('Yazının tamamı **yüklenemedi**. Özeti okuyabilir ya da yeniden deneyebilirsin.')}${GM.btn({metin: 'Tekrar dene', ikon: 'yenile', tur: 'secondary', tam: true, veri: {eylem: 'lz-yeniden'}})}`}${g?.n ? GM.ipucu({ikon: 'uyari', ton: 'uyari', baslik: 'Okuyucunun Dikkatine', metin: ilkCumle(g.n)}) : ''}${kaynaklar(g)}${guncel(g)}${sehirKartlari(l)}</section>${etiketler(l)}`
-          + (mk.length ? GM.bolum({baslik: 'İlgili mekânlar', eylem: 'Tümü', git: ilk ? `#/mekanlar?il=${X().slug(ilk)}` : '#/mekanlar', html: GM.mekanSatirlar(mk.map(m => GM.mekanKart(m, {tur: 'satir', kayitli: ks.has(m.slug)})))}) : '')
-          + (il.length ? GM.bolum({baslik: 'İlgili Keşifler', eylem: 'Tümü', git: `#/lezzetler?kategori=${k?.deger || ''}`, html: `<div class="gm-izgara">${il.map(kart).join('')}</div>`}) : '')
+        html: GM.bolumler([`<div class="gm-yigin">${kunye(l, g)}${g ? govdeHtml(l, g) : `${GM.makale(GM.p(ilkCumle(l.ozet)))}${GM.veriYok('Yazının tamamı **yüklenemedi**. Özeti okuyabilir ya da yeniden deneyebilirsin.')}${GM.btn({metin: 'Tekrar dene', ikon: 'yenile', tur: 'secondary', tam: true, veri: {eylem: 'lz-yeniden'}})}`}${g?.n ? GM.ipucu({ikon: 'uyari', ton: 'uyari', baslik: 'Okuyucunun Dikkatine', metin: ilkCumle(g.n)}) : ''}${kaynaklar(g)}${guncel(g)}${sehirKartlari(l)}</div>`, etiketler(l)
+          , (mk.length ? ({baslik: 'İlgili mekânlar', eylem: 'Tümü', git: ilk ? `#/mekanlar?il=${X().slug(ilk)}` : '#/mekanlar', html: GM.mekanSatirlar(mk.map(m => GM.mekanKart(m, {tur: 'satir', kayitli: ks.has(m.slug)})))}) : '')
+          , (il.length ? ({baslik: 'İlgili Keşifler', eylem: 'Tümü', git: `#/lezzetler?kategori=${k?.deger || ''}`, html: `<div class="gm-izgara">${il.map(kart).join('')}</div>`}) : '')])
       });
     },
     altBar: ctx => {
@@ -235,7 +236,8 @@
 
   // ================= Şehir rehberleri (#/rehberler) =================
   // Web /sehir-rehberleri: yayındaki editör rehberi (İstanbul) başta; mobilde coğrafi işaret kimliği ya da yayında mekânı olan her şehir (sayılar canlı veriden).
-  const sehirler = () => X().sehirler?.() || [];
+  // Görev 14/10 (lider kararı A): listede yalnız gerçek görseli olan şehirler; görselsiz şehrin sayfası #/rehber/<slug>'da açık (arama, yazı bağları).
+  const sehirler = () => (X().sehirler?.() || []).filter(s => s.gorsel);
   const BOLGELER = () => Object.keys(X().bolge || {}).filter(b => sehirler().some(s => s.bolge === b));
   const R_SIRA = [['onerilen', 'Önerilen', 'wand-magic-sparkles'], ['mekan', 'En çok mekân', 'mekan'], ['cografi', 'En çok coğrafi işaret', 'cografi'], ['ad', 'A’dan Z’ye', 'arrow-down-a-z']];
   const KAPSAM = [['mekan', 'Mekânı olan', 'mekan', s => s.mekan > 0], ['cografi', 'Coğrafi işaretli', 'cografi', s => s.tescil.length > 0], ['rota', 'Rotası olan', 'rota', s => s.rota.length > 0], ['etkinlik', 'Etkinliği olan', 'etkinlik', s => s.etkinlik.length > 0]];
@@ -260,7 +262,9 @@
     return GM.seckiKapak({gorsel: s.gorsel, rozet: {ikon: 'rehber', metin: 'Editör rehberi'}, baslik: s.ad, alt: `<b>${GM.sayi(s.mekan)}</b> mekân · <b>${s.ilce}</b> ilçe · ${GM.esc(X().rehber[s.slug].ozet)}`, git: `#/rehber/${s.slug}`});
   };
   const yontem = () => GM.bolum({ic: false, baslik: 'Rehberde ne var, ne yok?', html: GM.satirlar((X().rehberYontem || []).map(x => ({ikon: x.ikon, baslik: x.baslik, alt: x.metin.replace(/\*\*/g, ''), ozet: true})))});
-  const kopru = () => GM.bolum({ic: false, baslik: 'Şehri seçtin, sıra planda', html: `<div class="gm-yigin-12">${GM.eylemKart({ikon: 'rota', baslik: 'Dada Route', alt: 'Güzergâhını kur, yol üstündeki durakları gör', git: '#/rota/planla'})}${GM.eylemKart({ikon: 'bul', baslik: 'Mekân Bul', alt: 'O güne uygun mekânı birkaç soruyla bul', git: '#/mekan-bul'})}</div>`});
+  const kopruHtml = () => `<div class="gm-yigin-12">${GM.eylemKart({ikon: 'rota', baslik: 'Dada Route', alt: 'Güzergâhını kur, yol üstündeki durakları gör', git: '#/rota/planla'})}${GM.eylemKart({ikon: 'bul', baslik: 'Mekân Bul', alt: 'O güne uygun mekânı birkaç soruyla bul', git: '#/mekan-bul'})}</div>`;
+  const kopru = () => ({baslik: 'Şehri seçtin, sıra planda', html: kopruHtml()});
+  const kopruBolum = () => GM.bolum({ic: false, baslik: 'Şehri seçtin, sıra planda', html: kopruHtml()});
 
   let RD = null;
   GM.ekran('rehberler', {
@@ -273,9 +277,9 @@
       const d = RD, S = sehirler(), tescil = S.reduce((n, s) => n + s.tescil.length, 0), ed = S.find(x => x.editor);
       return GM.kubbe({
         gorsel: ed?.gorsel, etiket: 'Keşfet ve Planla', baslik: 'Şehir Rehberleri',
-        stat: [{deger: S.length, etiket: 'şehir'}, {deger: GM.sayi((GMV.mekanlar || []).length), etiket: 'mekân'}, {deger: GM.sayi(tescil), etiket: 'coğrafi işaret'}],
+        stat: [{deger: S.length, etiket: 'şehir rehberi'}, {deger: GM.sayi((GMV.mekanlar || []).length), etiket: 'mekân'}, {deger: GM.sayi(tescil), etiket: 'coğrafi işaret'}],
         arac: GM.listeArac({yer: 'Şehir ya da yöresel ürün ara', ad: 'q', deger: d.q, filtreSayi: d.kapsam.length, serit: rSerit(d)}),
-        html: `${d.q || d.bolge || d.kapsam.length ? '' : editorKapak()}${GM.sonucYuva(rIcerik(d))}${yontem()}${kopru()}`
+        html: `${d.q || d.bolge || d.kapsam.length ? '' : editorKapak()}${GM.sonucYuva(rIcerik(d))}${yontem()}${kopruBolum()}`
       });
     },
     sonra: kok => {
@@ -306,7 +310,7 @@
   });
 
   // ================= Şehir rehberi (#/rehber/:slug) =================
-  // Şehir kimliği: editör metni (yalnız yayındaki rehberde), coğrafi işaretli lezzetler (TÜRKPATENT sicili, GMV.ilKimlik), ilçe ve mutfak dağılımı,
+  // Bölümler zebra (Görev 14, GM.bolumler). Şehir kimliği: editör metni (yalnız yayındaki rehberde), coğrafi işaretli lezzetler (TÜRKPATENT sicili, GMV.ilKimlik), ilçe ve mutfak dağılımı,
   // mekânlar, şehirden geçen rotalar, etkinlikler, şehirle ilgili yazılar. Editör metni olmayan şehirde sakin bilgi notu; sayılar canlı veriden.
   const tescilKart = (t, s) => { const y = X().tescilYazi?.[t.ad], l = y && bul(y); return GM.lezzetKart({ad: t.ad, tur: t.tur, gorsel: l?.gorsel, alt: t.yer || s.ad}, {git: l ? yaziGit(l) : `#/ara?q=${encodeURIComponent(t.ad)}`}); };
   const dagilim = (l, f) => { const m = new Map(); l.forEach(x => [].concat(f(x) || []).forEach(k => m.set(k, (m.get(k) || 0) + 1))); return [...m].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), 'tr')); };
@@ -336,15 +340,15 @@
       return GM.kubbe({
         perde: 'kart', gorsel: s.gorsel, etiket: r ? 'Şehir rehberi' : s.bolge || 'Şehir kimliği', baslik: s.ad,
         stat: [s.mekan && {deger: GM.sayi(s.mekan), etiket: 'mekân'}, s.ilce && {deger: s.ilce, etiket: 'ilçe'}, s.tescil.length && {deger: s.tescil.length, etiket: 'coğrafi işaret'}, !s.mekan && s.rota.length && {deger: s.rota.length, etiket: 'rota'}].filter(Boolean),
-        html: `<section class="gm-ic gm-yigin">${editorMetin(s)}${r ? GM.btn({metin: r.cta, ikon: 'mekan', tam: true, git: `#/mekanlar?il=${s.slug}`}) : ''}</section>`
-          + (s.tescil.length ? GM.bolum({baslik: 'Coğrafi işaretli lezzetler', html: `<div class="gm-yigin-12">${GM.p(`TÜRKPATENT sicilinde **${s.ad}** adına kayıtlı ${sicil}.`, {ton: 'ikincil'})}${GM.yatay([...yenir, ...alinir].map(t => tescilKart(t, s)))}</div>`}) : '')
-          + (M.length ? GM.bolum({baslik: 'Mekânlar', eylem: {metin: `Tümü (${GM.sayi(M.length)})`, git: `#/mekanlar?il=${s.slug}`}, html: GM.mekanSatirlar(mekanlar.map(m => GM.mekanKart(m, {tur: 'satir', kayitli: ks.has(m.slug)})))}) : '')
-          + (ilce.length > 1 ? GM.bolum({baslik: 'İlçe dağılımı', html: GM.satirlar(ilce.slice(0, 6).map(([a, n]) => ({ikon: 'pin', baslik: a, deger: `${n} mekân`, git: ilceDeger(a) ? `#/mekanlar?il=${s.slug}&ilce=${encodeURIComponent(ilceDeger(a))}` : `#/mekanlar?il=${s.slug}`})))}) : '')
-          + (mutfak.length > 1 ? GM.bolum({baslik: 'Öne çıkan mutfaklar', html: GM.cipler({ad: 'mutfak', etiket: 'Mutfaklar', ogeler: mutfak.slice(0, 8).map(([a, n]) => ({metin: a, sayi: n, git: mutfakDeger(a) ? `#/mekanlar?il=${s.slug}&mutfak=${mutfakDeger(a)}` : `#/mekanlar?il=${s.slug}`}))})}) : '')
-          + GM.bolum({baslik: 'Bu şehirden geçen rotalar', html: rotalar.length ? `<div class="gm-yigin-12">${rotalar.map(x => GM.rotaKart(GM.rotaKartVeri(x), {tur: 'satir'})).join('')}</div>` : GM.eylemKart({ikon: 'rota', baslik: `${s.ad} için rota kur`, alt: 'Dada Route ile yol üstü durakları gör', git: '#/rota/planla'})})
-          + (etk.length ? GM.bolum({baslik: 'Şehirdeki etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: `<div class="gm-yigin-12">${etk.map(e => GM.etkinlikKart(e, {tur: 'satir'})).join('')}</div>`}) : '')
-          + (yazilar.length ? GM.bolum({baslik: 'Gurme Lezzetler’den', eylem: yazilar.length > 4 ? 'Tümü' : null, git: `#/lezzetler?q=${encodeURIComponent(s.ad)}`, html: `<div class="gm-izgara">${yazilar.slice(0, 4).map(kart).join('')}</div>`}) : '')
-          + kopru()
+        html: GM.bolumler([`<div class="gm-yigin">${editorMetin(s)}${r ? GM.btn({metin: r.cta, ikon: 'mekan', tam: true, git: `#/mekanlar?il=${s.slug}`}) : ''}</div>`
+          , (s.tescil.length ? ({baslik: 'Coğrafi işaretli lezzetler', html: `<div class="gm-yigin-12">${GM.p(`TÜRKPATENT sicilinde **${s.ad}** adına kayıtlı ${sicil}.`, {ton: 'ikincil'})}${GM.yatay([...yenir, ...alinir].map(t => tescilKart(t, s)))}</div>`}) : '')
+          , (M.length ? ({baslik: 'Mekânlar', eylem: {metin: `Tümü (${GM.sayi(M.length)})`, git: `#/mekanlar?il=${s.slug}`}, html: GM.mekanSatirlar(mekanlar.map(m => GM.mekanKart(m, {tur: 'satir', kayitli: ks.has(m.slug)})))}) : '')
+          , (ilce.length > 1 ? ({baslik: 'İlçe dağılımı', html: GM.satirlar(ilce.slice(0, 6).map(([a, n]) => ({ikon: 'pin', baslik: a, deger: `${n} mekân`, git: ilceDeger(a) ? `#/mekanlar?il=${s.slug}&ilce=${encodeURIComponent(ilceDeger(a))}` : `#/mekanlar?il=${s.slug}`})))}) : '')
+          , (mutfak.length > 1 ? ({baslik: 'Öne çıkan mutfaklar', html: GM.cipler({ad: 'mutfak', etiket: 'Mutfaklar', ogeler: mutfak.slice(0, 8).map(([a, n]) => ({metin: a, sayi: n, git: mutfakDeger(a) ? `#/mekanlar?il=${s.slug}&mutfak=${mutfakDeger(a)}` : `#/mekanlar?il=${s.slug}`}))})}) : '')
+          , ({baslik: 'Bu şehirden geçen rotalar', html: rotalar.length ? `<div class="gm-yigin-12">${rotalar.map(x => GM.rotaKart(GM.rotaKartVeri(x), {tur: 'satir'})).join('')}</div>` : GM.eylemKart({ikon: 'rota', baslik: `${s.ad} için rota kur`, alt: 'Dada Route ile yol üstü durakları gör', git: '#/rota/planla'})})
+          , (etk.length ? ({baslik: 'Şehirdeki etkinlikler', eylem: 'Tümü', git: '#/etkinlikler', html: `<div class="gm-yigin-12">${etk.map(e => GM.etkinlikKart(e, {tur: 'satir'})).join('')}</div>`}) : '')
+          , (yazilar.length ? ({baslik: 'Gurme Lezzetler’den', eylem: yazilar.length > 4 ? 'Tümü' : null, git: `#/lezzetler?q=${encodeURIComponent(s.ad)}`, html: `<div class="gm-izgara">${yazilar.slice(0, 4).map(kart).join('')}</div>`}) : '')
+          , kopru()])
       });
     },
     altBar: ctx => {

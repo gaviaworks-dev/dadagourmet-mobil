@@ -370,3 +370,7 @@
 /* Denetim tur 1 #3: ana şerit kartlarında tek satır başlık iki satırlık yer tutmasın (kanon .gm-card__text min-height ve .gm-puf-metin b 2lh). */
 .gm-serit.gm-ka-iki .gm-ek .gm-card__text{min-height:0;align-content:start}
 .gm-ka-puf:not(.is-iki-satir) .gm-puf-metin b{min-height:0}
+/* Görev 14/1 (Beyar): hero popüler çipleri ve sayı şeridi her fotoğrafta okunur — Gastro/Diet hero kalıbı: yarı saydam koyu zemin + beyaz metin + bulanıklık. */
+.gm-ka-hero .gm-populer>small{color:var(--gm-paper);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+.gm-ka-hero .gm-populer-cip{border-color:color-mix(in srgb,var(--gm-paper) 34%,transparent);background:color-mix(in srgb,var(--gm-overlay) 56%,transparent);color:var(--gm-paper);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.gm-ka-hero .gm-stats{width:auto;padding:var(--gm-s-8) var(--gm-s-12);border-radius:var(--gm-r-control);background:color-mix(in srgb,var(--gm-overlay) 56%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}

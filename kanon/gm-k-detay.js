@@ -411,6 +411,8 @@
   // Detay kuyruğu (GM.detay o.kuyruk ile aynı kap): sekmesiz ekranlarda sekmelerin altına.
   GM.detayKuyruk = html => `<div class="gm-detay-icerik"><div class="gm-kuyruk">${html}</div></div>`;
   // Görüntülenme sayacı (Gastro yazar satırı sağındaki göz; GM.mekanKimlik ile aynı biçim). Sayı yoksa çizilmez.
+  // Bilgi kartı şeridi (Görev 14/5, Beyar: "Mekân Deneyimi" slider): Gastro/Diet kart şeridi kalıbı — ikon kutusu + başlık + tek satır açıklama; sağda sonraki kart görünür. l: [{ikon, baslik, metin}]
+  GM.bilgiKartSerit = (l = [], o = {}) => `<div class="${liste('gm-serit gm-bks', o.sinif)}" role="list" aria-label="${esc(o.etiket || 'Bilgi kartları')}">${l.map(x => `<article class="gm-bks-kart" role="listitem">${GM.ikonKutu({ikon: x.ikon, boyut: 'md'})}<b>${esc(x.baslik)}</b>${x.metin ? `<small>${esc(x.metin)}</small>` : ''}</article>`).join('')}</div>`;
   GM.gozSayi = n => (n ? `<span class="gm-mkim-goz" aria-label="${esc(n)} görüntülenme">${ik('eye')}${esc(GM.sayi(n))}</span>` : '');
   // Alıntı bloğu (Michelin editoryal tipografisi; GM.metinBlok ailesi): featured boyda alıntı, altında kaynak satırı.
   GM.alinti = (o = {}) => `<figure class="gm-alinti"><blockquote>${vurgu(o.metin || '')}</blockquote>${o.kaynak ? `<figcaption>${ik(o.ikon || 'pen-nib')}<span>${esc(o.kaynak)}</span></figcaption>` : ''}</figure>`;

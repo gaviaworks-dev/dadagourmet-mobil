@@ -101,7 +101,7 @@
     const sehir = (X().sehirler?.() || []).find(x => x.editor), oku = X().lezzetOku || {};
     const yazilar = (GMV.lezzetler || []).filter(l => l.gorsel).sort((a, b) => (oku[a.slug] ?? 9999) - (oku[b.slug] ?? 9999)).slice(0, 6);
     return `${sonBolum()}${GM.bolum({baslik: 'Popüler aramalar', html: populerCipler()})}${GM.bolum({baslik: 'Keşfet', html: GM.modulIzgara(KESIF.map(x => GM.modulKart(x)))})}`
-      + (yazilar.length ? GM.bolum({baslik: 'En çok okunan yazılar', eylem: 'Tümü', git: '#/lezzetler?siralama=populer', html: GM.yatay(yazilar.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: (X().lezzetKategori || []).find(k => k.ad === l.kategori)?.kisa || l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`, sinif: 'gm-ka-puf'})))}) : '')
+      + (yazilar.length ? GM.bolum({baslik: 'En çok okunan yazılar', eylem: 'Tümü', git: '#/lezzetler?siralama=populer', html: GM.yatay(yazilar.map(l => GM.icerikKart({gorsel: l.gorsel, kategori: (X().lezzetKategori || []).find(k => k.ad === l.kategori)?.kisa || l.kategori, baslik: l.ad, meta: l.sure, git: `#/lezzet/${l.slug}`, sinif: 'gm-ka-puf is-iki-satir'})))}) : '')
       + (sehir ? GM.bolum({baslik: 'Şehir rehberi', eylem: 'Tümü', git: '#/rehberler', html: GM.seckiKapak({gorsel: sehir.gorsel, rozet: {ikon: 'rehber', metin: 'Editör rehberi'}, baslik: sehir.ad, alt: `<b>${GM.sayi(sehir.mekan)}</b> mekân · <b>${sehir.ilce}</b> ilçe · <b>${sehir.tescil.length}</b> coğrafi işaret`, git: `#/rehber/${sehir.slug}`})}) : '')
 ;
   };

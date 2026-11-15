@@ -60,7 +60,7 @@
   // ---------- Kartlar ----------
   const meta = e => `${aralik(e)} · ${e.yer}`;
   const satirKart = e => GM.etkinlikKart({...e, il: e.il === e.yer ? null : e.il, tur: gecmis(e) ? `${e.tur} · Sona erdi` : e.tur}, {tur: 'satir'});
-  const izgaraKart = e => GM.icerikKart({gorsel: e.gorsel, ikon: 'etkinlik', kategori: gecmis(e) ? 'Sona erdi' : e.tur, baslik: e.ad, meta: meta(e), metaIkon: 'takvim', git: `#/etkinlik/${e.slug}`, sinif: 'gm-ka-puf'});
+  const izgaraKart = e => GM.icerikKart({gorsel: e.gorsel, ikon: 'etkinlik', kategori: gecmis(e) ? 'Sona erdi' : e.tur, baslik: e.ad, meta: meta(e), metaIkon: 'takvim', git: `#/etkinlik/${e.slug}`});
   const satirlar = l => `<div class="gm-satirlar gm-ka-satirlar">${l.map(satirKart).join('')}</div>`;
 
   // ================= Liste (#/etkinlikler) =================
@@ -209,7 +209,7 @@
         gorsel: 'assets/gorsel/etkinlik/alba-beyaz-truf-fuari-2026.webp', etiket: 'Lezzet Takvimi', baslik: 'Etkinlikler',
         stat: heroStat(),
         arac: GM.listeArac({yer: 'Etkinlik, şehir veya mekân ara', ad: 'q', deger: s.q, filtreSayi: secimSayi(s) - (s.kat ? 1 : 0), segment: bolgeSeg(s), serit: katSerit(s)}),
-        html: `${GM.eylemKart({ikon: 'calendar-plus', baslik: 'Etkinlik öner', alt: 'Editör onayıyla takvime eklenir', git: '#/etkinlik-oner'})}<div class="gm-yigin" data-etk-icerik>${icerik(s)}</div>`
+        html: `<div class="gm-yigin">${GM.eylemKart({ikon: 'calendar-plus', baslik: 'Etkinlik öner', alt: 'Editör onayıyla takvime eklenir', git: '#/etkinlik-oner'})}<div class="gm-yigin" data-etk-icerik>${icerik(s)}</div></div>`
       });
     },
     sonra: kok => {
@@ -279,21 +279,22 @@
   const KUNYE_IKON = {Ad: 'tag', 'Kimler katılabilir': 'kisi', 'Tür': 'festival', Tarih: 'takvim', Yer: 'pin', 'Ücret': 'fiyat', 'Yaş Sınırı': 'user-check', Kontenjan: 'users', 'Organizatör': 'building'};
   const ilkCumle = s => { if (s.includes('**')) return s; const i = s.search(/[;:]|[,.](?=\s|$)/), bas = i > 0 ? s.slice(0, i) : s; return bas.split(' ').length > 9 ? s : `**${bas}**${s.slice(bas.length)}`; };
   const hakkinda = (e, d) => { const l = d?.h?.length ? d.h : [e.ozet]; return GM.makale(l.map(p => GM.p(ilkCumle(p))).join('')); };
-  const bolumBas = (baslik, metin) => GM.metinBlok({baslik, metin, rol: 'section', h: 3});
+  // Bölüm başlığı altı tek satır açıklama (REVIZE-14: gm-t-meta).
+  const altMetin = m => `<p class="gm-t-meta gm-ton-ikincil gm-kirp-1">${GM.esc(m)}</p>`;
   const program = (e, d) => {
-    if (d?.pr?.s?.length) return `<section class="gm-yigin-12">${bolumBas('Program & Katılım', d.pr.n ? null : 'Organizatörün duyurduğu akış')}${GM.satirlar(d.pr.s.map(([saat, m]) => { const [, gun, ad] = m.match(/^(\d{1,2} \S+) – (.+)$/) || [, null, m]; return {ikon: 'saat', baslik: ad, alt: gun, deger: saat}; }))}${d.pr.n ? GM.p(ilkCumle(d.pr.n), {meta: true, ton: 'ikincil'}) : ''}</section>`;
+    if (d?.pr?.s?.length) return `<div class="gm-yigin-12">${d.pr.n ? '' : altMetin('Organizatörün duyurduğu akış')}${GM.satirlar(d.pr.s.map(([saat, m]) => { const [, gun, ad] = m.match(/^(\d{1,2} \S+) – (.+)$/) || [, null, m]; return {ikon: 'saat', baslik: ad, alt: gun, deger: saat}; }))}${d.pr.n ? GM.p(ilkCumle(d.pr.n), {meta: true, ton: 'ikincil'}) : ''}</div>`;
     const dogru = (d?.pd || '').split(' · ')[0] || `${e.tarih.slice(0, 4)} takvim bilgisi doğrulandı`;
-    return `<section class="gm-yigin-12">${bolumBas('Program & Katılım')}${GM.p('Detaylı program, saat ve katılım koşulları organizatör tarafından duyurulduğunda **burada yer alacak**. Güncel bilgi için organizatörün resmî duyurularını takip edebilirsin.')}<div class="gm-sira gm-tek-satir">${GM.durumRozet({metin: dogru, ton: 'basari', ikon: 'basari'})}${GM.durumRozet({metin: 'Detaylı program henüz açıklanmadı', ton: 'notr', ikon: 'saat'})}</div></section>`;
+    return `<div class="gm-yigin-12">${GM.p('Detaylı program, saat ve katılım koşulları organizatör tarafından duyurulduğunda **burada yer alacak**. Güncel bilgi için organizatörün resmî duyurularını takip edebilirsin.')}<div class="gm-sira gm-tek-satir">${GM.durumRozet({metin: dogru, ton: 'basari', ikon: 'basari'})}${GM.durumRozet({metin: 'Detaylı program henüz açıklanmadı', ton: 'notr', ikon: 'saat'})}</div></div>`;
   };
     const bakista = (e, d) => {
     const ya = d?.ya || {}, kim = (ek(e).kim || []).map(([, a]) => a).join(', '), l = [['Ad', kisaAd(e) !== e.ad ? e.ad : null], ['Tür', ya['Tür'] || e.tur], ['Kimler katılabilir', kim], ['Tarih', aralik(e, {uzun: true, yil: true})], ['Yer', ya.Yer || ek(e).y || yerMetin(e)], ['Ücret', ya['Ücret'] || ek(e).c], ['Yaş Sınırı', ya['Yaş Sınırı']], ['Kontenjan', ya.Kontenjan], ['Organizatör', ya['Organizatör']]].filter(([, v]) => v);
-    return `<section class="gm-yigin-12">${bolumBas('Bir bakışta')}${GM.kunye(l.map(([etiket, deger]) => ({ikon: KUNYE_IKON[etiket] || 'bilgi', etiket, deger})))}${d?.kd ? GM.satirlar([{ikon: 'dogrulandi', baslik: 'Resmî kaynak', alt: `Son doğrulama ${GM.tarihKisa(d.kd.t)} ${d.kd.t.slice(0, 4)}`, veri: {eylem: 'etk-kaynak'}}]) : ''}</section>`;
+    return `<div class="gm-yigin-12">${GM.kunye(l.map(([etiket, deger]) => ({ikon: KUNYE_IKON[etiket] || 'bilgi', etiket, deger})))}${d?.kd ? GM.satirlar([{ikon: 'dogrulandi', baslik: 'Resmî kaynak', alt: `Son doğrulama ${GM.tarihKisa(d.kd.t)} ${d.kd.t.slice(0, 4)}`, veri: {eylem: 'etk-kaynak'}}]) : ''}${kunyeSatir(d)}</div>`;
   };
-  const konum = e => (e.lng == null ? '' : `<section class="gm-yigin-12">${bolumBas('Konum', ek(e).y || yerMetin(e))}${GM.harita({ad: 'etk-konum', zoom: 11, merkez: [e.lng, e.lat], pinler: [{id: e.slug, lng: e.lng, lat: e.lat, ad: e.yer, ikon: 'etkinlik', secili: true}], etiket: `${e.ad} konumu`})}${ek(e).a ? GM.p('İşaret **şehir merkezine** yerleştirilmiş yaklaşık konumdur, etkinliğin tam adresi değildir.', {meta: true, ton: 'ikincil'}) : ''}</section>`);
+  const konum = e => (e.lng == null ? '' : `<div class="gm-yigin-12">${altMetin(ek(e).y || yerMetin(e))}${GM.harita({ad: 'etk-konum', zoom: 11, merkez: [e.lng, e.lat], pinler: [{id: e.slug, lng: e.lng, lat: e.lat, ad: e.yer, ikon: 'etkinlik', secili: true}], etiket: `${e.ad} konumu`})}${ek(e).a ? GM.p('İşaret **şehir merkezine** yerleştirilmiş yaklaşık konumdur, etkinliğin tam adresi değildir.', {meta: true, ton: 'ikincil'}) : ''}</div>`);
   const kopru = e => GM.teaser({ikon: 'rota', baslik: 'Etkinlik yolculuğunu lezzet rotasına çevir', metin: 'Gittiğin şehirde Dada Gourmet rehberindeki **mekânları keşfet**; istersen Gurme Lezzetler’de bölgenin öne çıkanlarına göz at.', cipler: [{metin: 'Mekânları keşfet', ikon: 'mekan', git: e.yerel ? `#/mekanlar?il=${GM.katla(e.yer).replace(/\s+/g, '-')}` : '#/mekanlar'}, {metin: 'Gurme Lezzetler', ikon: 'lezzet', git: '#/lezzetler'}], btn: {metin: 'Rotanı planla', ikon: 'rota', tur: 'secondary', git: '#/rota/planla'}});
   // Takvimdeki diğer etkinlikler: aynı bölgede bu etkinlikten sonra başlayan ilk üç yaklaşan (yoksa en yakın yaklaşanlar).
   const digerleri = e => { const y = tum().filter(x => x.slug !== e.slug && !gecmis(x) && !!x.yerel === !!e.yerel).sort((a, b) => a.tarih.localeCompare(b.tarih)); const sonra = y.filter(x => x.tarih >= e.tarih); return (sonra.length >= 3 ? sonra : y).slice(0, 3); };
-  const digerBolum = e => { const l = digerleri(e); return l.length ? `<section class="gm-yigin-8">${GM.bas('Takvimdeki diğer etkinlikler', {metin: 'Tüm takvim', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`})}${satirlar(l)}</section>` : ''; };
+  const digerBolum = e => { const l = digerleri(e); return l.length ? {baslik: 'Takvimdeki diğer etkinlikler', eylem: {metin: 'Tüm takvim', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`}, html: satirlar(l)} : null; };
   const kunyeSatir = d => (d?.ks?.y ? GM.satirlar([{ikon: 'image', baslik: `Kapak görseli: ${d.ks.y}`, alt: [d.ks.l, 'Wikimedia Commons'].filter(Boolean).join(' · '), veri: {eylem: 'etk-kunye'}}]) : '');
   const bulunamadi = () => GM.hataEkran({tur: 'bulunamadi', baslik: 'Etkinlik bulunamadı', metin: 'Bu etkinlik takvimden kalkmış ya da bağlantı eskimiş olabilir. **Lezzet Takvimi**’nden devam et.', eylem: {metin: 'Etkinliklere dön', ikon: 'etkinlik', yerine: '#/etkinlikler'}});
   const dVeri = ctx => (ctx.sorgu.hal === 'bulunamadi' ? null : bul(ctx.param.slug));
@@ -357,15 +358,23 @@
         // Başlık bloğu ≤3 satır: ad 1 satıra sığıyorsa üst yazı (tür · kategori) kalır; 2 satırsa tür meta satırına iner (tek satır: tür · tarih · şehir).
         gorsel: e.gorsel, baslik: kisaAd(e),
         ...(kisaAd(e).length <= 18 ? {etiket: [e.tur, kat !== e.tur ? kat : null].filter(Boolean).join(' · '), caps: [{ikon: 'takvim', metin: aralik(e)}, {ikon: 'pin', metin: yerMetin(e)}]} : {caps: [{ikon: 'festival', metin: e.tur}, {ikon: 'takvim', metin: aralik(e)}, {ikon: 'pin', metin: e.yer}]}),
-        bas: GM.ozetSerit([
+        // Baş: özet şeridi + uyarı + editör satırı + bilet tek yığında (REVIZE-14/12: bilet üstteki öğeye yapışmaz).
+        bas: `<div class="gm-yigin" data-etk-bas>${GM.ozetSerit([
           {ikon: 'saat', etiket: bitti ? 'Durum' : suruyor(e) ? 'Durum' : 'Kalan', deger: kalanMetin(e)},
           {ikon: 'takvim', etiket: 'Süre', deger: String(sure(e)), birim: 'gün'},
           {ikon: 'fiyat', etiket: 'Ücret', deger: ucretKisa(e)}
         ]) + (bitti ? GM.ipucu({ton: 'uyari', ikon: 'saat', baslik: 'Bu etkinlik sona erdi', metin: `${aralik(e, {uzun: true, yil: true})} tarihlerinde yapıldı. **Yaklaşan etkinliklere** göz atabilirsin.`, eylem: {metin: 'Takvim', ikon: 'etkinlik', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`}}) : '')
           + (d?.g ? GM.kisiSatir({ad: 'Dada Gourmet', boyut: 40, baslik: 'Lezzet Takvimi', alt: d.kd ? `Takvim bilgisi doğrulandı · ${GM.tarihKisa(d.kd.t)} ${d.kd.t.slice(0, 4)}` : 'Dada Gourmet editörü', sag: GM.gozSayi(d.g)}) : '')
-          + (x.b && !bitti ? GM.btn({metin: 'Bilet / Rezervasyon', ikon: 'ticket', tur: 'secondary', tam: true, veri: {eylem: 'etk-bilet'}}) : ''),
-        govde: `<div class="gm-yigin-24"><section class="gm-yigin-12">${bolumBas('Etkinlik hakkında')}${hakkinda(e, d)}</section>${program(e, d)}${bakista(e, d)}${konum(e)}${kunyeSatir(d)}</div>`,
-        kuyruk: `${bitti ? '' : kopru(e)}${digerBolum(e)}`
+          + (x.b && !bitti ? GM.btn({metin: 'Bilet / Rezervasyon', ikon: 'ticket', tur: 'secondary', tam: true, veri: {eylem: 'etk-bilet'}}) : '')}<span aria-hidden="true"></span></div>`,
+        // REVIZE-14 madde 3: detay bölümleri zebra (Diet .dd-icerikler). Panelin içine, iç boşluksuz yuvaya (sekmeler yuvası) girer; tam genişlik.
+        sekmeler: GM.bolumler([
+        {baslik: 'Etkinlik hakkında', html: hakkinda(e, d)},
+        {baslik: 'Program & Katılım', html: program(e, d)},
+        {baslik: 'Bir bakışta', html: bakista(e, d)},
+        e.lng == null ? null : {baslik: 'Konum', html: konum(e)},
+        bitti ? null : kopru(e),
+        digerBolum(e)
+      ])
       });
     },
     altBar: ctx => {

@@ -33,7 +33,8 @@
   const bas = (baslik, metin) => GM.metinBlok({baslik, metin, rol: 'section', h: 3});
   const editor = (v, o = {}) => (v.d.editorNotu ? GM.editorNot({ust: o.ust || 'Dada Gourmet', baslik: o.baslik || 'Editör Notu', etiket: v.d.editorNotu.etiket, metin: v.d.editorNotu.metin}) : '');
   const aciklama = v => GM.aciklama({metin: (v.d.aciklama || [v.m.tanitim]).filter(Boolean).join(' '), satir: 4});
-  const deneyim = v => (v.d.deneyim?.length ? `<section class="gm-yigin-12">${bas('Mekân Deneyimi', 'Gitmeden önce bilmekte fayda var')}${GM.satirlar(v.d.deneyim.map(x => ({ikon: x.ikon, baslik: x.ad, alt: x.deger})))}</section>` : '');
+  // o.serit (Görev 14/5, Detay-A): satırlar yerine yatay kart şeridi.
+  const deneyim = (v, o = {}) => (v.d.deneyim?.length ? `<section class="gm-yigin-12">${bas('Mekân Deneyimi', 'Gitmeden önce bilmekte fayda var')}${o.serit ? GM.bilgiKartSerit(v.d.deneyim.map(x => ({ikon: x.ikon, baslik: x.ad, metin: x.deger})), {etiket: 'Mekân deneyimi'}) : GM.satirlar(v.d.deneyim.map(x => ({ikon: x.ikon, baslik: x.ad, alt: x.deger})))}</section>` : '');
   // o.tekSatir (Detay-A, yığılma kuralı 2): tek vesile çip olarak sağı boş satır bırakmaz; tam genişlik satır olarak durur.
   const uygun = (v, o = {}) => { const l = v.d.vesile || (v.m.vesile || []).map(ad => ({ikon: 'yildiz', ad})); if (!l.length) return ''; if (o.tekSatir && l.length === 1) return `<section class="gm-yigin-12">${bas('Mekân Ne İçin Uygun', 'Bu mekân hangi buluşmaya yakışır')}${GM.satirlar([{ikon: l[0].ikon, baslik: l[0].ad, alt: 'Editörün önerdiği buluşma'}])}</section>`; return `<section>${bas('Mekân Ne İçin Uygun', 'Bu mekân hangi buluşmaya yakışır')}${GM.ozellikSerit({on: l.map(x => ({ikon: x.ikon, metin: x.ad})), etiket: false})}</section>`; };
   const ozellikler = v => (v.ozellik.length || v.m.nitelik?.length ? `<section>${bas('Mekân Özellikleri', 'Bu mekânda neler var')}${GM.ozellikSerit({on: (v.m.nitelik || []).map(x => ({ikon: x.ikon, metin: x.ad})), ogeler: v.ozellik.map(x => ({ikon: 'onay', metin: x})), etiket: v.m.nitelik?.length ? 'Hizmetler' : false})}</section>` : '');
@@ -45,7 +46,15 @@
   const ilLezzet = v => (v.il?.tescilli?.length ? `<section class="gm-yigin-12">${bas(`${v.m.il} lezzetleri`, 'Coğrafi işaretli ürünler · Dada Route il kartı')}${GM.ilKart({...v.il, bolge: 'Coğrafi işaret'})}</section>` : '');
   const yorum = v => `${GM.yorumBolumu({yorumlar: [], bos: 'Bu mekân için henüz onaylanmış bir yorum yok. İlk değerlendiren sen ol.'})}<div class="gm-ikili">${GM.btn({metin: 'Değerlendir', ikon: 'yildiz', tur: 'secondary', veri: {eylem: 'mk-degerlendir'}})}${GM.btn({metin: 'Fotoğraf ekle', ikon: 'kamera', tur: 'secondary', veri: {eylem: 'mk-foto'}})}</div>${GM.p('Fotoğraflı değerlendirme **+15 Dada Puan** kazandırır; yorumlar denetim sonrası yayınlanır.', {meta: true, ton: 'ikincil'})}`;
   const etkinlik = v => `${GM.veriYok('Bu mekâna bağlı **etkinlik** henüz yok.')}${v.etk.length ? `<section class="gm-yigin-12">${bas('Yakındaki etkinlikler', 'Mekâna en yakın yaklaşan etkinlikler')}<div class="gm-satirlar">${v.etk.map(x => GM.etkinlikKart(x.e, {tur: 'satir'})).join('')}</div></section>` : ''}`;
-  const kuyruk = (v, o = {}) => [
+  // o.zebra (Görev 14/3, Detay-A): kuyruk GM.bolumler zebrasında; tazelik satırı ve gizli reklam işareti son bölümün içine girer (ayrı boş bölüm olmasın).
+  const kuyrukZebra = (v, o = {}) => {
+    const son = [GM.tazelik(v.d.dogrulama, {hata: true}), o.reklamGizli ? GM.reklamIsaret('MD-END') : ''].join('');
+    const l = [o.rota === false ? null : GM.teaser({ikon: 'rota', baslik: 'Bu mekân yol üstünde mi?', metin: 'Nereden nereye gittiğini yaz; güzergâhın boyunca **uğrayabileceğin mekânları** haritada gör.', btn: {metin: 'Güzergâhını planla', ikon: 'rota', tur: 'secondary', git: `#/rota/planla?durak=${v.m.slug}`}}),
+      v.benzer.length ? {baslik: 'Benzer mekânlar', eylem: 'Tümü', git: '#/mekanlar', html: GM.yatay(v.benzer.map(x => GM.mekanKart(x, {kayitli: GM.mekanKayit.var('favori', x.slug)})))} : null].filter(Boolean);
+    const x = l.at(-1); if (typeof x === 'string') l[l.length - 1] = x + son; else if (x) x.html += son; else l.push(son);
+    return GM.bolumler(l);
+  };
+  const kuyruk = (v, o = {}) => o.zebra ? kuyrukZebra(v, o) : [
     o.rota === false ? '' : GM.teaser({ikon: 'rota', baslik: 'Bu mekân yol üstünde mi?', metin: 'Nereden nereye gittiğini yaz; güzergâhın boyunca **uğrayabileceğin mekânları** haritada gör.', btn: {metin: 'Güzergâhını planla', ikon: 'rota', tur: 'secondary', git: `#/rota/planla?durak=${v.m.slug}`}}),
     o.reklam === false ? '' : o.reklamGizli ? GM.reklamIsaret('MD-END') : GM.reklamYeri({kod: 'MD-END'}),
     v.benzer.length ? `<section>${GM.bas('Benzer mekânlar', {metin: 'Tümü', git: '#/mekanlar'})}${GM.yatay(v.benzer.map(x => GM.mekanKart(x, {kayitli: GM.mekanKayit.var('favori', x.slug)})))}</section>` : '',
@@ -56,7 +65,7 @@
   const bilgiSatir = v => `<section class="gm-yigin-12">${bas('Bilmen gerekenler', 'Gitmeden önce üç kısa not')}${GM.satirlar([v.m.rezervasyon ? {ikon: 'rezervasyon', baslik: 'Rezervasyon koşulları', alt: 'Talep · onayla kesinleşir', veri: {eylem: 'mk-bilgi', id: 'rez'}} : null, {ikon: 'gizlilik', baslik: 'Alerjen ve beslenme', alt: v.d.alerjen ? 'Mekân bilgi paylaştı' : 'Henüz paylaşılmadı, sormayı unutma', veri: {eylem: 'mk-bilgi', id: 'alerjen'}}, {ikon: 'saat', baslik: 'Çalışma saatleri', alt: v.acik.metin || 'Henüz girilmedi', veri: {eylem: 'mk-bilgi', id: 'saat'}}].filter(Boolean))}</section>`;
   // Roadtrippers "along the route": bu mekândan sonra gelen rota durakları (gerçek rota verisi, sapma ve km ile).
   const sonrakiDuraklar = v => { if (!v.rota) return ''; const l = GM.rotaDuraklari(v.rota.R).filter(x => x.km > v.rota.d.km && x.mekan.kapak).sort((a, b) => a.km - b.km).slice(0, 3); return l.length ? `<section class="gm-yigin-12">${bas(`${v.rota.R.ad} · sonraki duraklar`, 'Bu duraktan sonra güzergâhta seni bekleyenler')}<div class="gm-yigin-8">${l.map(x => GM.durakKart({...x, mekan: x.mekan}, {eylem: false, sapma: {dk: x.sapma, km: x.km}})).join('')}</div></section>` : ''; };
-  const genel = (v, o = {}) => [o.fotolar ? fotolar(v) : '', o.aciklama === false ? '' : aciklama(v), o.editor === false ? '' : editor(v), deneyim(v), uygun(v, o), ozellikler(v), o.bilgi ? bilgiSatir(v) : '', o.adres ? adres(v) : '', rotaKart(v), o.il ? ilLezzet(v) : ''].filter(Boolean).join('');
+  const genel = (v, o = {}) => (o.zebra ? GM.bolumler : l => l.join(''))([o.fotolar ? fotolar(v) : '', o.aciklama === false ? '' : aciklama(v), o.editor === false ? '' : editor(v), deneyim(v, {serit: o.zebra}), uygun(v, o), ozellikler(v), o.bilgi ? bilgiSatir(v) : '', o.adres ? adres(v) : '', rotaKart(v), o.il ? ilLezzet(v) : ''].filter(Boolean));
   const kaydetBtn = v => ({ikon: 'favori', ad: 'Kaydet', basili: v.fav, veri: {eylem: 'mk-kaydet'}});
   const ortak = {
     iskelet: 'detay', ust: '#/mekanlar',
@@ -80,7 +89,7 @@
       const v = aVeri(ctx); if (!v) return bulunamadi();
       const {m, d} = v, s = d.saatler?.[(GM.simdi().getDay() + 6) % 7 + 1];
       const sekme = [
-        {ad: 'Genel Bakış', deger: 'genel', html: genel(v, {aciklama: false, fotolar: true, il: true, tekSatir: true})},
+        {ad: 'Genel Bakış', deger: 'genel', html: genel(v, {aciklama: false, fotolar: true, il: true, tekSatir: true, zebra: true})},
         ...(d.neYenir?.length ? [{ad: 'Ne Yenir?', deger: 'ne-yenir', html: lezzet(v, 'yenir')}] : []),
         ...(d.neAlinir?.length ? [{ad: 'Ne Alınır?', deger: 'ne-alinir', html: lezzet(v, 'alinir')}] : []),
         {ad: 'Menü', deger: 'menu', html: menu({...v, d: {...d, tarifler: null}})},
@@ -98,7 +107,7 @@
           bugun
         ]) + aBant(v) + (d.editorNotu || d.goruntulenme ? GM.kisiSatir({ad: 'Dada Gourmet', boyut: 40, baslik: 'Dada Gourmet editörü', alt: d.editorNotu ? `${d.editorNotu.etiket}${d.dogrulama ? ` · ${d.dogrulama.tarih}` : ''}` : 'Mekân bilgisi', sag: GM.gozSayi(d.goruntulenme)}) : '') + GM.ozellikSerit({etiket: 'Özellikler', ogeler: [...(m.nitelik || []).map(x => ({ikon: x.ikon, metin: x.ad})), ...v.ozellik.map(x => ({ikon: 'onay', metin: x}))]}) + aciklama(v),
         sekmeler: GM.detaySekmeler({ad: 'mka', kaydir: true, ogeler: sekme}),
-        kuyruk: kuyruk(v, {rota: !v.kapandi, reklamGizli: true})
+        kuyruk: kuyruk(v, {rota: !v.kapandi, reklamGizli: true, zebra: true})
       });
     },
     // Alt çubuk: Ziyaret Ettim (basılı hâl) · Yorumlar (sayılı, sekmeye atlar) · Haritada göster + tek ana eylem (rezervasyon / yol tarifi / benzerleri).

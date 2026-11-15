@@ -584,3 +584,8 @@ body.gm .gm-puf-foto.is-yok{background-color:var(--gm-puf-ton,var(--gm-primary-t
 .gm-hero{height:calc(min(clamp(var(--gm-size-hero-min),calc(var(--gm-ekran-h) * .72),var(--gm-size-hero-max)),calc(min(100svh,var(--gm-ekran-h)) - var(--gm-s-48) * 3 - var(--gm-s-8))) - var(--gm-scene-collapse,0px))}
 /* Hero'dan sonraki ilk bölüm: üst boşluk yarıya (alt menünün beyaz geçişi başlığı örtmesin; telefonda "Bugünün Rotası" görünür). */
 .gm-hero + .gm-icerikler > section:first-child{padding-top:var(--gm-s-16)}
+
+/* Görev 14/14: menüde öne çıkan eylem kartları (Mekân Öner · İşletmeni Ekle), Diet "Diyetisyen Ol" kalıbı .gm-uzman-ol, yan yana iki kart. */
+.gm-menu-eylemler{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gm-s-8);margin-inline:var(--gm-s-8)}
+.gm-menu-eylemler .gm-uzman-ol{text-decoration:none;color:var(--gm-ink);text-align:center}
+.gm-menu-eylemler .gm-uzman-ol span{font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate)}

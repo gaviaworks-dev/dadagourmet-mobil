@@ -50,19 +50,11 @@
   const bosKucuk = o => GM.bos({ikon: o.ikon, baslik: o.baslik, metin: o.metin, eylem: o.eylem});
   const sayiEk = (n, tekil) => `${GM.sayi(n)} ${tekil}`;
 
-  // ---------- Sonsuz kaydırma (Gastro DG.sonsuz): ilk sayfa çizimde, sonrası GM.sonsuz; sonda "Hepsi bu kadar" ----------
+  // ---------- Sonsuz kaydırma: kanon GM.sonsuzListe (ilk sayfa çizimde, sonrası sayfa sayfa; bitişte GM.listeSon, yükleme göstergesi kalkar) ----------
   const SAYFA = 10;
-  const bitis = (n, birim) => GM.veriYok(`**Hepsi bu kadar** · ${GM.sayi(n)} ${birim}`);
-  const sayfali = (l, fn, birim) => `<div data-sayfa>${GM.satirlar(l.slice(0, SAYFA).map(fn))}</div>${l.length <= SAYFA ? bitis(l.length, birim) : ''}`;
+  const sayfali = (l, fn) => `<div data-sayfa>${GM.satirlar(l.slice(0, SAYFA).map(fn))}</div>`;
   const sonsuzBagla = (kok, l, fn, birim) => {
-    const kap = kok.querySelector('[data-sayfa] > .gm-satirlar');
-    if (!kap || l.length <= SAYFA) return () => {};
-    const io = GM.sonsuz(kap, n => {
-      const p = l.slice((n - 1) * SAYFA, n * SAYFA);
-      if (!p.length) return null;
-      if (n * SAYFA >= l.length) kap.insertAdjacentHTML('afterend', bitis(l.length, birim));
-      return p.map(fn).join('');
-    });
+    const io = GM.sonsuzListe(kok.querySelector('[data-sayfa] > .gm-satirlar'), l, x => fn(x), {sayfa: SAYFA, birim});
     return () => io.disconnect();
   };
 
@@ -406,7 +398,7 @@
       const s = sekmeAl(ctx, FAV_SIRA.map(k => [k]), FAV_SIRA.find(k => say[k]) || 'mekan'), l = FAV[s].liste();
       return GM.gruplar([
         {html: segment('fav-sekme', s, FAV_SIRA.map(k => [k, FAV[k].ad, say[k]]), {kaydir: true})},
-        {html: l.length ? sayfali(l, favSatir(s), FAV[s].birim) : bosKucuk(FAV[s].bos)}
+        {html: l.length ? sayfali(l, favSatir(s)) : bosKucuk(FAV[s].bos)}
       ]);
     },
     sonra: (kok, ctx) => {
@@ -434,7 +426,7 @@
       return GM.gruplar([
         {html: GM.stat([{deger: GM.sayi(l.length), etiket: 'Mekân'}, {deger: GM.sayi(iller.size), etiket: 'Şehir'}, {deger: GM.sayi(l.filter(z => z.gun.startsWith(ay)).length), etiket: 'Bu ay'}])},
         {html: GM.p('**Ziyaret Ettim** puan kazandırmaz; mekânı puanlarsan **+2**, fotoğraf eklersen **+15 Dada Puan**.', {ton: 'ikincil', meta: true})},
-        {html: sayfali(l, ziyaretSatir, 'ziyaret')}
+        {html: sayfali(l, ziyaretSatir)}
       ]);
     },
     sonra: kok => {
