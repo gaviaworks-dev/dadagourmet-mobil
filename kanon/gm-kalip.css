@@ -103,7 +103,7 @@
 .gm-bilgi-baslik{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);font-size:var(--gm-t-body-size);line-height:var(--gm-t-body-line)}
 .gm-bilgi-govde{align-self:start;display:-webkit-box;text-align:justify;text-align-last:left;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
 .gm-kunye{display:grid;margin:0;padding:0;list-style:none}
-.gm-kunye li{display:grid;grid-template-columns:var(--gm-size-icon-md) auto minmax(0,1fr);align-items:center;gap:var(--gm-s-8);min-height:var(--gm-size-touch);color:var(--gm-slate)}
+.gm-kunye li{display:grid;grid-template-columns:var(--gm-size-icon-md) auto minmax(0,1fr);align-items:first baseline;padding-block:var(--gm-s-12);gap:var(--gm-s-8);min-height:var(--gm-size-touch);color:var(--gm-slate)}
 .gm-kunye li+li{border-top:var(--gm-size-border) solid var(--gm-line)}
 .gm-kunye .icon{font-size:var(--gm-size-icon-sm);color:var(--gm-primary-dark)}
 .gm-kunye b{color:var(--gm-ink);text-align:end;overflow-wrap:anywhere}   /* uzun değer satıra sarar, etiketi ezmez */
@@ -146,7 +146,8 @@ body.gm .gm-liste-scope .gm-seg.has-gosterge::before{top:0;bottom:0}
 .gm-ac-k3{display:flex;flex-direction:column;min-height:calc(var(--gm-ekran-h) - var(--gm-altbar-h,0px) - var(--gm-s-16) - env(safe-area-inset-bottom,0px))}
 .gm-ac-k3 .gm-ac-kapak{display:flex;flex:1 0 auto}
 .gm-ac-k3 .gm-ac-kapak .gm-gkapak{flex:1;justify-content:space-between;gap:var(--gm-s-24);min-height:calc(var(--gm-s-48) * 7 + var(--gm-s-24));padding-top:calc(var(--gm-s-20) + var(--gm-guvenli-ust,env(safe-area-inset-top,0px)))}
-.gm-ac-kapak .gm-ac-logo{width:calc(var(--gm-s-48) + var(--gm-s-16));height:auto}
+/* Revize 16 Kas/4: Gourmet beyaz logosu tek satır; Gastro iki satırlı logoyla aynı "dada" boyu için yüksekliğe göre (136×24) */
+.gm-ac-kapak .gm-ac-logo{width:auto;height:var(--gm-s-24)}
 .gm-ac-metin{display:grid;gap:var(--gm-s-12);color:var(--gm-paper)}
 .gm-ac-metin :is(h1,p){color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
 .gm-ac-alt{display:grid;gap:var(--gm-s-16);padding:var(--gm-s-24) var(--gm-gutter) var(--gm-s-8)}
@@ -159,7 +160,7 @@ body.gm .gm-liste-scope .gm-seg.has-gosterge::before{top:0;bottom:0}
 .gm-ac-metin .gm-ac-bas{display:flex;align-items:center;gap:var(--gm-s-12)}
 .gm-ac-mikon{display:inline-grid;place-items:center;width:var(--gm-size-action-icon);height:var(--gm-size-action-icon);flex-shrink:0;border-radius:var(--gm-r-control);background:var(--gm-primary);color:var(--gm-paper)}
 .gm-ac-mikon .icon{font-size:var(--gm-size-icon-md)}
-.gm-ac-kanit{display:flex;align-items:center;gap:var(--gm-icon-text);min-width:0;font-family:var(--gm-font-bold);font-size:var(--gm-t-photo-meta-size);font-weight:var(--gm-t-photo-meta-weight);line-height:var(--gm-t-photo-meta-line);color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
+.gm-ac-kanit{display:flex;align-items:center;gap:var(--gm-icon-text);min-width:0;font-family:var(--gm-font-bold);font-size:var(--gm-t-photo-meta-size);font-weight:var(--gm-t-photo-meta-weight);line-height:var(--gm-t-meta-line);color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
 .gm-ac-kanit .icon{font-size:var(--gm-size-icon-sm);flex-shrink:0}
 .gm-ac-kanit span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .gm-ac-gir{animation:gm-ac-belir var(--gm-m-reveal) var(--gm-ease) both}
@@ -175,3 +176,29 @@ body.gm .gm-liste-scope .gm-seg.has-gosterge::before{top:0;bottom:0}
 .gm-ac-kapak .gm-gkapak{touch-action:pan-y} /* yatay kaydırma modül değiştirir, dikey sayfada kalır */
 /* Açılış kolajı ilk boyama: Gastro body.ac-koyu-govde karşılığı (index.html satır içi betik #/ ve #/splash adresinde ekler). */
 html.gm-ac-koyu,html.gm-ac-koyu body,html.gm-ac-koyu .gm-kok,html.gm-ac-koyu .gm-ekran{background:var(--gm-overlay)}
+/* Tercihler · Profil vitrini (Gastro .ac-t2): üstte fotoğraflı kubbe (seçilen seçeneğin fotoğrafı, cam geri · ilerleme · cam Atla, soru), altta beyaz panel adımlar arasında yatay kayar */
+.gm-ac-t2{display:flex;flex-direction:column;min-height:calc(var(--gm-ekran-h) - var(--gm-altbar-h,0px) - var(--gm-s-16) - env(safe-area-inset-bottom,0px))}
+.gm-ac-t2-ust{position:relative;min-height:0;overflow:hidden;isolation:isolate;background:var(--gm-overlay);color:var(--gm-paper)}
+.gm-ac-foto{position:absolute;inset:0;background-color:var(--gm-overlay);background-size:cover;background-position:center;transform-origin:center 40%;opacity:0;transition:opacity var(--gm-m-reveal) var(--gm-ease)}
+.gm-ac-foto.is-on{opacity:1;animation:gm-ac-yakin-az calc(var(--gm-m-reveal) * 4) var(--gm-ease) both}
+@keyframes gm-ac-yakin-az{from{transform:scale(1.08)}to{transform:scale(1)}}
+.gm-ac-t2-ust .gm-ac-perde{background:var(--gm-veil,none)}
+.gm-ac-ust{position:absolute;inset:0 0 auto;z-index:6;display:flex;align-items:center;gap:var(--gm-header-gap);height:var(--gm-ust-h);padding:var(--gm-guvenli-ust,env(safe-area-inset-top,0px)) var(--gm-gutter) 0}
+.gm-ac-t2-ilerle{flex:1;min-width:0}
+.gm-ac-t2-ilerle .gm-ilerleme{background:color-mix(in srgb,var(--gm-paper) 85%,transparent)}
+.gm-ac-t2-ilerle .gm-ilerleme::-webkit-progress-bar{background:color-mix(in srgb,var(--gm-paper) 85%,transparent)}
+.gm-ac-t2-soru{position:relative;z-index:4;display:grid;gap:var(--gm-s-4);padding:calc(var(--gm-ust-h) + var(--gm-s-32)) var(--gm-gutter) 0}
+.gm-ac-t2-soru :is(.gm-t-label,h1){color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
+.gm-ac-t2-soru .gm-ac-kanit{padding-top:var(--gm-s-4)}
+.gm-ac-t2-panel{flex:1;display:flex;flex-direction:column;padding-bottom:var(--gm-s-24)}
+.gm-ac-t2-sahne{position:relative;flex:1;display:flex;flex-direction:column;overflow-x:clip}
+.gm-ac-t2-sayfa{flex:1;display:flex;flex-direction:column;gap:var(--gm-s-32);padding:0 var(--gm-gutter)}
+.gm-ac-t2-sayfa.is-cik{position:absolute;inset:0 0 auto;animation:gm-ac-t2-cik var(--gm-m-sheet) var(--gm-ease) both}
+.gm-ac-t2-sayfa.is-cik.is-sag{animation-name:gm-ac-t2-cik-sag}
+.gm-ac-t2-sayfa.is-gir{animation:gm-ac-t2-gir var(--gm-m-sheet) var(--gm-ease) both}
+.gm-ac-t2-sayfa.is-gir.is-sol{animation-name:gm-ac-t2-gir-sol}
+@keyframes gm-ac-t2-gir{from{transform:translateX(100%)}to{transform:none}}
+@keyframes gm-ac-t2-gir-sol{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes gm-ac-t2-cik{from{transform:none}to{transform:translateX(-100%)}}
+@keyframes gm-ac-t2-cik-sag{from{transform:none}to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.gm-ac-t2 *{animation:none!important;transition:none!important}}

@@ -20,8 +20,8 @@
   const ORTAM = [['butik-restoran', 'gem', 'Butik'], ['tarihi', 'landmark', 'Tarihi'], ['modern', 'cube', 'Modern'], ['geleneksel', 'scroll', 'Geleneksel'], ['minimalist', 'feather', 'Minimalist'], ['luks', 'champagne-glasses', 'Lüks'], ['doga-icinde', 'leaf', 'Doğa İçinde'], ['bahceli-restoran', 'tree', 'Bahçeli'], ['terasli', 'sun', 'Teraslı'], ['manzarali', 'binoculars', 'Manzaralı'], ['deniz-kenari', 'anchor', 'Deniz Kenarı'], ['gol-kenari', 'water', 'Göl Kenarı'], ['dag-yayla', 'mountain', 'Dağ / Yayla'], ['ciftlikten-sofraya-restoran', 'tractor', 'Çiftlik / Köy'], ['tas-konak', 'archway', 'Taş Konak'], ['endustriyel', 'industry', 'Endüstriyel'], ['sanat-ve-kultur', 'palette', 'Sanat ve Kültür'], ['yoresel-lezzet-noktasi', 'store', 'Yerel Lezzet Noktası'], ['sef-restorani', 'star', 'Şef Restoranı']].map(([k, i, ad]) => ({k, ikon: i, ad, alan: 'konsept', kod: [k]}));
   const SEKME = [
     ['ogun', 'mug-saucer', 'Öğün', 'Öğün ve Lezzet', [['kahvalti-serpme', 'egg', 'Kahvaltı / Serpme'], ['kebap-ocakbasi', 'fire', 'Kebap / Ocakbaşı'], ['deniz-urunleri', 'fish', 'Deniz Ürünleri']]],
-    ['turk', 'map-location-dot', 'Yöresel', 'Türk ve Yöresel', [['turk-mutfagi', 'star-and-crescent', 'Türk Mutfağı'], ['anadolu-mutfagi', 'wheat-awn', 'Anadolu Mutfağı'], ['ege-mutfagi', 'leaf', 'Ege Mutfağı'], ['akdeniz-mutfagi', 'lemon', 'Akdeniz Mutfağı'], ['karadeniz-mutfagi', 'fish-fins', 'Karadeniz Mutfağı'], ['guneydogu-mutfagi', 'mug-hot', 'Güneydoğu Mutfağı'], ['dogu-anadolu-mutfagi', 'cheese', 'Doğu Anadolu Mutfağı'], ['ic-anadolu-mutfagi', 'bread-slice', 'İç Anadolu Mutfağı']]],
-    ['dunya', 'earth-americas', 'Dünya', 'Dünya Mutfakları', [['italyan-mutfagi', 'pizza-slice', 'İtalyan Mutfağı'], ['fransiz-mutfagi', 'wine-glass', 'Fransız Mutfağı'], ['japon-mutfagi', 'fish', 'Japon Mutfağı'], ['cin-mutfagi', 'bowl-rice', 'Çin Mutfağı'], ['kore-mutfagi', 'fire-burner', 'Kore Mutfağı'], ['hint-mutfagi', 'mortar-pestle', 'Hint Mutfağı'], ['meksika-mutfagi', 'pepper-hot', 'Meksika Mutfağı']]]
+    ['turk', 'map-location-dot', 'Yöresel', 'Bölge Mutfakları', [['anadolu-mutfagi', 'wheat-awn', 'Anadolu Mutfağı'], ['ege-mutfagi', 'leaf', 'Ege Mutfağı'], ['akdeniz-mutfagi', 'lemon', 'Akdeniz Mutfağı'], ['karadeniz-mutfagi', 'fish-fins', 'Karadeniz Mutfağı'], ['guneydogu-mutfagi', 'mug-hot', 'Güneydoğu Mutfağı'], ['dogu-anadolu-mutfagi', 'cheese', 'Doğu Anadolu Mutfağı'], ['ic-anadolu-mutfagi', 'bread-slice', 'İç Anadolu Mutfağı']]],
+    ['dunya', 'earth-americas', 'Dünya', 'Dünya Mutfakları', [['turk-mutfagi', 'star-and-crescent', 'Türk Mutfağı'], ['italyan-mutfagi', 'pizza-slice', 'İtalyan Mutfağı'], ['fransiz-mutfagi', 'wine-glass', 'Fransız Mutfağı'], ['japon-mutfagi', 'fish', 'Japon Mutfağı'], ['cin-mutfagi', 'bowl-rice', 'Çin Mutfağı'], ['kore-mutfagi', 'fire-burner', 'Kore Mutfağı'], ['hint-mutfagi', 'mortar-pestle', 'Hint Mutfağı'], ['meksika-mutfagi', 'pepper-hot', 'Meksika Mutfağı']]]
   ].map(([k, ikon, kisa, ad, l]) => ({k, ikon, kisa, ad, ogeler: l.map(([d, i, a]) => ({k: d, ikon: i, ad: a, alan: 'mutfak', kod: [d]}))}));
   const MUTFAK = SEKME.flatMap(s => s.ogeler);
   const NITELIK = [
@@ -70,9 +70,11 @@
     if (d.yontem === 'harita') { const y = tarifYer(d.tarif); if (y.length) return m => y.some(([g, v]) => has(m, g, v)); }
     return () => true;
   };
+  // Revize 16 Kas/6: çoklu seçim KESİŞİM (VE) — Lüks + Bahçeli seçilince kriter ikisini birden taşıyan mekânda tutar (önceden biri yetiyordu).
+  // Örnek (203 mekân): Lüks + Bahçeli 14 (birleşimde 110) · Teraslı + Manzaralı 43 (91), İstanbul'da 31 (50) · Türk + Ege mutfağı 8 (127) · Lüks + Göl Kenarı 0 → boş durum.
   const coklu = (l, tur, baslik, ikon) => {
     if (!l.length) return null; const adlar = l.map(x => x.ad);
-    return {tur, ad: adlar.join(', '), cipler: l, agirlik: AGIRLIK[tur], ikon, uy: m => l.some(x => uy(x)(m)), neden: m => l.filter(x => uy(x)(m)).map(x => x.ad).join(', '), eksik: `${baslik}: ${adlar.join(', ')} yok`, yok: `${l.length > 1 ? `Seçtiğin ${baslik.toLocaleLowerCase('tr')} seçeneklerinde` : `${adlar[0]} için`} kayıt henüz yok.`};
+    return {tur, ad: adlar.join(' + '), cipler: l, agirlik: AGIRLIK[tur], ikon, uy: m => l.every(x => uy(x)(m)), neden: () => adlar.join(' + '), eksik: `${baslik}: ${adlar.join(' + ')} birlikte yok`, yok: `${l.length > 1 ? `${adlar.join(' + ')} birlikte` : `${adlar[0]} için`} kayıt henüz yok.`};
   };
   const kriterler = d => {
     const k = [], o = coklu(d.ortam.filter(x => x !== 'fark-etmez').map(x => KUTU[x]).filter(Boolean), 'ortam', 'Ortam', 'layer-group'), mu = coklu(d.mutfak.map(x => KUTU[x]).filter(Boolean), 'mutfak', 'Mutfak', 'utensils');
@@ -101,7 +103,7 @@
 
   // ---------- Sihirbaz çizimi ----------
   // Başlık bloğu kuralı (≤3 satır: adım etiketi · başlık · tek satır açıklama): açıklamalar 390'da tek satır.
-  const ADIM = [['Konum ve bütçe', 'Nerede, ne kadar?', 'İkisi de **fark etmez** olabilir.'], ['Ortam', 'Nasıl bir ortam?', 'Birden çok seçebilirsin; **biri** yeter.'], ['Mutfak', 'Ne yemek istersin?', '**Seçmezsen** mutfak kriter olmaz.'], ['Nitelikler', 'Senin için önemli olan', '**Hiç seçmeden** de devam edebilirsin.']];
+  const ADIM = [['Konum ve bütçe', 'Nerede, ne kadar?', 'İkisi de **fark etmez** olabilir.'], ['Ortam', 'Nasıl bir ortam?', 'Birden çok seçersen **hepsini** taşıyanlar gelir.'], ['Mutfak', 'Ne yemek istersin?', '**Seçmezsen** mutfak kriter olmaz.'], ['Nitelikler', 'Senin için önemli olan', '**Hiç seçmeden** de devam edebilirsin.']];
   const secimler = (ad, l, secili, o = {}) => GM.secimler({ad, coklu: o.coklu !== false, duzen: 'iki', secili, ogeler: l.map(x => ({k: x.k, ikon: x.ikon, ad: x.ad, alt: x.alt ?? sayiMetin(say(x))}))});
   const altBolum = (baslik, html, sag) => `<section class="gm-kl-mb-bolum">${GM.sihirbazAltBas({baslik, sag})}${html}</section>`;
   const altAlan = (ad, d, html) => `<div class="gm-kl-mb-bolum" data-mb-alt="${ad}"${d.yontem === ad ? '' : ' hidden'}>${html}</div>`;
@@ -308,7 +310,8 @@
     [...sec.querySelectorAll('.gm-liste-grid, .gm-liste-rows')].pop().insertAdjacentHTML('beforeend', kart(x, ks, !izgara));
   });
   // Gevşetme önerileri: her kriter (ve konum süzgeci) çıkarılınca kaç mekân %40 üstüne çıkar — gerçekten yeniden hesaplanır, 0 olan gösterilmez.
-  const gevsetler = (s, d) => [...s.k.filter(c => c.sil).map(c => ({ad: c.kisa || c.ad, sil: c.sil})), d.yontem !== 'hepsi' ? {ad: 'Konum süzgeci', sil: x => ({...x, yontem: 'hepsi'})} : null]
+  // Kesişimde (çoklu ortam/mutfak) her seçenek ayrı çıkarılabilir: "Göl Kenarı olmadan" yalnız onu bırakır.
+  const gevsetler = (s, d) => [...s.k.filter(c => c.sil).flatMap(c => (c.cipler?.length > 1 ? c.cipler.map(x => ({ad: x.ad, sil: y => ({...y, [c.tur]: y[c.tur].filter(k => k !== x.k)})})) : [{ad: c.kisa || c.ad, sil: c.sil}])), d.yontem !== 'hepsi' ? {ad: 'Konum süzgeci', sil: x => ({...x, yontem: 'hepsi'})} : null]
     .filter(Boolean).map(g => ({...g, n: sonucSay(sonuc(g.sil(d)))})).filter(g => g.n);
   const bosSonuc = (s, d) => {
     const oneri = (s.veriYok?.oneri || []).map(([a, git, f]) => { const n = butceSay(f); return n ? GM.cip({metin: `${a} · ${GM.sayi(n)} mekân`, ikon: 'fiyat', git}) : ''; }).filter(Boolean);
@@ -330,12 +333,13 @@
   const sonucDurum = ctx => (HAL_SONUC[ctx.sorgu.hal] ? {...BOS(), ...HAL_SONUC[ctx.sorgu.hal]} : sorgulu(ctx.sorgu) ? sorgudan(ctx.sorgu) : oku());
 
   GM.ekran('mekan-bul-sonuc', {
-    tur: 'alt', nav: 'bul', baslik: 'Sonuçlar', ust: '#/mekan-bul', iskelet: 'kart',
+    tur: 'alt', nav: 'bul', baslik: 'Sonuçlar', ust: '#/kesfet', iskelet: 'kart',
     // Eşleşme hesaplanıyor (Diet program-bul kalıbı): kısa iskelet, sonra sonuç.
     yukle: () => new Promise(r => setTimeout(r, BEKLE())),
     cekYenile: () => new Promise(r => setTimeout(r, BEKLE() * 2)),
     // Üst bar: seçim yokken düzenle / yeni arama, sonuç yokken harita gösterilmez (ölü düğme yok).
-    ustBar: ctx => { const d = sonucDurum(ctx), s = d.ortam.length ? sonuc(d) : null, n = s ? sonucSay(s) || ((R.gevsek || ctx.sorgu.hal === 'gevsek') ? s.diger?.length || 0 : 0) : 0; return {sag: [d.ortam.length ? {ikon: 'sliders', etiket: 'Seçimleri düzenle', veri: {eylem: 'mb-duzenle'}} : null, n ? {ikon: 'harita', etiket: 'Haritada gör', veri: {eylem: 'mb-harita'}} : null, d.ortam.length ? {ikon: 'yenile', etiket: 'Yeni arama', veri: {eylem: 'mb-yeni'}} : null].filter(Boolean)}; },
+    ustBar: ctx => { const d = sonucDurum(ctx), s = d.ortam.length ? sonuc(d) : null, n = s ? sonucSay(s) || ((R.gevsek || ctx.sorgu.hal === 'gevsek') ? s.diger?.length || 0 : 0) : 0; // Revize 16 Kas/7: üst bardaki Geri ana sayfaya (Keşfet) döner, sihirbaz adımlarına değil.
+      return {sol: GM.ustBtn({ikon: 'geri', etiket: 'Keşfet’e dön', yerine: '#/kesfet'}), sag: [d.ortam.length ? {ikon: 'sliders', etiket: 'Seçimleri düzenle', veri: {eylem: 'mb-duzenle'}} : null, n ? {ikon: 'harita', etiket: 'Haritada gör', veri: {eylem: 'mb-harita'}} : null, d.ortam.length ? {ikon: 'yenile', etiket: 'Yeni arama', veri: {eylem: 'mb-yeni'}} : null].filter(Boolean)}; },
     bos: {ikon: 'compass', baslik: 'Bu seçimde sonuç yok', metin: 'Seçimlerine uyan mekân bulamadık. **Seçimi değiştir** ya da mekânı bize öner.', eylem: {metin: 'Mekân Bul’a dön', ikon: 'sliders', yerine: '#/mekan-bul?adim=1'}, ikincil: {metin: 'Mekân öner', git: '#/mekan-oner'}},
     ciz: ctx => {
       const d = sonucDurum(ctx);

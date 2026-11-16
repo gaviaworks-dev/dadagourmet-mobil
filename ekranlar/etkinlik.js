@@ -69,6 +69,8 @@
     const on = cevir('etkinlik-kayit', kayit(), el.dataset.id); el.setAttribute('aria-pressed', on); GM.titres(10);
     GM.toast(on ? '**İlgilendiğim** etkinliklere eklendi' : 'Kayıt kaldırıldı', {ikon: 'kaydet'});
   };
+  // Revize 16 Kas/8: kartın herhangi bir yerine (görsel, başlık, meta, boş alan) dokunmak detayı açar; içteki düğme ve bağlantılar kendi işini yapar.
+  const kartTikBagla = kok => { const h = ev => { const k = ev.target.closest('.gm-mk.is-yatay, .gm-ek'); if (!k || !kok.contains(k) || ev.target.closest('button, a, input')) return; const a = k.querySelector('a[data-git]'); if (a) GM.git(a.dataset.git); }; kok.addEventListener('click', h); return () => kok.removeEventListener('click', h); };
   const satirKart = e => GM.mekanKart(kartVeri(e), kartSec(e, 'yatay'));
   // Izgara (REVIZE 23, lead 16 Kas): kanon etkinlik kartı — küçük büyük harfsiz kategori, kalın en çok 2 satır başlık, konum; foto üstünde tarih rozeti + kaydet.
   const izgaraKart = e => GM.etkinlikKart({...e, ad: kisaAd(e), il: e.il === e.yer ? null : e.il, tur: gecmis(e) ? 'Sona erdi' : e.tur}, {kayitli: kayit().includes(e.slug)});
@@ -279,7 +281,7 @@
         })),
         GM.eylem(kok, 'sirala', () => GM.siralaSheet({baslik: 'Sırala', secenekler: SIRALAR, secili: s.sira, sec: v => { s.sira = v; guncelle(); kok.querySelector('.gm-liste-sort-button')?.classList.toggle('is-active', v !== 'onerilen'); }})),
         GM.eylem(kok, 'kaldir', el => { const [g, v] = el.dataset.id.split('|'); if (g === 'kat') s.kat = ''; else s.f[g] = s.f[g].filter(x => x !== v); guncelle(); }),
-        GM.eylem(kok, 'kaydet', kartKaydet),
+        GM.eylem(kok, 'kaydet', kartKaydet), kartTikBagla(kok),
         GM.eylem(kok, 'temizle', () => { s.f = bosF(); s.kat = ''; s.q = ''; girdi.value = ''; girdi.closest('.gm-girdi')?.classList.remove('has-text'); guncelle(); })
       );
       return () => { clearTimeout(bekle); clearTimeout(icCiz.z); io?.disconnect(); girdi.removeEventListener('input', ara); girdi.removeEventListener('keydown', enter); c.forEach(f => f()); };
@@ -305,7 +307,7 @@
   const kopru = e => GM.teaser({ikon: 'rota', baslik: 'Etkinlik yolculuğunu lezzet rotasına çevir', metin: 'Gittiğin şehirde Dada Gourmet rehberindeki **mekânları keşfet**; istersen Gurme Lezzetler’de bölgenin öne çıkanlarına göz at.', cipler: [{metin: 'Mekânları keşfet', ikon: 'mekan', git: e.yerel ? `#/mekanlar?il=${GM.katla(e.yer).replace(/\s+/g, '-')}` : '#/mekanlar'}, {metin: 'Gurme Lezzetler', ikon: 'lezzet', git: '#/lezzetler'}], btn: {metin: 'Rotanı planla', ikon: 'rota', tur: 'secondary', git: '#/rota/planla'}});
   // Takvimdeki diğer etkinlikler: aynı bölgede bu etkinlikten sonra başlayan ilk üç yaklaşan (yoksa en yakın yaklaşanlar).
   const digerleri = e => { const y = tum().filter(x => x.slug !== e.slug && !gecmis(x) && !!x.yerel === !!e.yerel).sort((a, b) => a.tarih.localeCompare(b.tarih)); const sonra = y.filter(x => x.tarih >= e.tarih); return (sonra.length >= 3 ? sonra : y).slice(0, 3); };
-  const digerBolum = e => { const l = digerleri(e); return l.length ? {baslik: 'Takvimdeki diğer etkinlikler', eylem: {metin: 'Tüm takvim', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`}, html: satirlar(l)} : null; };
+  const digerBolum = e => { const l = digerleri(e); return l.length ? `<section class="gm-yigin-8">${GM.bas('Takvimdeki diğer etkinlikler', {metin: 'Tüm takvim', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`})}${satirlar(l)}</section>` : ''; };
   const kunyeSatir = d => (d?.ks?.y ? GM.satirlar([{ikon: 'image', baslik: `Kapak görseli: ${d.ks.y}`, alt: [d.ks.l, 'Wikimedia Commons'].filter(Boolean).join(' · '), veri: {eylem: 'etk-kunye'}}]) : '');
   const bulunamadi = () => GM.hataEkran({tur: 'bulunamadi', baslik: 'Etkinlik bulunamadı', metin: 'Bu etkinlik takvimden kalkmış ya da bağlantı eskimiş olabilir. **Lezzet Takvimi**’nden devam et.', eylem: {metin: 'Etkinliklere dön', ikon: 'etkinlik', yerine: '#/etkinlikler'}});
   const dVeri = ctx => (ctx.sorgu.hal === 'bulunamadi' ? null : bul(ctx.param.slug));
@@ -369,23 +371,23 @@
         // Başlık bloğu ≤3 satır: ad 1 satıra sığıyorsa üst yazı (tür · kategori) kalır; 2 satırsa tür meta satırına iner (tek satır: tür · tarih · şehir).
         gorsel: e.gorsel, baslik: kisaAd(e),
         ...(kisaAd(e).length <= 18 ? {etiket: [e.tur, kat !== e.tur ? kat : null].filter(Boolean).join(' · '), caps: [{ikon: 'takvim', metin: aralik(e)}, {ikon: 'pin', metin: yerMetin(e)}]} : {caps: [{ikon: 'festival', metin: e.tur}, {ikon: 'takvim', metin: aralik(e)}, {ikon: 'pin', metin: e.yer}]}),
-        // Baş: özet şeridi + uyarı + editör satırı + bilet tek yığında (REVIZE-14/12: bilet üstteki öğeye yapışmaz).
+        // Revize 16 Kas/9: üstte kısa, detaylı özet (tarih · durum · ücret şeridi, yer ve kontenjan, doğrulama · görüntülenme tek meta satırı, bilet);
+        // editör satırı kaldırıldı. Saat verisi kaynakta yok (WEB-ENVANTERI §4.1) → yazılmaz. Geri kalan bölümler sekme: Bir bakışta · Hakkında · Program · Konum.
         bas: `<div class="gm-yigin" data-etk-bas>${GM.ozetSerit([
-          {ikon: 'saat', etiket: bitti ? 'Durum' : suruyor(e) ? 'Durum' : 'Kalan', deger: kalanMetin(e)},
-          {ikon: 'takvim', etiket: 'Süre', deger: String(sure(e)), birim: 'gün'},
+          {ikon: 'takvim', etiket: 'Tarih', deger: GM.tarihKisa(e.tarih), alt: e.bit !== e.tarih ? `– ${GM.tarihKisa(e.bit)}` : 'tek gün'},
+          {ikon: 'saat', etiket: 'Durum', deger: kalanMetin(e), alt: `${sure(e)} gün`},
           {ikon: 'fiyat', etiket: 'Ücret', deger: ucretKisa(e)}
-        ]) + (bitti ? GM.ipucu({ton: 'uyari', ikon: 'saat', baslik: 'Bu etkinlik sona erdi', metin: `${aralik(e, {uzun: true, yil: true})} tarihlerinde yapıldı. **Yaklaşan etkinliklere** göz atabilirsin.`, eylem: {metin: 'Takvim', ikon: 'etkinlik', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`}}) : '')
-          + (d?.g ? GM.kisiSatir({ad: 'Dada Gourmet', boyut: 40, baslik: 'Lezzet Takvimi', alt: d.kd ? `Takvim bilgisi doğrulandı · ${GM.tarihKisa(d.kd.t)} ${d.kd.t.slice(0, 4)}` : 'Dada Gourmet editörü', sag: GM.gozSayi(d.g)}) : '')
+        ]) + GM.kunye([['Yer', d?.ya?.Yer || x.y || yerMetin(e)], ['Kontenjan', d?.ya?.Kontenjan]].filter(([, v]) => v).map(([etiket, deger]) => ({ikon: KUNYE_IKON[etiket], etiket, deger})))
+          + (bitti ? GM.ipucu({ton: 'uyari', ikon: 'saat', baslik: 'Bu etkinlik sona erdi', metin: `${aralik(e, {uzun: true, yil: true})} tarihlerinde yapıldı. **Yaklaşan etkinliklere** göz atabilirsin.`, eylem: {metin: 'Takvim', ikon: 'etkinlik', git: `#/etkinlikler?bolge=${e.yerel ? 'yerel' : 'dunya'}`}}) : '')
+          + GM.mekanMetaSatir([d?.kd ? `<span>Takvim bilgisi doğrulandı · ${GM.esc(GM.tarihKisa(d.kd.t))} ${d.kd.t.slice(0, 4)}</span>` : '', GM.gozSayi(d?.g)])
           + (x.b && !bitti ? GM.btn({metin: 'Bilet / Rezervasyon', ikon: 'ticket', tur: 'secondary', tam: true, veri: {eylem: 'etk-bilet'}}) : '')}<span aria-hidden="true"></span></div>`,
-        // REVIZE-14 madde 3: detay bölümleri zebra (Diet .dd-icerikler). Panelin içine, iç boşluksuz yuvaya (sekmeler yuvası) girer; tam genişlik.
-        sekmeler: GM.bolumler([
-        {baslik: 'Etkinlik hakkında', html: hakkinda(e, d)},
-        {baslik: 'Program & Katılım', html: program(e, d)},
-        {baslik: 'Bir bakışta', html: bakista(e, d)},
-        e.lng == null ? null : {baslik: 'Konum', html: konum(e)},
-        bitti ? null : kopru(e),
-        digerBolum(e)
-      ])
+        sekmeler: GM.detaySekmeler({ad: 'etk', ogeler: [
+          {ad: 'Bir bakışta', deger: 'bakis', html: bakista(e, d)},
+          {ad: 'Hakkında', deger: 'hakkinda', html: hakkinda(e, d)},
+          {ad: 'Program', deger: 'program', html: program(e, d)},
+          ...(e.lng == null ? [] : [{ad: 'Konum', deger: 'konum', html: konum(e)}])
+        ]}),
+        kuyruk: `${bitti ? '' : kopru(e)}${digerBolum(e)}`
       });
     },
     altBar: ctx => {
@@ -415,7 +417,7 @@
         }),
         GM.eylem(kok, 'etk-hatirlat', () => { if (kapi('Hatırlatma için üye ol', 'Etkinlik başlamadan önce **bildirim** almak için üye ol.')) return; hatirlatmaSheet(e, kok); }),
         GM.eylem(kok, 'etk-ics', () => icsIndir(e)),
-        GM.eylem(kok, 'kaydet', kartKaydet),
+        GM.eylem(kok, 'kaydet', kartKaydet), kartTikBagla(kok),
         GM.eylem(kok, 'etk-bilet', () => x.b && disAc(x.b, 'Bilet ve rezervasyon organizatörün sitesinde,')),
         GM.eylem(kok, 'etk-kaynak', () => d?.kd?.u && disAc(d.kd.u, 'Organizatörün resmî duyurusu')),
         GM.eylem(kok, 'etk-kunye', () => d?.ks && kunyeSheet(e, d)),

@@ -47,8 +47,8 @@
         ustEtiket: 'Lezzetin rotası',
         baslikHtml: 'Nereye <em>gidiyoruz?</em>',
         altBaslik: 'Yol üstü lezzet durakları, tek rotada.',
-        icerik: GM.aramaPanel({ad: 'ana-a-ara', secili: 'rota', sekmeler: [
-          {ad: 'Rota Planla', deger: 'rota', yer: 'Nereye gidiyorsun? (ör. Bodrum)', git: '#/rota/planla', ikon: 'rota'},
+        // Revize 16 Kas #1 (Beyar): "Rota Planla" sekmesi kalktı; Dada Route girişi alt menünün ortasındaki düğme. Varsayılan Mekân Ara.
+        icerik: GM.aramaPanel({ad: 'ana-a-ara', secili: 'mekan', sekmeler: [
           {ad: 'Mekân Ara', deger: 'mekan', yer: 'Mekân, mutfak ya da semt ara', git: '#/ara', ikon: 'ara_'},
           {ad: 'Etkinlik', deger: 'etkinlik', yer: 'Festival, tadım, atölye ara', git: '#/etkinlikler', ikon: 'etkinlik'}]})
       });

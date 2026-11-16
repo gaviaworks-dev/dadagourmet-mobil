@@ -290,8 +290,8 @@
 .gm-ekran.has-altbar .gm-ra .gm-kl-hsecim{bottom:calc(var(--gm-altbar-h,0px) + var(--gm-kl-kapali-h) + var(--gm-s-8))}
 .gm-ra .gm-kl-hekran-ust{gap:var(--gm-s-8)}
 .gm-ra .gm-kl-cekmece-bas > .gm-btn{flex:none}
-.gm-ra .gm-kl-cekmece-bas > .gm-ra-cek-kapat{flex:none;margin-left:calc(-1 * var(--gm-s-4))}
-.gm-ra .gm-kl-cekmece:not([data-durak=tam]) .gm-ra-cek-kapat{display:none}
+.gm-ra .gm-kl-cekmece-bas{align-items:center}
+.gm-ra .gm-kl-cekmece:not([data-durak=tam]) .gm-ra-cek-kapat,.gm-ra .gm-kl-cekmece[data-durak=tam] .gm-ra-cek-liste{display:none}
 /* Çekmece en üste yapışınca (tam) yarıçap 0, tam genişlik, durum çubuğu payı; üst panel çekilir (YIGILMA kural 4). Yarımda yarıçap kalır. */
 .gm-kl-hekran.gm-ra{--gm-kl-tam-ust:0px}
 .gm-ra .gm-kl-cekmece[data-durak=tam]{border-radius:var(--gm-r-none);box-shadow:none}

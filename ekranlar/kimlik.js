@@ -1,11 +1,11 @@
 /* Görev 12 · paket kimlik: açılış ve kimlik ekranları (Dada Diet mobil splash, karsilama, onboarding, giris, kilit ile birebir yapı; içerik Gourmet web giris/, kayit/, sifremi-unuttum/, sifre-yenile/).
- * Ekranlar (ad · rota): splash #/splash · karsilama #/karsilama · onboarding #/onboarding?adim=konum|bildirim|tercih · giris #/giris · kayit #/kayit
+ * Ekranlar (ad · rota): splash #/splash · karsilama #/karsilama · onboarding #/onboarding?adim=tercih|bildirim · giris #/giris · kayit #/kayit
  *   · sifre #/sifremi-unuttum · iki-adim #/iki-adim · kilit #/kilit. Hepsi akış ekranıdır (haller: false); ekrana özgü hâller ?hal= ile:
  *   giris: hatali, kilitli (deneme hakkı bitti), cok-deneme (429, geri sayım), hizli (kayıtlı hesapla biyometrik giriş), hata (ilk denemede bağlantı hatası), cevrimdisi
  *   kayit: eposta-var, tamam (hesap hazır + Dada Puan açıldı), hata, cevrimdisi; ?adim=dogrula e-posta doğrulama (?hal=zaten|gecersiz)
  *   sifre: ?adim=gonderildi|yeni, ?hal=sure-doldu (?adim=yeni&hal=sure-doldu), hata, cevrimdisi
  *   iki-adim: hatali, kilitli (?mod=kurtarma kurtarma kodu), hata, cevrimdisi
- *   onboarding: red (bulunulan izin adımında reddedildi hâli)
+ *   onboarding: ?adim=tercih&n=1–4 (&ilk=1) Gastro preferences_screen; ?adim=bildirim (&donus=, ?hal=red) bildirim izni, ilk açılışta bir kez
  *   karsilama: açılış intro'su (Gastro vitrini; ?modul=1–4, ?kal=1 döngüsüz, ?intro=1 baştan — ilk açılışta bir kez, durum 'intro')
  *   kilit: basarisiz, kilitlendi, iptal, kullanilamaz (?dene=1 Ayarlar'dan deneme, ?platform=ios|ios-touch|android, ?sonuc=basarisiz|kilitlendi)
  * Hesap verisi GMX.hesap (ekranlar/profil-veri.js): giris {eposta, sifre, denemeHakki, kilitDk, kodUzunluk, ikiAdimKod, yenidenGonderSn, baglantiDk, kurtarmaKodlari, sifreKurali, sifreKurallari},
@@ -70,7 +70,7 @@
   };
   const puanAc = () => { if (!GM.durum.oku('dada-puan')) GM.durum.yaz('dada-puan', {bakiye: 0, bekleyen: 0, rutbe: HS().rutbeler?.[0]?.k || 'merakli', acilis: GM.simdi().toISOString().slice(0, 10)}); };
   const onbBitti = () => !!GM.durum.oku('onboarding', {})?.bitti;
-  const sonrakiAcilis = () => (onbBitti() ? '#/kesfet' : '#/onboarding');
+  const sonrakiAcilis = () => (onbBitti() ? '#/kesfet' : '#/onboarding?adim=tercih&n=1&ilk=1');
 
   // ---------- Uygulama kilidi ----------
   const P = {
@@ -124,7 +124,7 @@
   const splashHedef = () => {
     if (GM.uye()) return kilitli() ? kilitAdres('#/kesfet', true) : '#/kesfet';
     const o = GM.durum.oku('onboarding', {}) || {};
-    if (o.adim && !o.bitti) return `#/onboarding?adim=${o.adim}`;
+    if (o.adim && !o.bitti) return `#/onboarding?adim=${o.adim}${o.n ? `&n=${o.n}` : ''}&ilk=1`;
     return GM.durum.oku(INTRO) === 'tamam' || o.bitti ? '#/kesfet' : '#/karsilama';
   };
   GM.ekran('splash', {
@@ -157,7 +157,8 @@
 
   // ---------- Karşılama · Vitrin (açılış intro'su) ----------
   // Gastro karşılama vitrini birebir: gülücük kapakta modülün gerçek görseli, logo üstte; modül ikonu, adı, kısa açıklaması ve kanıt satırı (GMV sayıları) altta.
-  // Altta modül ikon seçici (nokta göstergesi; seçilinin üstünde çizgi) ve "Hesabın var mı? Giriş yap · Üye ol"; çubukta Atla (→ Keşfet) · Başla (→ onboarding).
+  // Altta modül ikon seçici (nokta göstergesi; seçilinin üstünde çizgi) ve "Hesabın var mı? Giriş yap"; çubukta Atla (→ Keşfet) · Tercihlerimi seç (→ onboarding).
+  // Gastro Flutter welcome_screen + dg_smile_showcase birebir: kapakta logo sol üstte, sağ üstte dil seçici cam düğme (Ayarlar › Dil ile aynı kayıt: hesap-ayar.dil.dil).
   // Modüller kendiliğinden döner (heroAutoplay); dokunma, seçici ya da kapakta yatay kaydırma döngüyü durdurur. ?modul=1–4 başlangıç modülü, ?kal=1 döngüsüz.
   // Görseller ana sayfa hero'su (Narımor, Levan, Townhouse, sokak), giriş (Levan) ve kilit (Lacivert) kapaklarıyla çakışmaz.
   const vitrin = () => {
@@ -172,6 +173,15 @@
   };
   const modMetin = m => `<div class="gm-ac-metin gm-ac-gir" aria-live="polite"><div class="gm-ac-bas"><span class="gm-ac-mikon">${GM.ik(m.ikon)}</span></div><h1 class="gm-t-display">${GM.esc(m.ad)}</h1><p class="gm-t-body">${GM.esc(m.kisa)}</p><p class="gm-ac-kanit">${GM.ik(m.kanit[0])}<span>${GM.esc(m.kanit[1])}</span></p></div>`;
   const KAYDIR = 40;   // px: yatay kaydırma eşiği
+  // Dil: menü ve Ayarlar › Dil ile aynı iki dil ve aynı kayıt (hesap-ayar.dil.dil); seçim ortak sheet'te.
+  const DILLER = [['tr', 'Türkçe'], ['en', 'English']];
+  const dilKod = () => tum().dil?.dil || 'tr';
+  const dilAd = () => (DILLER.find(([k]) => k === dilKod()) || DILLER[0])[1];
+  const dilSheet = bitti => GM.sheet({
+    baslik: 'Dil',
+    html: GM.satirlar(DILLER.map(([k, ad]) => GM.satir({baslik: ad, veri: {eylem: 'dil-sec', id: k}, ok: false, sag: k === dilKod() ? GM.ik('onay') : ''}))),
+    sonra: sh => GM.eylem(sh, 'dil-sec', el => { ayarYaz('dil', {dil: el.dataset.id}); sh.kapat(); bitti?.(); GM.toast(`Dil: **${dilAd()}**`, {tur: 'basari'}); })
+  });
   GM.ekran('karsilama', {
     haller: false,
     tur: 'tam',
@@ -180,12 +190,14 @@
       const MOD = vitrin(), i = Math.max(0, Math.min(MOD.length - 1, (Number(ctx.sorgu.modul) || 1) - 1));
       ctx.mod = ctx.mod ?? i;
       const m = MOD[ctx.mod];
-      const kapak = GM.gulucuk({gorsel: m.gorsel, sinif: 'gm-ac-kapak', icerik: `<img class="gm-ac-logo" src="assets/marka/dadagourmet-beyaz.svg" alt="Dada Gourmet"><div data-metin data-gm-veil-from>${modMetin(m)}</div>`});
+      const dil = dilAd();
+      const ust = `<div class="gm-ara"><img class="gm-ac-logo" src="assets/marka/dadagourmet-beyaz.svg" alt="Dada Gourmet">${GM.btn({metin: dil, ikon: 'globe', tur: 'cam', boyut: 'sm', etiket: `Dil: ${dil}`, veri: {eylem: 'dil'}})}</div>`;
+      const kapak = GM.gulucuk({gorsel: m.gorsel, sinif: 'gm-ac-kapak', icerik: `${ust}<div data-metin data-gm-veil-from>${modMetin(m)}</div>`});
       const secici = `<div class="gm-ac-secici" role="group" aria-label="Dada Gourmet'i tanı" style="--n:${MOD.length}">${MOD.map((x, k) => `<button type="button" data-mod="${k}" aria-pressed="${k === ctx.mod}" aria-label="${GM.esc(x.ad)}"><span class="gm-ac-mikon">${GM.ik(x.ikon)}</span></button>`).join('')}</div>`;
-      const giris = `<p class="gm-ac-giris">Hesabın var mı? <a href="#/giris" data-git="#/giris" data-intro-bitti>Giriş yap</a> · <a href="#/kayit" data-git="#/kayit" data-intro-bitti>Üye ol</a></p>`;
+      const giris = `<p class="gm-ac-giris">Hesabın var mı? <a href="#/giris" data-git="#/giris" data-intro-bitti>Giriş yap</a></p>`;
       return `<div class="gm-ac-k3">${kapak}<div class="gm-ac-alt">${secici}${giris}</div></div>`;
     },
-    altBar: () => GM.altEylem({dugmeler: [{metin: 'Atla', tur: 'secondary', veri: {eylem: 'atla'}}, {metin: 'Başla', ikon: 'tumu', veri: {eylem: 'basla'}}]}),
+    altBar: () => GM.altEylem({dugmeler: [{metin: 'Atla', tur: 'secondary', veri: {eylem: 'atla'}}, {metin: 'Tercihlerimi seç', veri: {eylem: 'basla'}}]}),
     sonra: (kok, ctx) => {
       const MOD = vitrin();
       MOD.forEach(x => { if (x.gorsel) new Image().src = x.gorsel; });
@@ -219,8 +231,9 @@
       kok.addEventListener('click', tik);
       sahne.addEventListener('pointerdown', bas); sahne.addEventListener('pointerup', birak); sahne.addEventListener('pointercancel', () => { x0 = null; });
       const c = [
-        GM.eylem(kok, 'atla', () => { introBitir(); GM.yerine('#/kesfet'); }),
-        GM.eylem(kok, 'basla', () => { introBitir(); GM.yerine(sonrakiAcilis()); })
+        GM.eylem(kok, 'atla', () => GM.yerine(ilkBitir('#/kesfet'))),
+        GM.eylem(kok, 'basla', () => { introBitir(); GM.git('#/onboarding?adim=tercih&n=1&ilk=1'); }),
+        GM.eylem(kok, 'dil', () => dilSheet(() => { const b = kok.querySelector('[data-eylem="dil"]'); if (b) b.outerHTML = GM.btn({metin: dilAd(), ikon: 'globe', tur: 'cam', boyut: 'sm', etiket: `Dil: ${dilAd()}`, veri: {eylem: 'dil'}}); }))
       ];
       document.fonts?.ready.then(perde);
       sira();
@@ -228,107 +241,195 @@
     }
   });
 
-  // ---------- Onboarding ----------
-  // Tek soru tek adım (Diet onboarding kalıbı, GM.onbSablon): konum izni → bildirim izni → keşif tercihleri → #/kesfet. Adım ?adim= ile yığına girer, geri tuşu çalışır.
-  // İzin adımları telefonun sistem uyarısını açar (GM.sistemUyari, platforma göre); reddedilince adım red hâline geçer (?hal=red ile de), Ayarları aç izni verilmiş sayar.
-  const ADIMLAR = ['konum', 'bildirim', 'tercih'];
+  // ---------- Onboarding · Tercihler (Gastro Flutter preferences_screen birebir) + bildirim izni ----------
+  // #/onboarding?adim=tercih&n=1–4 (&ilk=1 ilk açılış): soru başına bir ekran (Gastro "Profil vitrini"). Üstte fotoğraflı kubbe: seçilen
+  // seçeneğe uyan gerçek mekânın fotoğrafı (yoksa adımın fotoğrafı; künye "Mekân · şehir"), cam geri · ilerleme · cam Atla, "n / 4 · kısa ad"
+  // + soru; altta beyaz panel adımlar arasında yatay kayar (sheet, ease). Alt çubuk: "Bu adımı atla" / "Şimdilik atla" · "Devam" / "Tamamla".
+  // Adımlar (Gourmet keşif tercihleri, GMX.hesap.tercihGruplari): mutfak · beslenme + alerjen · fiyat aralığı (tek seçim) · mekân tarzı + ortam.
+  // Seçim kuralları (Gastro `degis`): "Fark etmez" tekil; fiyat tek seçim (yeniden dokununca kalkar). Her adım geçişinde kayıt: 'kesif-tercih'.
+  // Bitince/atlanınca (ilk açılış) finishFirstRun: ilk açılış biter; bildirim izni hiç sorulmadıysa bir kez (#/onboarding?adim=bildirim&donus=…), sonra Keşfet.
+  // Bildirim izni (Gastro permission_screen = GM.izinIstemi): "Şimdi değil" · "Bildirimleri aç" (sistem uyarısı); reddedilince ret hâli (?hal=red), Ayarları aç.
+  // Süreler Dart'tan: panel kayması sheet (250) ease; foto geçişi reveal opaklık + 1.08 → 1 (reveal × 4); tamamlamada "Tercihlerin kaydedildi", reveal + fast sonra geçiş.
   const ONB = 'onboarding';
   const onb = () => GM.durum.oku(ONB, {}) || {};
   const onbYaz = ek => GM.durum.yaz(ONB, {...onb(), ...ek});
-  const adimAl = ctx => (ADIMLAR.includes(ctx.sorgu.adim) ? ctx.sorgu.adim : ADIMLAR.find(a => onb()[a] == null) || ADIMLAR[0]);
-  const BILDIRIM = ['rezervasyon', 'ogle', 'aksam'];
-  const bildirimSecim = () => ({rezervasyon: true, ogle: true, aksam: true, ...(onb().bildirimSecim || {})});
-  const TERCIH = ['mutfak', 'konsept', 'ortam'];
+  const ADIM_SAYI = 4;
   const tercihGrup = a => (HS().tercihGruplari || []).find(g => g.a === a);
-  const tercihler = () => ({mutfak: [], konsept: [], ortam: [], ...(GM.durum.oku('kesif-tercih', {}) || {})});
-  const tercihSayi = t => TERCIH.reduce((n, a) => n + (t[a]?.length || 0), 0);
-  const NEDEN = {
-    konum: {baslik: 'Konumunu neden istiyoruz?', metin: 'Konumun **yakınındaki mekânları** sıralamak, haritayı bulunduğun yerden açmak ve Dada Route’ta yol üstündeki durakları önermek için kullanılır. Yalnız uygulama açıkken okunur; reklam için kullanılmaz.', bag: ['Konum Verisi Politikası', '#/yasal/konum-verisi']},
-    bildirim: {baslik: 'Hangi bildirimler gelir?', metin: 'Yalnız seçtiğin türler gelir. Öğle önerisi **12.30**, akşam önerisi **19.00** civarında; rezervasyon hatırlatması masandan önce. Güvenlik uyarıları her zaman açıktır.', bag: ['Bildirim tercihleri', '#/ayarlar/bildirimler']}
+  const TERCIH_ALAN = ['mutfak', 'beslenme', 'alerjen', 'fiyat', 'konsept', 'ortam'];
+  const tercihler = () => { const t = GM.durum.oku('kesif-tercih', {}) || {}; return Object.fromEntries(TERCIH_ALAN.map(a => [a, Array.isArray(t[a]) ? t[a] : []]).concat(Object.entries(t).filter(([k]) => !TERCIH_ALAN.includes(k)))); };
+  const tercihYaz = (a, v) => GM.durum.yaz('kesif-tercih', {...(GM.durum.oku('kesif-tercih', {}) || {}), [a]: v});
+  // İlk açılış bitişi (Gastro finishFirstRun): bildirim izni sorulmadıysa bir kez izin ekranı, sonra hedef.
+  const ilkBitir = (hedef = '#/kesfet') => {
+    onbYaz({bitti: true, adim: null}); introBitir();
+    return GM.durum.oku('bildirim-izin') ? hedef : `#/onboarding?adim=bildirim&donus=${enc(hedef)}`;
   };
-  const redBant = a => (a === 'konum'
-    ? GM.bant({ton: 'uyari', baslik: 'Konum izni kapalı', metin: 'Harita ve vitrin **seçtiğin şehre** göre açılır. İzni telefonunun **Ayarlar › Dada Gourmet › Konum** bölümünden açabilirsin.', eylem: {metin: 'Ayarları aç', veri: {eylem: 'ayar'}}})
-    : GM.bant({ton: 'uyari', baslik: 'Bildirim izni kapalı', metin: 'Rezervasyon onayın ve hatırlatmaların **e-postayla** gelir. İzni telefonunun **Ayarlar › Bildirimler** bölümünden açabilirsin.', eylem: {metin: 'Ayarları aç', veri: {eylem: 'ayar'}}}));
-  const onbRed = (ctx, a) => (a === 'konum' || a === 'bildirim') && (onb()[a] === 'reddedildi' || ctx.sorgu.hal === 'red');
-  const adimHtml = ctx => {
-    const a = adimAl(ctx), n = ADIMLAR.indexOf(a) + 1, red = onbRed(ctx, a);
-    const ortak = {adim: n, toplam: ADIMLAR.length};
-    if (a === 'konum') return GM.onbSablon({...ortak,
-      baslik: 'Yakınındaki sofraları gösterelim', alt: 'Harita ve vitrin **konumuna göre** sıralanır.', neden: 'Konumum nasıl kullanılır?',
-      atla: red ? null : {metin: 'Şimdi değil', veri: {eylem: 'atla'}},
-      devam: red ? {metin: 'Devam', ikon: 'tumu', veri: {eylem: 'ileri'}} : {metin: 'Konumuma izin ver', ikon: 'konum', veri: {eylem: 'izin'}},
-      html: red ? redBant(a) : `<div class="gm-yigin-24">${GM.maddeler([['pin', 'Yakınındaki mekânlar', 'Vitrin ve harita bulunduğun yerden başlar.'], ['rota', 'Yol üstü duraklar', 'Dada Route rotandaki sofraları konumuna göre sıralar.'], ['saatler', 'Şu an açık olanlar', 'Yakınında açık mekânları önce görürsün.']])}</div>`
-    });
-    if (a === 'bildirim') {
-      const s = bildirimSecim(), turler = (HS().bildirimTurleri || []).filter(t => BILDIRIM.includes(t.id));
-      return GM.onbSablon({...ortak,
-        baslik: 'Doğru saatte haber verelim', alt: 'Öğle ve akşam **yakındaki öneriler**, masan yaklaşınca hatırlatma.', neden: 'Hangi bildirimler gelir?',
-        atla: red ? null : {metin: 'Şimdi değil', veri: {eylem: 'atla'}},
-        devam: red ? {metin: 'Devam', ikon: 'tumu', veri: {eylem: 'ileri'}} : {metin: 'Bildirimlere izin ver', ikon: 'bildirim', veri: {eylem: 'izin'}},
-        html: red ? redBant(a) : `<div class="gm-yigin-24">${GM.satirlar(turler.map(t => GM.toggle({ad: `bildirim-${t.id}`, ikon: t.ikon, etiket: t.ad, alt: t.alt, secili: s[t.id]})))}${GM.ipucu({ikon: 'moon', metin: 'Sessiz saatlerde (**22.00–07.00**) bildirim gelmez; istediğin an **Ayarlar**dan değiştirirsin.'})}</div>`
-      });
+  // Mekân eşleşmesi (seçimin fotoğrafı ve sayısı): gerçek GMV kaydı; büyük kapak önce.
+  const MEKANLAR = () => window.GMV?.mekanlar || [];
+  const kucuk = x => String(x || '').toLocaleLowerCase('tr');
+  const UYAR = {
+    mutfak: (m, k) => (m.mutfak || []).includes(k),
+    konsept: (m, k) => [...(m.konsept || []), m.kategori].includes(k),
+    fiyat: (m, k) => String(m.fiyat) === String(k),
+    beslenme: (m, k) => [...(m.f?.beslenme || []), ...(m.nitelik || []).map(n => n.ad)].some(x => kucuk(x).startsWith(kucuk(k).slice(0, 5))),
+    ortam: (m, k) => [...(m.hizmet || []), ...(m.nitelik || []).map(n => n.ad), ...(m.konsept || [])].some(x => kucuk(x).startsWith(kucuk(k).split(' ')[0].slice(0, 5)))
+  };
+  const sayi = (a, k) => (UYAR[a] ? MEKANLAR().filter(m => UYAR[a](m, k)).length : 0);
+  const secimFoto = (a, k) => { const l = MEKANLAR().filter(m => UYAR[a]?.(m, k)); const m = l.find(x => x.kapakB) || l.find(x => x.kapak); return m ? {g: m.kapakB || m.kapak, k: [m.ad, m.il].filter(Boolean).join(' · ')} : null; };
+  const ADIM = [
+    {kisa: 'Damak zevkin', baslik: 'Hangi mutfakları seviyorsun?', gorsel: () => mekanGorsel('bebek-balikci')},
+    {kisa: 'Beslenme', baslik: 'Beslenme tarzın nasıl?', gorsel: () => mekanGorsel('aila-restaurant')},
+    {kisa: 'Fiyat aralığın', baslik: 'Hangi fiyat aralığını seversin?', gorsel: () => mekanGorsel('16-roof-swissotel')},
+    {kisa: 'Mekân tarzın', baslik: 'Nasıl mekânları seversin?', gorsel: () => mekanGorsel('rumelihisari-iskele')}
+  ];
+  const secenekler = a => (tercihGrup(a)?.secenek || []).map(([ad, ikon, alt]) => ({ad, ikon, alt}));
+  const mekanAlt = (a, k) => { const n = sayi(a, k); return n ? `${GM.sayi(n)} mekân` : ''; };
+  const adimSayfa = (n, t) => {
+    const ac = metin => GM.p(metin, {ton: 'ikincil'});
+    if (n === 1) {
+      const l = secenekler('mutfak');
+      return `<div class="gm-yigin">${ac(`${l.length} mutfaktan istediğin kadarını seç.`)}${GM.secimler({ad: 'tercih-mutfak', coklu: true, duzen: 'iki', secili: t.mutfak, ogeler: l.map(x => ({k: x.ad, ad: x.ad, ikon: x.ikon, alt: mekanAlt('mutfak', x.ad)}))})}</div>`;
     }
-    const t = tercihler(), sayi = tercihSayi(t);
-    const grup = (a2, baslik) => { const g = tercihGrup(a2); if (!g) return ''; return `<section class="gm-yigin-12"><h2 class="gm-t-section">${GM.esc(baslik)}</h2>${GM.cipler({ad: `tercih-${a2}`, serit: false, etiket: baslik, secili: t[a2], ogeler: g.secenek.map(([ad, ikon]) => ({metin: ad, deger: ad, ikon: ikon || undefined}))})}</section>`; };
-    return GM.onbSablon({...ortak,
-      baslik: 'Neleri seversin?', alt: 'Seçimlerin **vitrin ve rota önerilerini** sıralar.',
-      atla: {metin: 'Atla', veri: {eylem: 'atla'}},
-      devam: {metin: 'Keşfetmeye başla', ikon: 'kesfet', veri: {eylem: 'ileri'}},
-      altMetin: sayi ? `${sayi} seçili` : 'İstediğin kadar seç',
-      html: `<div class="gm-yigin-24">${grup('mutfak', 'Sevdiğin mutfaklar')}${grup('konsept', 'Mekân tarzı')}${grup('ortam', 'Ortam ve kullanım')}</div>`
-    });
+    if (n === 2) {
+      const g = tercihGrup('beslenme'), tekil = g?.tekil, l = secenekler('beslenme').sort((x, y) => (y.ad === tekil) - (x.ad === tekil));
+      return `<div class="gm-yigin">${ac('Beslenme tarzını ve uzak durduklarını seç.')}${GM.secimler({ad: 'tercih-beslenme', coklu: true, secili: t.beslenme, ogeler: l.map(x => ({k: x.ad, ad: x.ad, ikon: x.ikon, alt: x.ad === tekil ? '' : mekanAlt('beslenme', x.ad)}))})}</div>
+        <section class="gm-yigin">${GM.bas('Uzak durduğun bir şey var mı?')}${GM.cipler({ad: 'tercih-alerjen', serit: false, etiket: 'Uzak durduklarım', secili: t.alerjen, ogeler: secenekler('alerjen').map(x => ({metin: x.ad, deger: x.ad}))})}${GM.ipucu({ikon: 'uyari', baslik: 'Sağlık notu', metin: 'Bu liste tıbbi tavsiye değildir.'})}</section>`;
+    }
+    if (n === 3) {
+      const l = secenekler('fiyat');
+      return `<div class="gm-yigin">${ac('Bir aralık seç; istediğin zaman değiştirebilirsin.')}${GM.secimler({ad: 'tercih-fiyat', duzen: 'tek', secili: t.fiyat[0], ogeler: l.map((x, i) => ({k: x.ad, ad: x.alt || x.ad, olcek: i + 1, alt: mekanAlt('fiyat', x.ad)}))})}</div>`;
+    }
+    const l = secenekler('konsept');
+    return `<div class="gm-yigin">${ac(`${l.length} mekân tarzından ilgilendiklerini seç.`)}${GM.secimler({ad: 'tercih-konsept', coklu: true, duzen: 'iki', secili: t.konsept, ogeler: l.map(x => ({k: x.ad, ad: x.ad, ikon: x.ikon, alt: mekanAlt('konsept', x.ad)}))})}</div>
+      <section class="gm-yigin">${GM.bas('Ortam ve kullanım')}${GM.cipler({ad: 'tercih-ortam', serit: false, etiket: 'Ortam ve kullanım', secili: t.ortam, ogeler: secenekler('ortam').map(x => ({metin: x.ad, deger: x.ad, ikon: x.ikon}))})}</section>`;
   };
-  const izinUyari = a => {
-    const s = sistem();
-    if (a === 'konum') return GM.sistemUyari(s === 'android'
-      ? {platform: s, baslik: 'Dada Gourmet uygulamasının bu cihazın konumuna erişmesine izin verilsin mi?', red: 'İzin verme', ver: 'Uygulama kullanılırken'}
-      : {platform: s, baslik: '“Dada Gourmet” konumunu kullansın mı?', metin: 'Yakınındaki mekânları ve rota duraklarını göstermek için konumun kullanılır.', red: 'İzin Verme', ver: 'Uygulamayı Kullanırken İzin Ver'});
-    return GM.sistemUyari(s === 'android'
-      ? {platform: s, baslik: 'Dada Gourmet uygulamasının size bildirim göndermesine izin verilsin mi?', red: 'İzin verme', ver: 'İzin ver'}
-      : {platform: s, baslik: '“Dada Gourmet” Size Bildirim Göndermek İstiyor', metin: 'Bildirimler uyarılar, sesler ve simge işaretleri içerebilir. Bunlar Ayarlar’da yapılandırılabilir.', red: 'İzin Verme', ver: 'İzin Ver'});
+  const soruHtml = (n, kunye) => `<p class="gm-t-label">${n} / ${ADIM_SAYI} · ${GM.esc(ADIM[n - 1].kisa)}</p><h1 class="gm-t-page">${GM.esc(ADIM[n - 1].baslik)}</h1><p class="gm-ac-kanit" data-kunye${kunye ? '' : ' hidden'}>${GM.ik('mekan')}<span>${GM.esc(kunye || '')}</span></p>`;
+  const tercihHtml = (ctx, n) => {
+    const g = ADIM[n - 1].gorsel();
+    return `<div class="gm-ac-t2"><section class="gm-kubbe-ust gm-ac-t2-ust"><div class="gm-ac-foto is-on" style="background-image:url('${GM.esc(g)}')"></div><div class="gm-ac-foto"></div><div class="gm-ac-perde" data-perde></div><div class="gm-ac-isik" aria-hidden="true"></div>
+      <div class="gm-ac-ust"><button class="gm-ibtn is-cam" type="button" data-eylem="adim-geri" aria-label="Geri">${GM.ik('geri')}</button><div class="gm-ac-t2-ilerle" data-ilerle>${GM.ilerleme({n, hedef: ADIM_SAYI, etiket: `İlerleme: ${n} / ${ADIM_SAYI}`, satir: false})}</div>${GM.btn({metin: 'Atla', tur: 'cam', boyut: 'sm', veri: {eylem: 'hepsi-atla'}})}</div>
+      <div class="gm-ac-t2-soru" data-soru>${soruHtml(n)}</div></section>
+      <div class="gm-kubbe-panel gm-ac-t2-panel"><div class="gm-ac-t2-sahne" data-sahne><div class="gm-ac-t2-sayfa">${adimSayfa(n, tercihler())}</div></div></div></div>`;
   };
+  const tercihBar = n => GM.altEylem({dugmeler: [{metin: n === ADIM_SAYI ? 'Şimdilik atla' : 'Bu adımı atla', tur: 'secondary', veri: {eylem: 'adim-atla'}}, {metin: n === ADIM_SAYI ? 'Tamamla' : 'Devam', veri: {eylem: 'devam'}}]});
+  // Kubbe perdesi (Gastro DgStageScrim.text, textTop 0, end .82; düğümler kenetlenip kararlı sıralanır, smootherstep).
+  const sstep = t => { t = Math.max(0, Math.min(1, t)); return t * t * t * (t * (6 * t - 15) + 10); };
+  const perdeAlfa = h => {
+    const ustBoy = Math.max(h * .32, 64), b = Math.max(0 - 48 - 144, ustBoy + 8);
+    const d = [[0, .35], [ustBoy, 0], [b, 0], [-48, .64], [48, .82], [h, .82]].map(([y, a], i) => [Math.max(0, Math.min(h, y)), a, i]).sort((x, z) => x[0] - z[0] || x[2] - z[2]);
+    return y => { if (y <= d[0][0]) return d[0][1]; for (let i = 1; i < d.length; i++) { const [y0, a0] = d[i - 1], [y1, a1] = d[i]; if (y <= y1) return a0 + (a1 - a0) * sstep((y - y0) / Math.max(1, y1 - y0)); } return d[d.length - 1][1]; };
+  };
+  const tercihBagla = (kok, ctx) => {
+    let n = Math.max(1, Math.min(ADIM_SAYI, Number(ctx.sorgu.n) || 1)), on = 0;
+    const ilk = ctx.sorgu.ilk === '1' || !onb().bitti;
+    const ust = kok.querySelector('.gm-ac-t2-ust'), fotolar = [...ust.querySelectorAll('.gm-ac-foto')], soru = kok.querySelector('[data-soru]'), sahne = kok.querySelector('[data-sahne]'), perdeEl = kok.querySelector('[data-perde]');
+    const perde = () => { const h = ust.offsetHeight; if (!h || !window.GMCard) return; const f = perdeAlfa(h); perdeEl.style.setProperty('--gm-veil', GMCard.gradient(h, f)); };
+    const ustFoto = (g, kunye) => {
+      const f = fotolar[1 - on];
+      if (g && !(fotolar[on].style.backgroundImage.includes(g))) { f.style.backgroundImage = `url('${g}')`; fotolar[on].classList.remove('is-on'); f.classList.add('is-on'); on = 1 - on; }
+      const kn = soru.querySelector('[data-kunye]'); if (kn) { kn.hidden = !kunye; kn.querySelector('span').textContent = kunye || ''; }
+    };
+    const secildi = (a, k, sec) => { const f = sec && secimFoto(a, k); if (f) ustFoto(f.g, f.k); else if (!sec) ustFoto(ADIM[n - 1].gorsel(), ''); };
+    const barYaz = () => {
+      const a = kok.querySelector('[data-eylem="adim-atla"] span'), d = kok.querySelector('[data-eylem="devam"] span');
+      if (a) a.textContent = n === ADIM_SAYI ? 'Şimdilik atla' : 'Bu adımı atla';
+      if (d) d.textContent = n === ADIM_SAYI ? 'Tamamla' : 'Devam';
+    };
+    const ciz = yon => {
+      history.replaceState(history.state, '', `#/onboarding?adim=tercih&n=${n}${ilk ? '&ilk=1' : ''}`);
+      if (ilk) onbYaz({adim: 'tercih', n});
+      kok.querySelector('[data-ilerle]').innerHTML = GM.ilerleme({n, hedef: ADIM_SAYI, etiket: `İlerleme: ${n} / ${ADIM_SAYI}`, satir: false});
+      soru.innerHTML = soruHtml(n);
+      ustFoto(ADIM[n - 1].gorsel(), '');
+      const yeniS = document.createElement('div'); yeniS.className = 'gm-ac-t2-sayfa'; yeniS.innerHTML = adimSayfa(n, tercihler());
+      const eski = sahne.firstElementChild;
+      if (eski && yon && !GM.azHareket()) {
+        eski.classList.add('is-cik', yon > 0 ? 'is-sol' : 'is-sag'); yeniS.classList.add('is-gir', yon > 0 ? 'is-sag' : 'is-sol'); sahne.append(yeniS);
+        eski.addEventListener('animationend', () => eski.remove(), {once: true});
+        yeniS.addEventListener('animationend', () => yeniS.classList.remove('is-gir', 'is-sag', 'is-sol'), {once: true});
+      } else sahne.replaceChildren(yeniS);
+      barYaz(); perde();
+      kok.querySelector('.gm-kaydir')?.scrollTo({top: 0});
+    };
+    const cik = () => (ilk ? GM.yerine(ilkBitir()) : GM.geri('#/profil/tercihler'));
+    const tamamla = () => {
+      GM.toast('Tercihlerin kaydedildi', {tur: 'basari'});
+      setTimeout(() => (ilk ? GM.yerine(ilkBitir()) : GM.geri('#/profil/tercihler')), GM.azHareket() ? 0 : GM.TK.motion.reveal + GM.TK.motion.fast);
+    };
+    const git = d => { if (n + d > ADIM_SAYI) { tamamla(); return; } if (n + d < 1) { GM.geri('#/karsilama'); return; } n += d; ciz(d); };
+    // Seçim değişimi: secimler/cipler 'gm-degisim' (ad, değer). "Fark etmez" tekil; fiyat tek seçim, yeniden dokununca kalkar.
+    const tekil = tercihGrup('beslenme')?.tekil;
+    const c = [
+      GM.eylem(kok, 'adim-geri', () => git(-1)),
+      GM.eylem(kok, 'hepsi-atla', cik),
+      GM.eylem(kok, 'devam', () => git(1)),
+      GM.eylem(kok, 'adim-atla', () => (n === ADIM_SAYI ? cik() : git(1))),
+      ...['mutfak', 'konsept', 'alerjen', 'ortam'].map(a => GM.on(kok, `tercih-${a}`, v => { const once = tercihler()[a], l = [].concat(v || []); tercihYaz(a, l); const yeniK = l.find(x => !once.includes(x)); if (a === 'mutfak' || a === 'konsept') secildi(a, yeniK || once.find(x => !l.includes(x)), !!yeniK); })),
+      GM.on(kok, 'tercih-beslenme', v => {
+        const once = tercihler().beslenme, l = [].concat(v || []), yeniK = l.find(x => !once.includes(x));
+        const son = yeniK === tekil ? [tekil] : yeniK ? l.filter(x => x !== tekil) : l;
+        tercihYaz('beslenme', son);
+        if (son.length !== l.length) kok.querySelectorAll('[data-ad="tercih-beslenme"] [data-k]').forEach(b => b.setAttribute('aria-pressed', String(son.includes(b.dataset.k))));
+        secildi('beslenme', yeniK || once.find(x => !l.includes(x)), !!yeniK && yeniK !== tekil);
+      }),
+      GM.on(kok, 'tercih-fiyat', v => {
+        const once = tercihler().fiyat[0], k = once === v ? null : v;
+        tercihYaz('fiyat', k ? [k] : []);
+        if (!k) kok.querySelectorAll('[data-ad="tercih-fiyat"] [data-k]').forEach(b => b.setAttribute('aria-checked', 'false'));
+        secildi('fiyat', v, !!k);
+      })
+    ];
+    // Seçili fiyat kartına yeniden dokunma (radio aynı değeri yeniden bildirmez): tıklamada yakalanır.
+    const fiyatTik = ev => { const b = ev.target.closest('[data-ad="tercih-fiyat"] [data-k]'); if (b && tercihler().fiyat[0] === b.dataset.k && b.getAttribute('aria-checked') === 'true') { ev.stopPropagation(); tercihYaz('fiyat', []); b.setAttribute('aria-checked', 'false'); secildi('fiyat', b.dataset.k, false); } };
+    kok.addEventListener('click', fiyatTik, true);
+    if (ilk) onbYaz({adim: 'tercih', n});
+    perde(); document.fonts?.ready.then(perde);
+    const boy = new ResizeObserver(perde); boy.observe(ust);
+    return () => { c.forEach(f => f()); kok.removeEventListener('click', fiyatTik, true); boy.disconnect(); };
+  };
+
+  // Bildirim izni (Gastro permission_screen · bildirim): gülücük kapak + rozet, başlık, gerekçe, üç madde; "Şimdi değil" · "Bildirimleri aç".
+  const BILDIRIM_SECIM = ['rezervasyon', 'ogle', 'aksam'];
+  const izinDonus = ctx => (ctx.sorgu.donus && /^#\//.test(ctx.sorgu.donus) ? ctx.sorgu.donus : '#/kesfet');
+  const izinRed = ctx => GM.durum.oku('bildirim-izin') === 'reddedildi' || ctx.sorgu.hal === 'red';
+  const izinIstem = ctx => GM.izinIstemi({
+    gorsel: mekanGorsel('maromi-istanbul'), ikon: 'bildirim',
+    baslik: 'Doğru saatte haber verelim',
+    metin: 'Rezervasyon hatırlatması ve yakınındaki öneriler için **bildirim izni** istiyoruz.',
+    maddeler: [['rezervasyon', 'Masan yaklaşınca haber', 'Rezervasyondan 24 saat ve 2 saat önce.'], ['saatler', 'Öğle ve akşam önerisi', '12.30 ve 19.00 civarında yakınındaki sofralar.'], ['bell-slash', 'İstediğin an kapatırsın', 'Cihaz ayarlarından bildirimleri kapatabilirsin.']],
+    izin: 'Bildirimleri aç',
+    alternatif: {metin: 'Şimdi değil', git: izinDonus(ctx)},
+    red: izinRed(ctx),
+    reddedildi: {baslik: 'Bildirimler kapalı', metin: 'Rezervasyon onayın ve hatırlatmaların **e-postayla** gelir. İstersen cihaz ayarlarından açabilirsin.'}
+  });
+  const izinBagla = (kok, ctx) => {
+    const verildi = () => {
+      GM.durum.yaz('bildirim-izin', 'verildi');
+      GM.durum.yaz('bildirim-ayar', {...(GM.durum.oku('bildirim-ayar', {}) || {}), ...Object.fromEntries(BILDIRIM_SECIM.map(k => [k, true]))});
+      GM.toast('İzin verildi', {tur: 'basari', ikon: 'bildirim'});
+      setTimeout(() => GM.yerine(izinDonus(ctx)), GM.azHareket() ? 0 : GM.TK.motion.reveal * 2);
+    };
+    const tik = ev => {
+      if (ev.target.closest('[data-izin-ayar]')) { verildi(); return; }
+      if (ev.target.closest('.gm-bar [data-git]')) { if (!GM.durum.oku('bildirim-izin')) GM.durum.yaz('bildirim-izin', 'sonra'); return; }
+      if (!ev.target.closest('[data-izin-ver]')) return;
+      const s = sistem();
+      GM.sistemUyari(s === 'android'
+        ? {platform: s, baslik: 'Dada Gourmet uygulamasının size bildirim göndermesine izin verilsin mi?', red: 'İzin verme', ver: 'İzin ver'}
+        : {platform: s, baslik: '“Dada Gourmet” Size Bildirim Göndermek İstiyor', metin: 'Bildirimler uyarılar, sesler ve simge işaretleri içerebilir. Bunlar Ayarlar’da yapılandırılabilir.', red: 'İzin Verme', ver: 'İzin Ver'}
+      ).then(ok => { if (ok === null) return; if (ok) { verildi(); return; } GM.durum.yaz('bildirim-izin', 'reddedildi'); GM.tazele(); });
+    };
+    kok.addEventListener('click', tik);
+    return [() => kok.removeEventListener('click', tik)];
+  };
+
+  const izinMi = ctx => ctx.sorgu.adim === 'bildirim';
   GM.ekran('onboarding', {
     haller: false,
     tur: 'tam',
     ust: '#/karsilama',
-    ciz: adimHtml,
-    sonra: (kok, ctx) => {
-      const a = adimAl(ctx);
-      if (onb().adim !== a && !onb().bitti) onbYaz({adim: a});
-      const ileri = () => {
-        const i = ADIMLAR.indexOf(a);
-        if (i < ADIMLAR.length - 1) { GM.git(`#/onboarding?adim=${ADIMLAR[i + 1]}`); return; }
-        onbYaz({bitti: true, adim: null});
-        GM.yerine('#/kesfet');
-        GM.toast(tercihSayi(tercihler()) ? 'Hazırsın; vitrin **tercihlerine göre** sıralandı' : 'Hazırsın; **Keşfet** seni bekliyor', {tur: 'basari'});
-      };
-      const verildi = () => {
-        GM.durum.yaz(`${a}-izin`, 'verildi'); onbYaz({[a]: 'verildi'});
-        if (a === 'bildirim') { const s = bildirimSecim(); GM.durum.yaz('bildirim-ayar', {...(GM.durum.oku('bildirim-ayar', {}) || {}), ...s}); }
-        GM.toast(a === 'konum' ? '**Konum** açıldı; yakınındakiler önce gelir' : '**Bildirimler** açıldı', {tur: 'basari', ikon: a === 'konum' ? 'konum' : 'bildirim'});
-        ileri();
-      };
-      const c = [
-        GM.eylem(kok, 'neden', () => { const n = NEDEN[a]; if (!n) return; GM.sheet({baslik: n.baslik, html: GM.p(n.metin), altBar: GM.btn({metin: n.bag[0], ikon: 'tumu', tur: 'secondary', tam: true, git: n.bag[1]})}); }),
-        GM.eylem(kok, 'izin', () => izinUyari(a).then(ok => {
-          if (ok === null) return;
-          if (ok) { verildi(); return; }
-          GM.durum.yaz(`${a}-izin`, 'reddedildi'); onbYaz({[a]: 'reddedildi'}); GM.tazele();
-        })),
-        GM.eylem(kok, 'ayar', verildi),
-        GM.eylem(kok, 'atla', () => {
-          if (a === 'tercih') { onbYaz({tercih: 'atlandi'}); ileri(); return; }
-          GM.durum.yaz(`${a}-izin`, 'sonra'); onbYaz({[a]: 'sonra'}); ileri();
-        }),
-        GM.eylem(kok, 'ileri', () => { if (a === 'tercih') onbYaz({tercih: 'secildi'}); else if (onb()[a] == null) onbYaz({[a]: 'reddedildi'}); ileri(); })
-      ];
-      BILDIRIM.forEach(id => c.push(GM.on(kok, `bildirim-${id}`, v => onbYaz({bildirimSecim: {...bildirimSecim(), [id]: v}}))));
-      TERCIH.forEach(t => c.push(GM.on(kok, `tercih-${t}`, v => {
-        const y = {...tercihler(), [t]: [].concat(v || [])}; GM.durum.yaz('kesif-tercih', y);
-        const alt = kok.querySelector('.gm-onb-alt .gm-yardim'), n = tercihSayi(y); if (alt) alt.textContent = n ? `${n} seçili` : 'İstediğin kadar seç';
-      })));
-      return () => c.forEach(f => f());
-    }
+    ciz: ctx => (izinMi(ctx) ? izinIstem(ctx).html : tercihHtml(ctx, Math.max(1, Math.min(ADIM_SAYI, Number(ctx.sorgu.n) || 1)))),
+    altBar: ctx => (izinMi(ctx) ? izinIstem(ctx).bar : tercihBar(Math.max(1, Math.min(ADIM_SAYI, Number(ctx.sorgu.n) || 1)))),
+    sonra: (kok, ctx) => { const c = izinMi(ctx) ? izinBagla(kok, ctx) : [tercihBagla(kok, ctx)]; return () => c.forEach(f => f?.()); }
   });
 
   // ---------- Giriş ----------

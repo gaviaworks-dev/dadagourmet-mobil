@@ -197,15 +197,17 @@
   // Elektrikli araçta Yol İhtiyaçları şarj ve uzun mola önce gelir; Ne Yenir? sırasında şarj noktasına 1 km'den yakın mekânlar öne alınır.
   // o: {arac:'yakit'|'ev'} → {kat:[{deger, metin, ikon, tur, sayi}], alt:[{deger, metin, ikon, ogeler}], ogeler:{neYenir, neAlinir, rehber, yol}, lezzet, liste(kat, alt), bul(id)}
   GM.rotaKategori = (R, o = {}) => {
+    o = {arac: GM.durum.oku('rota-arac', 'yakit') || 'yakit', ...o};
     const ev = o.arac === 'ev', I = ilKimlik(R);
-    const K = GM.rotaKatmani(R).filter(k => !String(k.id).startsWith('tarihi')).map(k => ({...k, sapma: GM.katmanSapma(k)})).sort((a, b) => a.km - b.km);
+    // Beyar 16 Kas: Yakıtlı → yalnız akaryakıt, Elektrikli → yalnız şarj istasyonu (öteki tür hiç gösterilmez).
+    const K = GM.rotaKatmani(R).filter(k => !String(k.id).startsWith('tarihi') && k.tur !== (ev ? 'yakit' : 'sarj')).map(k => ({...k, sapma: GM.katmanSapma(k)})).sort((a, b) => a.km - b.km);
     const sarj = K.filter(k => k.tur === 'sarj');
     let mekan = GM.rotaOneri(R).map(mekanOge);
     if (ev && sarj.length) mekan = mekan.map((x, n) => ({x, n, s: sarj.some(k => GM.km([k.lng, k.lat], [x.lng, x.lat]) <= 1) ? 0 : 1})).sort((a, b) => a.s - b.s || a.n - b.n).map(y => y.x);
     const il = (i, tur, ek) => { const p = noktaKm(R, i.km); return {id: `${tur === 'neAlinir' ? 'al' : 'il'}-${i.ad}`, tur, ad: i.ad, il: i.ad, bolge: i.bolge, km: Math.round(i.km), lng: p[0], lat: p[1], ...ek}; };
     const alinir = I.filter(i => tescil(i, 'alinir').length).map(i => il(i, 'neAlinir', {urunler: tescil(i, 'alinir')}));
     const rehber = I.filter(i => i.km > 5).map(i => il(i, 'cografi', {ye: tescil(i, 'yenir'), al: tescil(i, 'alinir'), varis: i.km >= R.km - 5}));
-    const alt = (ev ? ['sarj', 'mola', 'ibadet', 'yakit'] : ['yakit', 'sarj', 'ibadet', 'mola']).map(d => YOL_ALT.find(a => a.deger === d)).map(a => ({...a, ogeler: K.filter(k => a.turler.includes(k.tur))}));
+    const alt = (ev ? ['sarj', 'mola', 'ibadet'] : ['yakit', 'ibadet', 'mola']).map(d => YOL_ALT.find(a => a.deger === d)).map(a => ({...a, ogeler: K.filter(k => a.turler.includes(k.tur))}));
     const ogeler = {neYenir: mekan, neAlinir: alinir, rehber, yol: K};
     const kat = [
       {deger: 'neYenir', metin: 'Ne Yenir?', ikon: 'neYenir', tur: 'neYenir', sayi: mekan.length},
@@ -230,7 +232,7 @@
     const kutu = m?.kapak ? `<span class="gm-ra-foto"><span class="gm-photo"${bg(m.kapak)}></span>${o.sira ? `<b class="gm-ra-sira">${esc(o.sira)}</b>` : ''}</span>` : `<span class="gm-ra-ikon is-${esc(x.tur)}">${ik(x.tur)}${o.sira ? `<b class="gm-ra-sira">${esc(o.sira)}</b>` : ''}</span>`;
     const yazi = s => `<span>${esc(s)}</span>`;
     const meta = m ? GM.mekanMetaSatir([yazi(m.mutfak?.[0] || m.kategori || 'Restoran'), GM.acikDurum(m.acik)])
-      : x.tur === 'neAlinir' ? GM.mekanMetaSatir([yazi(`${x.urunler.length} ürün`), yazi(x.urunler.join(', '))])
+      : x.tur === 'neAlinir' ? GM.mekanMetaSatir([GM.ciRozet({kisa: true}), yazi(`${x.urunler.length} ürün`), yazi(x.urunler.join(', '))])
         : x.tur === 'cografi' ? GM.mekanMetaSatir([x.ye.length ? yazi(`Ye: ${x.ye.slice(0, 2).join(', ')}`) : '', x.al.length ? yazi(`Al: ${x.al.slice(0, 2).join(', ')}`) : '', !x.ye.length && !x.al.length ? yazi(x.bolge || 'İl geçişi') : ''])
           : GM.mekanMetaSatir([yazi(GM.KATMAN_AD[x.tur] || ''), x.alt && x.alt !== x.ad ? yazi(x.alt) : '']);
     const sap = il

@@ -141,7 +141,7 @@
 .gm-is-kolon h3{display:flex;align-items:center;gap:var(--gm-s-8);margin:0;font:var(--gm-t-subheading-weight) var(--gm-t-subheading-size)/1.2 var(--gm-font-bold);color:var(--k)}
 .gm-is-kolon h3 small{margin-left:auto;font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-muted)}
 .gm-is-kolon ul{display:grid;margin:0;padding:0;list-style:none}
-.gm-is-kolon li{display:flex;align-items:baseline;justify-content:space-between;gap:var(--gm-s-12);padding:var(--gm-s-12) 0;border-top:var(--gm-size-border) solid var(--gm-line)}
+.gm-is-kolon li{display:flex;align-items:center;justify-content:space-between;gap:var(--gm-s-12);padding:var(--gm-s-12) 0;border-top:var(--gm-size-border) solid var(--gm-line)}
 .gm-is-kolon li b{font:var(--gm-t-body-weight) var(--gm-t-body-size)/1.35 var(--gm-font);color:var(--gm-ink)}
 .gm-is-kolon li small{display:inline-flex;flex:none;align-items:center;gap:var(--gm-s-4);font:var(--gm-t-meta-weight) var(--gm-t-meta-size)/1 var(--gm-font);color:var(--gm-slate)}
 .gm-is-kolon li small .icon{font-size:var(--gm-size-icon-check);color:var(--gm-muted)}
@@ -290,12 +290,24 @@
 .gm-yt-sira-metin > b{font:var(--gm-t-card-weight) var(--gm-t-card-size)/1.25 var(--gm-font-bold);color:var(--gm-ink)}
 .gm-yt-foto,.gm-yt-ikon{position:relative;display:grid;place-items:center;width:var(--gm-size-box-lg);height:var(--gm-size-box-lg);border-radius:var(--gm-r-control);overflow:hidden;background:var(--gm-bg);color:var(--gm-slate)}
 .gm-yt-sira.is-varis .gm-yt-ikon{background:var(--gm-ink);color:var(--gm-paper)}
-.gm-yt-eylem{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--gm-s-8)}
-.gm-yt-eylem:has(> :nth-child(2):last-child){grid-template-columns:minmax(0,1fr) auto}
-.gm-yt-eylem .gm-btn{min-width:0;padding-inline:var(--gm-s-8);white-space:nowrap}
 .gm-yt .gm-kl-cekmece-bas .gm-uclu{flex:1}
 .gm-yt .gm-kr-za-oge.is-simdi .gm-kr-za-baslik{color:var(--gm-primary)}
 /* Yol takibi çekmecesi: başta metrik + eylem satırı her zaman görünür (kapalı yükseklik büyür), çizelge çekince açılır. */
-.gm-kl-hekran.gm-yt{--gm-kl-kapali-h:calc(var(--gm-s-24) + var(--gm-size-touch) * 3 + var(--gm-s-32) + env(safe-area-inset-bottom,0px))}
+.gm-kl-hekran.gm-yt{--gm-kl-kapali-h:calc(var(--gm-s-24) + var(--gm-size-touch) * 3 + var(--gm-size-control-lg) + var(--gm-s-48) + env(safe-area-inset-bottom,0px))}
 .gm-yt .gm-kl-cekmece-bas{display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;align-items:stretch}
 .gm-yt .gm-kl-cekmece-bas > *{width:100%;min-width:0}
+/* Yol takibi eylemleri (Beyar 16 Kas): birincil tam genişlik, altında eşit iki ikincil; aynı yükseklik, ikon + kısa etiket ortalı. */
+.gm-yt-eylem{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gm-s-8)}
+.gm-yt-eylem > .is-ana{grid-column:1/-1}
+.gm-yt-eylem .gm-btn{min-width:0;justify-content:center;white-space:nowrap}
+
+/* Coğrafi işaret rozeti (GM.ciRozet, karar 18): metin rozeti, il kimliği tonu; resmi amblem yok. */
+.gm-ci{display:inline-flex;align-items:center;gap:var(--gm-s-4);flex:none;max-width:100%;padding:var(--gm-s-2) var(--gm-s-8);border-radius:var(--gm-r-chip-sm);background:var(--gm-cografi-tint);color:var(--gm-cografi);font:var(--gm-t-photo-meta-weight) var(--gm-t-nav-size)/1.4 var(--gm-font-bold);white-space:nowrap}
+.gm-ci .icon{font-size:var(--gm-size-icon-check)}
+.gm-ci span{font-family:var(--gm-font);overflow:hidden;text-overflow:ellipsis}
+.gm-is-bas .gm-ci{justify-self:start;margin-top:var(--gm-s-4);background:var(--gm-paper)}
+.gm-is-urun{display:grid;gap:var(--gm-s-2);min-width:0}
+.gm-is .gm-ci b,.gm-is .gm-ci span{font:inherit;letter-spacing:0;color:inherit}
+.gm-is .gm-ci span{font-family:var(--gm-font)}
+.gm-is-bas .gm-satir-metin > .gm-ci{color:var(--gm-cografi);font:var(--gm-t-photo-meta-weight) var(--gm-t-nav-size)/1.4 var(--gm-font-bold)}
+.gm-is-bas .gm-satir-metin > .gm-ci > span{font:var(--gm-t-meta-weight) var(--gm-t-nav-size)/1.4 var(--gm-font)}

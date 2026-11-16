@@ -43,7 +43,7 @@
   const katOzet = v => {
     const L = v.K.liste(v.kat, v.alt);
     if (v.kat === 'neYenir') { const y = L.filter(x => x.uzak <= 1).length; return `${GM.sayi(L.length)} sonuç · Yol üstü ${y} · Yola yakın ${L.length - y}`; }
-    if (v.kat === 'neAlinir') return `${GM.sayi(L.reduce((t, x) => t + x.urunler.length, 0))} coğrafi işaretli ürün · ${L.length} il`;
+    if (v.kat === 'neAlinir') return `${GM.sayi(L.reduce((t, x) => t + x.urunler.length, 0))} ürün · ${L.length} il · TÜRKPATENT tescilli`;
     if (v.kat === 'rehber') return `${L.length} il geçişi · coğrafi işaretler TÜRKPATENT kaydı`;
     const a = v.K.altBul(v.alt); return `${a.metin} · ${L.length} nokta${a.deger === 'yakit' ? ' · OpenStreetMap' : ''}${v.arac === 'ev' ? ' · Elektrikli' : ''}`;
   };
@@ -67,19 +67,19 @@
     if (v.bos) return GM.bos({ikon: 'cevrimdisi', baslik: 'Bu rota cihazda yok', metin: 'Bağlantı gelince harita ve duraklar açılır. İnternet çekmeyen yollar için rotayı **önceden indir**.', eylem: {metin: 'Çevrimdışı rotalar', tur: 'secondary', git: '#/rota/cevrimdisi'}});
     const liste = L.length ? GM.yigin([GM.yolSatirlar(satirlar(v, L.slice(0, ILK))), L.length > ILK ? GM.btn({metin: `Tümünü liste görünümünde aç · ${GM.sayi(L.length)}`, ikon: 'list-ul', tur: 'secondary', tam: true, git: `#/rota/liste/${R.id}`}) : ''], 8) : katBos(v);
     const duraklar = E.length ? GM.yolSatirlar(E.map((x, i) => GM.yolSatir(x, {eklendi: true, sira: i + 1}))) : GM.bilgi({metin: 'Haritadaki kartlarda **+ Ekle**’ye dokun; durak kalkış ile varış arasına km sırasıyla yerleşir.'});
-    const ihtiyac = IHT.map(([tur, ad]) => ({deger: tur, tur, ad, sayi: K.ogeler.yol.filter(k => k.tur === tur).length}));
+    const ihtiyac = IHT.filter(([tur]) => tur !== (v.arac === 'ev' ? 'yakit' : 'sarj')).map(([tur, ad]) => ({deger: tur, tur, ad, sayi: K.ogeler.yol.filter(k => k.tur === tur).length}));
     // Görev 14/18: çekmece bölümleri zebra (GM.bolumler / .gm-icerikler kalıbı; çekmecede tam genişlik).
     return GM.bolumler([
       GM.rotaMetrik([{etiket: 'Mesafe', deger: GM.sayi(Math.round(R.km)), birim: 'km'}, {etiket: 'Süre', deger: GM.sure(R.dk + v.ek)}, {etiket: 'Önerilen durak', deger: String(n)}, {etiket: 'Bölgesel lezzet', deger: String(K.lezzet)}]),
       GM.krListe([GM.kmSerit(R, {duraklar: K.ogeler.neYenir, eklenen: E}), duraklar], {ikon: 'rota', baslik: 'Güzergâh', alt: `${(R.iller || []).length} il · ${E.length ? `${E.length} durak · +${v.ek} dk sapma` : 'durak eklenmedi'}`, eylem: GM.btn({metin: 'Saatli plan', ikon: 'saat', tur: 'secondary', boyut: 'sm', git: `#/rota/ozet/${R.id}`})}),
       GM.dagilimCubuk({baslik: 'Sapma dağılımı', alt: `${n} durak · gidiş-dönüş`, ogeler: GM.sapmaDagilim(K.ogeler.neYenir)}),
-      GM.krListe([GM.ihtiyacOzet(ihtiyac)], {ikon: 'yakit', tur: 'katman', baslik: 'Güzergâh ihtiyaçları', alt: `Rota koridorunda ${K.ogeler.yol.length} nokta · yakıt OpenStreetMap`}),
-      GM.krListe([liste], {ikon: katIkon(v), baslik: katBaslik(v), alt: katOzet(v), eylem: v.kat === 'neYenir' && L.length ? GM.btn({metin: 'Süz', ikon: 'filtre', tur: 'secondary', boyut: 'sm', veri: {eylem: 'filtre'}}) : ''})
+      GM.krListe([GM.ihtiyacOzet(ihtiyac)], {ikon: v.arac === 'ev' ? 'sarj' : 'yakit', tur: 'katman', baslik: 'Güzergâh ihtiyaçları', alt: `Rota koridorunda ${K.ogeler.yol.length} nokta${v.arac === 'ev' ? ' · Elektrikli' : ' · yakıt OpenStreetMap'}`}),
+      GM.krListe([liste], {ikon: katIkon(v), baslik: katBaslik(v), alt: katOzet(v)})
     ]);
   };
   const cekmeceBas = v => GM.cekmeceOzet({baslik: `${v.R.kalkis} → ${v.R.varis}`, alt: GM.esc(`${GM.sayi(Math.round(v.R.km))} km · ${GM.sure(v.R.dk + v.ek)} · ${v.E.length ? `${v.E.length} durak` : `${GM.rotaSayi(v.R).onerilen} öneri`}`),
-    // Tam konumda (üst panel çekilmişken) haritaya dönüş: başta tek ikon düğme; yarım ve kapalıda gizli.
-    eylem: GM.btn({metin: 'Liste', ikon: 'list-ul', tur: 'secondary', boyut: 'sm', git: `#/rota/liste/${v.R.id}`}) + GM.ikonBtn({ikon: 'harita', etiket: 'Haritaya dön', tur: 'kutu', sinif: 'gm-ra-cek-kapat', veri: {eylem: 'cekmece-kapat'}})});
+    // Beyar 16 Kas: üst sağda TEK kontrol — yarım/kapalıda "Liste" (liste görünümü), tamda yerini "Harita" alır (çekmeceyi kapatır); aynı boy ve hiza.
+    eylem: GM.btn({metin: 'Liste', ikon: 'list-ul', tur: 'secondary', boyut: 'sm', sinif: 'gm-ra-cek-liste', git: `#/rota/liste/${v.R.id}`}) + GM.btn({metin: 'Harita', ikon: 'harita', tur: 'secondary', boyut: 'sm', sinif: 'gm-ra-cek-kapat', veri: {eylem: 'cekmece-kapat'}, attrs: 'aria-label="Haritaya dön"'})});
   const aksiyon = R => GM.rotaAksiyon({ogeler: [{ikon: 'kaydet', ad: GM.rotaKayitliMi(R) ? 'Kaydedildi' : 'Kaydet', basili: GM.rotaKayitliMi(R), veri: {eylem: 'rh-kaydet'}}, {ikon: 'paylas', ad: 'Paylaş', veri: {eylem: 'rh-paylas'}}, {ikon: 'navigasyon', ad: 'Aktar', veri: {eylem: 'rh-aktar'}}],
     ana: {metin: 'Yola çık', ikon: 'arac', veri: {eylem: 'rh-yola'}}});
 
@@ -108,13 +108,13 @@
         : v.konum ? GM.bant({ton: 'uyari', ikon: 'konum', metin: '**Konum izni kapalı.** Yaklaşım bildirimi için gerekir.', eylem: {metin: 'İzin ver', veri: {eylem: 'konum-izin'}}}) : '';
       const ust = GM.rotaUst({
         arama: GM.haritaArama({yer: `${R.kalkis} → ${R.varis} boyunca ara`, ad: 'rh-ara'}),
-        arac: GM.aracSecim({ad: 'rh-arac', secili: arac}),
+        // Beyar 16 Kas: araç tipi planlarken seçildi; haritada tekrar gösterilmez (yakıt/şarj ayrımı GM.rotaKategori'de sürer).
         kategori: GM.kesifKategoriler({ad: 'rh-kat', secili: kat, etiket: 'Rota boyunca keşfet', ogeler: K.kat}),
         alt: kat === 'yol' ? GM.cipler({ad: 'rh-alt', tur: 'tek', etiket: 'Yol ihtiyaçları', secili: alt, ogeler: K.alt.map(a => ({deger: a.deger, metin: a.metin, ikon: a.ikon, sayi: a.ogeler.length}))}) : '',
         ek});
       return GM.haritaEkran({
         sinif: 'gm-ra',
-        harita: GM.harita({ad: 'rh-h', tam: true, kume: kat === 'neYenir', koridor: true, kontroller: false, cevrimdisi: v.cd, rota: v.bos ? {} : {cizgi: R.cizgi}, pinler: v.bos ? [] : pinler(v), dolgu: {top: kat === 'yol' ? 300 : 256, bottom: 210, left: 80, right: 72}, etiket: `${R.ad} rota haritası`, ...(kam ? {merkez: kam.merkez, zoom: kam.zoom} : {})}),
+        harita: GM.harita({ad: 'rh-h', tam: true, kume: kat === 'neYenir', koridor: true, kontroller: false, cevrimdisi: v.cd, rota: v.bos ? {} : {cizgi: R.cizgi}, pinler: v.bos ? [] : pinler(v), dolgu: {top: kat === 'yol' ? 244 : 200, bottom: 210, left: 80, right: 72}, etiket: `${R.ad} rota haritası`, ...(kam ? {merkez: kam.merkez, zoom: kam.zoom} : {})}),
         ust,
         cekmece: GM.cekmece({ad: 'rh-cekmece', durak: ['kapali', 'yarim', 'tam'].includes(v.s.cekmece) ? v.s.cekmece : (() => { const d = cekDurak?.rota === R.id && !secim ? cekDurak.durak : null; cekDurak = null; return d || (v.bos ? 'yarim' : 'kapali'); })(), bas: cekmeceBas(v), etiket: 'Rota özeti ve duraklar', html: govde(v)}),
         secim: true
@@ -155,12 +155,6 @@
       const c = [
         GM.on(kok, 'rh-kat', k => { const x = [].concat(k)[0]; if (x) yaz(id, {kat: x}); secim = null; yenile(); }),
         GM.on(kok, 'rh-alt', a => { const x = [].concat(a)[0]; if (x) yaz(id, {alt: x}); secim = null; yenile(); }),
-        GM.on(kok, 'rh-arac', a => {
-          GM.durum.yaz('rota-arac', a); secim = null;
-          if (a === 'ev') { yaz(id, {kat: 'yol', alt: 'sarj'}); GM.toast('Elektrikli: **şarj** ve **uzun mola** durakları öne alındı', {ikon: 'sarj'}); }
-          else { yaz(id, {alt: 'yakit'}); GM.toast('Yakıtlı: yol ihtiyaçlarında **yakıt** önde', {ikon: 'yakit'}); }
-          yenile();
-        }),
         GM.on(kok, 'rh-h', pid => { if (pid === 'bas' || pid === 'son') { kartKapat(); return; } kartAc(pid); }),
         GM.on(kok, 'rh-cekmece', d => { if (d !== 'kapali') { hsec()?.classList.remove('is-gorunur'); secim = null; } }),
         GM.eylem(kok, 'durak-ekle', el => ekle(el.dataset.id)),
@@ -215,11 +209,10 @@
       const v = veri(ctx), {K, kat, alt, arac} = v, L = K.liste(kat, alt);
       return GM.bolumler([
         {html: GM.yigin([
-          GM.aracSecim({ad: 'rl-arac', secili: arac}),
           GM.cipler({ad: 'rl-kat', tur: 'tek', etiket: 'Kategori', secili: kat, ogeler: K.kat.map(k => ({deger: k.deger, metin: k.metin, ikon: k.ikon, sayi: k.sayi}))}),
           kat === 'yol' ? GM.cipler({ad: 'rl-alt', tur: 'tek', etiket: 'Yol ihtiyaçları', secili: alt, ogeler: K.alt.map(a => ({deger: a.deger, metin: a.metin, ikon: a.ikon, sayi: a.ogeler.length}))}) : ''], 12)},
         {html: L.length
-          ? GM.krListe([GM.yolSatirlar(satirlar(v, L.slice(0, SAYFA)))], {ikon: katIkon(v), baslik: katBaslik(v), alt: katOzet(v), eylem: kat === 'neYenir' ? GM.btn({metin: 'Süz', ikon: 'filtre', tur: 'secondary', boyut: 'sm', veri: {eylem: 'filtre'}}) : ''})
+          ? GM.krListe([GM.yolSatirlar(satirlar(v, L.slice(0, SAYFA)))], {ikon: katIkon(v), baslik: katBaslik(v), alt: katOzet(v)})
           : katBos(v)}
       ]);
     },
@@ -238,7 +231,6 @@
       const c = [
         GM.on(kok, 'rl-kat', k => { const x = [].concat(k)[0]; if (x) yaz(id, {kat: x}); yenile(); }),
         GM.on(kok, 'rl-alt', a => { const x = [].concat(a)[0]; if (x) yaz(id, {alt: x}); yenile(); }),
-        GM.on(kok, 'rl-arac', a => { GM.durum.yaz('rota-arac', a); if (a === 'ev') yaz(id, {kat: 'yol', alt: 'sarj'}); else yaz(id, {alt: 'yakit'}); yenile(); }),
         GM.eylem(kok, 'durak-ekle', el => ekle(el.dataset.id)),
         GM.eylem(kok, 'durak-cikar', el => cikar(el.dataset.id)),
         GM.eylem(kok, 'il-ac', el => GM.ilSheet({rota: R, il: el.dataset.id, eklenen: oku(id).eklenen, ekle: x => ekle(x.slug)})),

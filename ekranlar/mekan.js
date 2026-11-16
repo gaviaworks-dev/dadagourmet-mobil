@@ -78,7 +78,27 @@
   // Ekrana özgü hâller (?hal=): bulunamadi · kapali (işletme kalıcı kapandı) · rez-kapali (çevrim içi talep almıyor) · slot-yok (seçilen gün dolu) · rez-hata (talep gönderilemedi).
   // ?rez=1 ya da slot-yok / rez-hata: rezervasyon sheet'i açılışta açılır (misafirde üye duvarı). Ortak hâller (yukleniyor, bos, hata, cevrimdisi) router'da.
   const aHal = ctx => ctx.sorgu.hal || '';
-  const aVeri = ctx => { if (aHal(ctx) === 'bulunamadi') return null; const v = veri(ctx.param.slug); if (!v) return null; const h = aHal(ctx); const rezKapali = h === 'rez-kapali' || h === 'kapali' || !v.m.rezervasyon; return {...v, kapandi: h === 'kapali', rezKapali, ozellik: rezKapali ? v.ozellik.filter(x => !/^Rezervasyon/.test(x)) : v.ozellik}; };
+  // Canlı çalışma saati (Revize 16 Kas #12): haftalık saat verisinden (d.saatler; yalnız veride olan mekânda — uydurma yok) şu an açık mı, kapanışa ne kadar kaldı, ne zaman açılıyor.
+  // Gece yarısını aşan aralık (18:00–00:00, 18:00–02:00) bir sonraki güne taşar; dünün geç kapanışı bugün sayılır. Kare için an sabitleme: ?saat=HH:MM (&gun=1-7, Pzt=1).
+  const GUNTAM = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+  const canliSaat = (d, ctx) => {
+    const S = d.saatler; if (!S) return null;
+    const t = GM.simdi(), [qh, qm] = String(ctx.sorgu.saat || '').split(':').map(Number);
+    const g = +ctx.sorgu.gun >= 1 && +ctx.sorgu.gun <= 7 ? +ctx.sorgu.gun : (t.getDay() + 6) % 7 + 1, su = Number.isFinite(qh) && ctx.sorgu.saat ? qh * 60 + (qm || 0) : t.getHours() * 60 + t.getMinutes();
+    const dkx = s => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
+    const aralik = k => { const gg = ((g - 1 + k) % 7 + 7) % 7 + 1, x = S[gg]; if (!x) return null; const a = dkx(x[0]); let b = dkx(x[1]); if (b <= a) b += 1440; return {k, bas: k * 1440 + a, son: k * 1440 + b, x, gg}; };
+    const l = Array.from({length: 9}, (_, i) => aralik(i - 1)).filter(Boolean);
+    const acik = l.find(r => su >= r.bas && su < r.son);
+    if (acik) {
+      const kal = acik.son - su, h = Math.floor(kal / 60), r = kal % 60;
+      const sure = kal < 60 ? `${kal} dk` : r ? `${h} sa ${r} dk` : `${h} saat`;
+      return {acik: true, deger: 'Açık', alt: `${sure} kaldı`, metin: `Şu an açık · Kapanmasına ${sure} kaldı`};
+    }
+    const sonraki = l.find(r => r.bas > su); if (!sonraki) return {acik: false, deger: 'Kapalı', alt: 'Saat yok', metin: 'Kapalı'};
+    const saat = `${nokta(sonraki.x[0])}${GM.saatEki(sonraki.x[0])}`, gun = sonraki.k === 0 ? '' : sonraki.k === 1 ? 'Yarın ' : `${GUNTAM[sonraki.gg - 1]} `;
+    return {acik: false, deger: 'Kapalı', alt: sonraki.k === 0 ? `${saat} açılır` : `${gun.trim()} ${nokta(sonraki.x[0])}`, metin: `Kapalı · ${gun}${saat} açılıyor`, acilis: sonraki.x[0]};
+  };
+  const aVeri = ctx => { if (aHal(ctx) === 'bulunamadi') return null; const v = veri(ctx.param.slug); if (!v) return null; const h = aHal(ctx); const rezKapali = h === 'rez-kapali' || h === 'kapali' || !v.m.rezervasyon; const c = canliSaat(v.d, ctx); return {...v, kapandi: h === 'kapali', rezKapali, canli: c, acik: c ? {acik: c.acik, metin: c.metin, acilis: c.acilis} : v.acik, ozellik: rezKapali ? v.ozellik.filter(x => !/^Rezervasyon/.test(x)) : v.ozellik}; };
   const aBant = v => (v.kapandi
     ? GM.ipucu({ton: 'hata', ikon: 'store-slash', baslik: 'Bu mekân kalıcı olarak kapandı', metin: 'İşletme **yayından kalktı**; bilgiler arşiv için duruyor. Aynı türde açık mekânlar aşağıda.'})
     : v.rezKapali && v.m.rezervasyon ? GM.ipucu({ton: 'uyari', ikon: 'rezervasyon', baslik: 'Rezervasyon şu an kapalı', metin: `Mekân çevrim içi talep **almıyor**${v.d.tel ? '; masa için telefonla sorabilirsin' : '; gitmeden önce mekâna danış'}.`, eylem: v.d.tel ? {metin: 'Ara', ikon: 'telefon', veri: {eylem: 'mk-ara'}} : null}) : '');
@@ -100,7 +120,8 @@
         {ad: 'Adres & Saatler', deger: 'adres', html: adres(v)},
         ...(d.tarifler ? [{ad: 'Tarifler', deger: 'tarifler', html: tarif(v)}] : [])
       ];
-      const bugun = v.kapandi ? {ikon: 'saat', etiket: 'Durum', deger: 'Kapandı', alt: 'kalıcı'} : s ? {ikon: 'saat', etiket: 'Bugün', deger: v.acik.acik ? 'Açık' : nokta(v.acik.acilis || s[0]), alt: v.acik.acik ? `${nokta(s[1])} kapanış` : (v.acik.acilis ? 'açılış' : 'kapalı')} : {ikon: 'saat', etiket: 'Şu an', deger: v.acik.metin || '–'};
+      // Revize 16 Kas #12: mevcut açık/kapalı hücresi canlı (şu an açık · kalan süre / kapalı · açılış); saat verisi yoksa eski kart verisi (Açık/Kapalı).
+      const bugun = v.kapandi ? {ikon: 'saat', etiket: 'Durum', deger: 'Kapandı', alt: 'kalıcı'} : v.canli ? {ikon: 'saat', etiket: 'Şu an', deger: v.canli.deger, alt: v.canli.alt} : s ? {ikon: 'saat', etiket: 'Bugün', deger: v.acik.acik ? 'Açık' : nokta(v.acik.acilis || s[0]), alt: v.acik.acik ? `${nokta(s[1])} kapanış` : (v.acik.acilis ? 'açılış' : 'kapalı')} : {ikon: 'saat', etiket: 'Şu an', deger: v.acik.metin || '–'};
       return GM.detay({
         gorsel: v.galeri[0]?.src || m.kapak, etiket: [m.kategori, m.mutfak?.[0]].filter(Boolean).join(' · '), baslik: m.ad,
         caps: [m.puan == null ? null : {ikon: 'yildiz', metin: String(m.puan).replace('.', ',')}, {ikon: 'pin', metin: GM.konumMetin(m)}, v.rota && !v.kapandi ? {ikon: 'rota', metin: 'Rota durağı'} : null].filter(x => x && x.metin),

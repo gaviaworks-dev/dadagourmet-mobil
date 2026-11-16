@@ -41,8 +41,7 @@
   ], [
     ...(GM.uye() ? [hesapGrubu] : []),
     {id: 'pro', label: 'Dada Gourmet Pro', icon: 'bolt', git: '#/pro'},
-    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'},
-    {id: 'intro', label: 'Intro’yu tekrar göster', icon: 'circle-play', git: '#/splash?intro=1'}
+    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'}
   ]];
   // 14/14 (Beyar 16 Kas düzeltmesi): Mekân Öner ve İşletmeni Ekle menünün geri kalanıyla AYNI blok + satır yapısında, hafifçe öne çıkan:
   // açık mor blok zemini, mor ikon kutusu, adın altında kısa açıklama, sağda ok. (Önceki kesikli kartlar menüden kopuk duruyordu.)

@@ -109,46 +109,64 @@
       const t = ev => {
         if (ev.target.closest('[data-eylem="ds-ekle"]')) { h.kapat(); o.ekle?.(d); }
         else if (ev.target.closest('[data-eylem="ds-cikar"]')) { h.kapat(); o.cikar?.(d); }
-        else if (ev.target.closest('[data-eylem="ds-yol"]')) GM.aktarSheet({rota: R, hedef: {ad: m ? m.ad : d.ad}});
+        else if (ev.target.closest('[data-eylem="ds-yol"]')) GM.aktarSheet({rota: R, hedef: {ad: m ? m.ad : d.ad, lng: d.lng, lat: d.lat}});
       };
       k.addEventListener('click', t); return () => k.removeEventListener('click', t);
     }});
   };
+
+  // ---------- Coğrafi işaret rozeti (Beyar 16 Kas, karar 18) ----------
+  // TÜRKPATENT resmi amblemi KULLANILMAZ (yalnız hak sahibi kullanıcılar ürün/ambalaj üzerinde kullanır; ci.turkpatent.gov.tr). Yerine metin rozeti; tescil no uydurulmaz.
+  // o.kisa: yalnız "Coğrafi İşaretli" (dar satırda); varsayılan "Coğrafi İşaretli · TÜRKPATENT tescilli".
+  GM.ciRozet = (o = {}) => `<span class="${liste('gm-ci', o.kisa && 'is-kisa')}" title="Coğrafi İşaretli · TÜRKPATENT tescilli">${ik('cografi')}<b>Coğrafi İşaretli</b>${o.kisa ? '' : '<span>· TÜRKPATENT tescilli</span>'}</span>`;
 
   // ---------- (f) İl kimlik kartı: tam hali ----------
   // GM.ilKart'ın sheet hali: aynı coğrafi işaret tonu ve ikonları; tescilli ürünler Ne Yenir / Ne Alınır diye ayrılır, altta o ildeki rota durakları (GM.durakKart).
   // o: {rota, il (ad), ekle(d), eklenen:[slug]}
   GM.ilSheet = (o = {}) => {
     const R = o.rota, i = (R?.iller || []).find(x => x.ad === o.il) || {ad: o.il}, k = (window.GMV?.ilKimlik || []).find(x => x.ad === o.il) || {tescilli: []};
-    const kolon = (tur, baslik) => { const l = k.tescilli.filter(x => x.tur === tur); return l.length ? `<section class="gm-is-kolon is-${tur === 'alinir' ? 'neAlinir' : 'neYenir'}"><h3>${ik(tur === 'alinir' ? 'neAlinir' : 'neYenir')}<span>${esc(baslik)}</span><small>${l.length}</small></h3><ul>${l.map(x => `<li><b>${esc(x.ad)}</b>${x.yer ? `<small>${ik('pin')}${esc(x.yer)}</small>` : ''}</li>`).join('')}</ul></section>` : ''; };
+    const kolon = (tur, baslik) => { const l = k.tescilli.filter(x => x.tur === tur); return l.length ? `<section class="gm-is-kolon is-${tur === 'alinir' ? 'neAlinir' : 'neYenir'}"><h3>${ik(tur === 'alinir' ? 'neAlinir' : 'neYenir')}<span>${esc(baslik)}</span><small>${l.length}</small></h3><ul>${l.map(x => `<li><span class="gm-is-urun"><b>${esc(x.ad)}</b>${x.yer ? `<small>${ik('pin')}${esc(x.yer)}</small>` : ''}</span>${GM.ciRozet({kisa: true})}</li>`).join('')}</ul></section>` : ''; };
     const D = R ? GM.rotaOneri(R).filter(d => d.mekan.il === o.il) : [];
-    const html = `<div class="gm-is"><header class="gm-is-bas">${durakIkon('cografi', true)}<span class="gm-satir-metin"><small class="gm-card__category">${esc([i.bolge, i.km != null ? `Rotanın ${i.km}. km’si` : ''].filter(Boolean).join(' · '))}</small><b>${esc(o.il)}</b><span>${GM.sayi(k.tescilli.length)} coğrafi işaretli lezzet</span></span></header>
+    const html = `<div class="gm-is"><header class="gm-is-bas">${durakIkon('cografi', true)}<span class="gm-satir-metin"><small class="gm-card__category">${esc([i.bolge, i.km != null ? `Rotanın ${i.km}. km’si` : ''].filter(Boolean).join(' · '))}</small><b>${esc(o.il)}</b><span>${GM.sayi(k.tescilli.length)} coğrafi işaretli lezzet</span>${k.tescilli.length ? GM.ciRozet() : ''}</span></header>
       ${kolon('yenir', 'Ne Yenir?')}${kolon('alinir', 'Ne Alınır?')}
       <section class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">${esc(o.il)}’da rotaya yakın gurme duraklar</p>${D.length ? `<div class="gm-yigin-8">${D.map(d => GM.durakKart({...d, id: d.slug}, {sapma: {dk: d.sapma, km: d.km}, eklendi: (o.eklenen || []).includes(d.slug)})).join('')}</div>` : GM.p('Bu ilde rotaya 10 km’den yakın Dada mekânı yok.', {ton: 'ikincil'})}</section>
-      ${GM.bilgi({metin: 'Coğrafi işaretler TÜRKPATENT tescil kayıtlarıdır. Sürüş sırasında bu kart açılmaz; il sınırında yalnız bildirim gelir.'})}</div>`;
+      ${GM.bilgi({metin: '**Coğrafi İşaretli** ürünler TÜRKPATENT tescil kayıtlarıdır. Sürüş sırasında bu kart açılmaz; il sınırında yalnız bildirim gelir.'})}</div>`;
     return GM.sheet({baslik: 'İl kimliği', tam: true, sinif: 'gm-is-sheet', html, sonra: (kk, h) => GM.eylem(kk, 'durak-ekle', el => { const d = D.find(x => x.slug === el.dataset.id); if (d) { h.kapat(); o.ekle?.(d); } })});
   };
 
   // ---------- (g) Navigasyona aktar ----------
-  // GM.satirlar + GM.ikonKutu (rota.js "Navigasyonda aç" ile aynı satır dili); sınır her satırın altında açıkça yazılı, sağda bu rotaya etkisi (rozet).
-  // Web (WEB-ENVANTERI §3.5): Google tek bağlantıda 9 ara durak (telefonda 3, fazlası etap), Apple iOS 18.4+, Yandex yalnız uçlar. Waze (patron belgesi §3E) tek hedef alır. GPX mobil ektir.
-  // o: {rota, duraklar:[...ara durak], hedef:{ad} (tek durağa yol tarifi)}
+  // Harici harita seçimi (Beyar 16 Kas: Google Haritalar / Apple Haritalar / Yandex, gerçek bağlantılarla). Her satır uygulamayı (yoksa web sürümünü) açar:
+  //   Google  https://www.google.com/maps/dir/?api=1&origin=&destination=&waypoints=a|b&travelmode=driving (tek bağlantıda en çok 9 ara durak)
+  //   Apple   https://maps.apple.com/?saddr=&daddr=d1+to:d2+to:varış&dirflg=d (iOS 18.4 öncesinde yalnız varış)
+  //   Yandex  https://yandex.com.tr/maps/?rtext=a~b~c&rtt=auto (ara noktalar ~ ile)
+  //   Waze    https://waze.com/ul?ll=&navigate=yes (tek hedef: sıradaki durak ya da varış)
+  // o: {rota, duraklar:[{lng, lat} | {d:{lng, lat}}], nereden:[lng, lat] (yol takibinde anlık konum), hedef:{ad, lng, lat} (tek durağa yol tarifi)}
+  const nk = x => { const lng = x?.lng ?? x?.d?.lng ?? x?.[0], lat = x?.lat ?? x?.d?.lat ?? x?.[1]; return lng != null && lat != null ? `${(+lat).toFixed(5)},${(+lng).toFixed(5)}` : null; };
+  GM.aktarBaglantilar = (o = {}) => {
+    const R = o.rota, bas = nk(o.nereden || R?.cizgi?.[0]), tek = !!o.hedef, son = nk(tek ? o.hedef : R?.cizgi?.at(-1)) || encodeURIComponent(o.hedef?.ad || R?.varis || '');
+    const ara = tek ? [] : (o.duraklar || []).map(nk).filter(Boolean), ilk = ara[0] || son, q = encodeURIComponent;
+    return {
+      google: `https://www.google.com/maps/dir/?api=1${bas ? `&origin=${q(bas)}` : ''}&destination=${q(son)}${ara.length ? `&waypoints=${q(ara.slice(0, 9).join('|'))}` : ''}&travelmode=driving`,
+      apple: `https://maps.apple.com/?${bas ? `saddr=${q(bas)}&` : ''}daddr=${[...ara, son].map(q).join('+to:')}&dirflg=d`,
+      yandex: `https://yandex.com.tr/maps/?rtext=${[bas || '', ...ara, son].map(q).join('~')}&rtt=auto`,
+      waze: `https://waze.com/ul?ll=${q(ilk)}&navigate=yes`
+    };
+  };
   GM.aktarSheet = (o = {}) => {
-    const R = o.rota, n = (o.duraklar || []).length, tek = !!o.hedef, etap = Math.max(1, Math.ceil(n / 3));
-    const rozet = (metin, ton) => GM.durumRozet({metin, ton, ikon: ton === 'uyari' ? 'uyari' : 'onay'});
-    const satirlar = tek
-      ? [{ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Bu durağa yol tarifi', id: 'apple'}, {ikon: 'map', baslik: 'Google Haritalar', alt: 'Bu durağa yol tarifi', id: 'google'}, {ikon: 'car-side', baslik: 'Waze', alt: 'Bu durağa yol tarifi', id: 'waze'}, {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Bu durağa yol tarifi', id: 'yandex'}]
-      // Patron belgesi §3E sırası: Apple Maps · Google Maps · Waze; Yandex (Türkiye'de yaygın) ve dosya seçenekleri ardından.
-      : [{ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: 'Çok duraklı rota iOS 18.4 ve sonrasında; öncesinde yalnız varış', id: 'apple', sag: rozet('Uygun', 'basari')},
-        {ikon: 'map', baslik: 'Google Haritalar', alt: 'Tek bağlantıda en çok 9 ara durak; telefonda 3, fazlası etaplara bölünür', id: 'google', sag: n > 3 ? rozet(`${etap} etap`, 'uyari') : rozet('Tek bağlantı', 'basari')},
-        {ikon: 'car-side', baslik: 'Waze', alt: 'Tek hedef: sıradaki durağa ya da varışa; ara duraklar sırayla açılır', id: 'waze', sag: n ? rozet('Durak durak', 'uyari') : rozet('Uygun', 'basari')},
-        {ikon: 'location-arrow', baslik: 'Yandex Navigasyon', alt: 'Yalnız kalkış ve varış; ara duraklar aktarılmaz', id: 'yandex', sag: n ? rozet('Duraklar düşer', 'uyari') : rozet('Uygun', 'basari')},
-        // Web rota-katman-panel.js "Tek rota bağlantısı" (R3.6d): bütün duraklar tek adreste, açan kişi uygulamayı seçer.
-        {ikon: 'link', baslik: 'Tek rota bağlantısı', alt: 'Bütün duraklar tek adreste; açan kişi Google, Apple ya da Yandex’i seçer', id: 'bag', sag: rozet('Kopyala', 'notr')},
-        {ikon: 'file-export', baslik: 'GPX dosyası', alt: 'Rota çizgisi ve duraklar; Garmin ve diğer uygulamalar için', id: 'gpx', sag: rozet('Dosya', 'notr')}];
-    const html = `<div class="gm-yigin">${GM.p(tek ? `**${o.hedef.ad}** için yol tarifi harita uygulamasında açılır.` : `**${R.kalkis} → ${R.varis}** · ${n ? `${n} ara durak` : 'ara durak yok'}. Navigasyon harita uygulamasında sürer; yol takibi durak uyarılarını vermeye devam eder.`, {ton: 'ikincil'})}
-      ${GM.satirlar(satirlar.map(x => ({sol: GM.ikonKutu({ikon: x.ikon, boyut: 'md', ton: 'notr'}), baslik: x.baslik, alt: x.alt, sag: x.sag || '', ok: !x.sag, veri: {eylem: 'aktar-hedef', id: x.id}, sinif: 'gm-ak-satir'})))}</div>`;
-    return GM.sheet({baslik: tek ? 'Yol tarifi' : 'Navigasyona aktar', html, sonra: (k, h) => GM.eylem(k, 'aktar-hedef', el => { const x = satirlar.find(s => s.id === el.dataset.id); h.kapat(); GM.toast(x.id === 'bag' ? '**Tek rota bağlantısı** kopyalandı' : x.id === 'gpx' ? `**${R ? R.ad : ''}.gpx** hazırlandı · paylaşım açılıyor` : `**${x.baslik}** açılıyor${!tek && x.id === 'google' && n > 3 ? ` · ${etap} etap` : ''}`, {ikon: x.id === 'gpx' ? 'file-export' : 'navigasyon'}); })});
+    const R = o.rota, n = (o.duraklar || []).length, tek = !!o.hedef, U = GM.aktarBaglantilar(o);
+    const satirlar = [
+      {id: 'google', ikon: 'map', baslik: 'Google Haritalar', alt: tek ? 'Bu durağa yol tarifi' : n ? `${Math.min(n, 9)} ara durakla, tek bağlantı` : 'Kalkıştan varışa yol tarifi'},
+      {id: 'apple', ikon: 'map-location-dot', baslik: 'Apple Haritalar', alt: tek ? 'Bu durağa yol tarifi' : n ? 'Duraklarla; iOS 18.4 öncesinde yalnız varış' : 'Kalkıştan varışa yol tarifi'},
+      {id: 'yandex', ikon: 'location-arrow', baslik: 'Yandex Haritalar', alt: tek ? 'Bu durağa yol tarifi' : n ? `${n} ara noktayla` : 'Kalkıştan varışa yol tarifi'},
+      {id: 'waze', ikon: 'car-side', baslik: 'Waze', alt: tek ? 'Bu durağa yol tarifi' : n ? 'Sıradaki durağa; varış sonra' : 'Varışa yol tarifi'}];
+    const html = `<div class="gm-yigin">${GM.p(tek ? `**${o.hedef.ad}** için yol tarifi seçtiğin harita uygulamasında açılır.` : `**${R.kalkis} → ${R.varis}**${n ? ` · ${n} durak` : ''}. Yol tarifini harita uygulaması verir; Dada durak uyarılarını sürdürür.`, {ton: 'ikincil'})}
+      ${GM.satirlar(satirlar.map(x => ({sol: GM.ikonKutu({ikon: x.ikon, boyut: 'md', ton: 'notr'}), baslik: x.baslik, alt: x.alt, sag: ik('arrow-up-right-from-square', 'gm-ak-dis'), ok: false, veri: {eylem: 'aktar-hedef', id: x.id}, sinif: 'gm-ak-satir'})))}
+      ${tek ? '' : GM.satirlar([{ikon: 'link', baslik: 'Rota bağlantısını kopyala', alt: 'Google Haritalar bağlantısı; yol arkadaşına gönder', veri: {eylem: 'aktar-kopya'}}])}</div>`;
+    return GM.sheet({baslik: tek ? 'Yol tarifi' : 'Navigasyona aktar', html, sonra: (k, h) => {
+      const a = GM.eylem(k, 'aktar-hedef', el => { const x = satirlar.find(s => s.id === el.dataset.id); try { window.open(U[x.id], '_blank', 'noopener'); } catch { /* yok */ } h.kapat(); GM.toast(`**${x.baslik}** açılıyor`, {ikon: 'navigasyon'}); });
+      const b = GM.eylem(k, 'aktar-kopya', () => { try { navigator.clipboard?.writeText(U.google); } catch { /* yok */ } h.kapat(); GM.toast('Rota bağlantısı **kopyalandı**', {ikon: 'link'}); });
+      return () => { a(); b(); };
+    }});
   };
 
   // ---------- Rota haritası bağlayıcısı (rota.js tek satırla çağırır) ----------
@@ -231,6 +249,6 @@
     return `<div class="gm-yt-bar">${GM.ikonBtn({ikon: 'kapat', etiket: 'Yol takibini kapat', tur: 'kutu', attrs: 'data-geri'})}<span class="gm-yt-bar-metin"><b>Yol takibi</b><small class="gm-kirp-1">${esc(o.rota || '')}</small></span>${GM.ikonBtn({ikon: o.ses ? 'sesli' : 'volume-xmark', etiket: o.ses ? 'Sesli uyarılar açık' : 'Sesli uyarılar kapalı', tur: 'kutu', veri: {eylem: 'cp-ses'}})}</div>
       <article class="${liste('gm-yt-sira', o.varis && 'is-varis')}" aria-live="polite"><div data-yt-uyari></div><div class="gm-yt-sira-ust"><span class="gm-yt-sira-mesafe"><b>${esc(s.uzak || '')}</b><small>${esc(s.sure || '')}</small></span><span class="gm-yt-sira-metin"><small class="gm-t-label">${esc(o.varis ? 'Varış' : 'Sıradaki durak')}</small><b class="gm-kirp-1">${esc(s.ad || '')}</b><span class="gm-mk-meta gm-tek-satir"><span>${esc(s.alt || '')}</span>${rozet ? `<span class="gm-nokta" aria-hidden="true">·</span>${rozet}` : ''}</span></span>${kutu}</div></article>`;
   };
-  // Eylem satırı: Geç (ikincil; varışta Bitir) · Yol tarifi (birincil, navigasyonda aç) · Durak ekle (ikincil). o: {gec:false, bitir}
-  GM.yolTakipEylem = (o = {}) => `<div class="gm-yt-eylem">${o.bitir ? GM.btn({metin: 'Bitir', ikon: 'varis', tur: 'secondary', veri: {eylem: 'cp-bitir'}, attrs: 'aria-label="Yolculuğu bitir"'}) : o.gec === false ? '' : GM.btn({metin: 'Geç', ikon: 'forward', tur: 'secondary', veri: {eylem: 'cp-gec'}})}${GM.btn({metin: 'Yol tarifi', ikon: 'navigasyon', veri: {eylem: 'cp-nav'}, attrs: 'aria-label="Navigasyonda aç: yol tarifi harita uygulamasında"'})}${GM.btn({metin: 'Durak ekle', ikon: 'ekle', tur: 'secondary', veri: {eylem: 'cp-ekle'}})}</div>`;
+  // Hiyerarşi (Beyar 16 Kas): üstte tam genişlik birincil "Navigasyona aktar" (harici harita seçimi); altında eşit iki ikincil: Durağı geç (varışta Bitir) · Durak ekle.
+  GM.yolTakipEylem = (o = {}) => `<div class="gm-yt-eylem">${GM.btn({metin: 'Navigasyona aktar', ikon: 'navigasyon', tam: true, sinif: 'is-ana', veri: {eylem: 'cp-nav'}})}${o.bitir ? GM.btn({metin: 'Yolculuğu bitir', ikon: 'varis', tur: 'secondary', veri: {eylem: 'cp-bitir'}}) : GM.btn({metin: 'Durağı geç', ikon: 'forward', tur: 'secondary', veri: {eylem: 'cp-gec'}})}${GM.btn({metin: 'Durak ekle', ikon: 'ekle', tur: 'secondary', veri: {eylem: 'cp-ekle'}})}</div>`;
 })();
