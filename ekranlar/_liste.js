@@ -28,7 +28,7 @@ window.GM_ROTALAR = {
   // ---- Hesap, destek, yasal, sistem, işletme (paket ortak) ----
   '#/ayarlar': 'ayarlar', '#/ayarlar/:bolum': 'ayarlar-bolum', '#/cozum-merkezi': 'cozum', '#/gorus-bildir': 'gorus', '#/sss': 'sss', '#/iletisim': 'iletisim',
   '#/yasal': 'yasal', '#/yasal/:slug': 'yasal-belge', '#/kurumsal/:slug': 'kurumsal', '#/paketlerim': 'paketlerim', '#/odemelerim': 'odemelerim', '#/pro': 'pro',
-  '#/isletme': 'isletme', '#/isletme/basvuru': 'isletme-basvuru', '#/isletme/:bolum': 'isletme-bolum',
+  '#/isletme': 'isletme', '#/isletme/basvuru': 'isletme-basvuru', '#/sahiplen/:slug': 'sahiplen', '#/isletme/:bolum': 'isletme-bolum',
   '#/bakim': 'bakim', '#/guncelle': 'guncelle', '#/oturum-doldu': 'oturum-doldu', '#/yetki-yok': 'yetki-yok', '#/izin-reddi': 'izin-reddi', '#/durumlar': 'durumlar',
   // ---- Katalog, widget, geliştirici ----
   '#/ekranlar': 'ekranlar', '#/widget/:no': 'widget', '#/yer/:kod': 'yer', '#/hata': 'hata', '#/harita-deneme': 'harita-deneme', '#/katalog': 'katalog', '#/alternatifler': 'alternatifler',

@@ -767,4 +767,113 @@ GMX.isletme = {"mekan":{"ad":"Mikla","kod":"mikla","kategori":"fine-dining-resto
       return () => c.forEach(f => f && f());
     }
   });
+
+  // ---------- Mekânı sahiplen: #/sahiplen/:slug 'sahiplen' (Beyar 16 Kas 21.20, mekân detayı "Bu işletme sizin mi?") ----------
+  // Google İşletme Profili kalıbı: giriş → tek ekran kısa form → "Talebin alındı, incelenecek". Yeni mekân başvurusu (#/isletme/basvuru) değildir; talep bu mekâna bağlanır.
+  // Kayıt yerel: GM.durum 'sahiplen-talepler' {slug: {no, tarih, durum: 'inceleniyor'}}. Uç sözleşmesi web tarafında (inbox/gourmet.md Görev 38 → docs/MOBIL-API.md) gelince bağlanacak.
+  // Hâller: misafir giriş kapısı · form · ?hal=form-hata · ?hal=gonderildi · ?durum=inceleniyor (açık talep; tekrar talep yok) · ?sahipli=1 (doğrulanmış yöneticisi var).
+  //   Sahip rolündeki üye kendi mekânını (GMX.isletme.mekan) açarsa "yöneticisi sensin" + İşletme paneli. Bilinmeyen slug: bulunamadı.
+  const GOREV = [['sahip', 'İşletme sahibi'], ['yonetici', 'Yönetici'], ['calisan', 'Yetkili çalışan']];
+  const SAH_BELGE = [['vergi_levhasi', 'Vergi levhası'], ['yetki_belgesi', 'Yetki belgesi'], ['isletme_ruhsati', 'İşletme ruhsatı'], ['diger', 'Diğer']];
+  const sahTalepler = () => GM.durum.oku('sahiplen-talepler', {});
+  const sahTaslak = () => { const k = kullanici(); return {ad: [k.ad, k.soyad].filter(Boolean).join(' '), gorev: '', telefon: k.telefon || '', eposta: '', belgeTur: 'vergi_levhasi', belge: '', onay: false}; };
+  const sahDogrula = t => {
+    const h = {};
+    if (t.ad.trim().split(/\s+/).length < 2) h.ad = 'Adını ve soyadını yaz.';
+    if (!t.gorev) h.gorev = 'İşletmedeki görevini seç.';
+    if (!telOk(t.telefon)) h.telefon = 'Başında 0 olmadan 10 haneli numarayı yaz.';
+    if (!EPOSTA.test(t.eposta.trim())) h.eposta = t.eposta.trim() ? 'Geçerli bir e-posta adresi yaz (ad@isletmen.com).' : 'İşletme e-postasını yaz; sonucu bu adrese göndeririz.';
+    if (!t.onay) h.onay = 'Göndermek için onay kutusunu işaretle.';
+    return h;
+  };
+  const sahMekanSatir = m => GM.satirlar([{gorsel: m.kapak, baslik: m.ad, alt: [m.kategori, GM.konumMetin(m)].filter(Boolean).join(' · '), git: `#/mekan/${m.slug}`}]);
+  const sahAltBag = () => GM.btn({metin: 'Mekânın listede yok mu? İşletmeni Ekle', tur: 'text', boyut: 'sm', tam: true, git: '#/isletme/basvuru'});
+  const sahFormCiz = (m, t, h) => GM.gruplar([
+    {baslik: 'Sahiplenilecek mekân', html: `<div class="gm-yigin-12">${sahMekanSatir(m)}${GM.veriYok('Bu mekân zaten Dada Gourmet’te. **Yeni başvuru açılmaz**, talep doğrudan bu mekâna bağlanır.')}</div>`},
+    Object.keys(h).length ? {html: GM.bant({ton: 'hata', baslik: 'Talep gönderilemedi', metin: `İşaretli **${Object.keys(h).length} alanı** kontrol et.`})} : null,
+    {baslik: 'Senin bilgilerin', html: `<form class="gm-yigin" data-sahiplen-form novalidate>
+      ${GM.input({ad: 's-ad', etiket: 'Ad soyad', deger: t.ad, zorunlu: true, hata: h.ad, otomatik: 'name'})}
+      ${GM.alan({etiket: 'Görevin', zorunlu: true, hata: h.gorev, html: GM.cipler({ad: 's-gorev', tur: 'tek', serit: false, etiket: 'Görevin', secili: t.gorev, ogeler: GOREV.map(([k, v]) => ({metin: v, deger: k, kucuk: true}))})})}
+      ${GM.telefon({ad: 's-telefon', ulkeAd: 's-telefon-ulke', etiket: 'Telefon', deger: t.telefon, zorunlu: true, hata: h.telefon})}
+      ${GM.input({ad: 's-eposta', etiket: 'İşletme e-postası', ikon: 'envelope', tur: 'email', mod: 'email', yer: 'ad@isletmen.com', deger: t.eposta, zorunlu: true, hata: h.eposta, yardim: h.eposta ? '' : 'Mekânın web alan adıyla eşleşen e-posta onayı hızlandırır.'})}
+      ${GM.secAlan({ad: 's-belge-tur', etiket: 'Belge türü', secenekler: SAH_BELGE, deger: t.belgeTur})}
+      ${GM.dosyaAlan({ad: 's-belge', etiket: 'Belge', metin: t.belge || 'Belge seç', ikon: 'file-arrow-up', kabul: 'application/pdf,image/jpeg,image/png', yardim: 'Vergi levhası ya da yetki belgesi; PDF, JPG veya PNG, en fazla 10 MB.'})}
+      ${GM.alan({etiket: 'Onay', zorunlu: true, hata: h.onay, html: `<div class="gm-yigin-8">${GM.checkbox({ad: 's-onay', etiket: 'Bu işletmeyi temsil etmeye yetkiliyim.', secili: t.onay})}${GM.btn({metin: 'Sahiplik doğrulama esasları', ikon: 'certificate', tur: 'text', boyut: 'sm', git: '#/yasal/isletme-dogrulama'})}</div>`})}
+    </form>`},
+    {html: sahAltBag()}
+  ], {bas: GM.metinBlok({etiket: 'Sahiplenme talebi', baslik: 'Bu işletme senin mi?', metin: 'Talebin onaylanınca **panelin açılır**.', h: 1})});
+  const SIRADAKI = [['user-pen', '1–3 iş günü içinde inceleme', 'Ekip bilgilerini ve belgeni mekân kaydıyla karşılaştırır.'], ['bell', 'E-posta ve bildirim', 'Sonuç işletme e-postana ve bildirimlerine gelir.'], ['store', 'İşletme panelin açılır', 'Onaylanınca panel bu mekânla açılır.'], ['file-circle-plus', 'Gerekirse ek belge', 'Ekip yetkini doğrulamak için belge isteyebilir.']];
+  const sahGonderildi = (m, kayit) => GM.durumSahne({isaret: 'circle-check', baslik: 'Talebin alındı, incelenecek', metin: `**${m.ad}** için sahiplenme talebin **#${kayit.no}** numarasıyla alındı.`,
+    ipucuBaslik: 'Sıradaki adımlar', ipucuParcali: true, ipuclari: SIRADAKI,
+    ana: {metin: 'Mekâna dön', ikon: 'mekan', yerine: `#/mekan/${m.slug}`}, ikinciller: [{metin: 'İşletme merkezi', ikon: 'store', git: '#/isletme'}]});
+  const sahInceleniyor = (m, kayit) => GM.gruplar([
+    {html: GM.bant({ton: 'bilgi', ikon: 'hourglass-half', baslik: 'Talebin inceleniyor', metin: `**#${kayit.no}** numaralı talebin ${GM.tarihUzun(kayit.tarih)} tarihinde alındı. Aynı mekân için **yeniden talep açılmaz**.`})},
+    {baslik: 'Sıradaki adımlar', satirlar: SIRADAKI.map(([ikon, baslik, alt]) => ({ikon, baslik, alt}))},
+    {html: `<div class="gm-yigin-12">${GM.btn({metin: 'Mekâna dön', ikon: 'mekan', tur: 'secondary', tam: true, yerine: `#/mekan/${m.slug}`})}${GM.btn({metin: 'Bir sorun mu var? Bize yaz', ikon: 'envelope', tur: 'text', tam: true, git: '#/iletisim'})}</div>`},
+    {html: sahAltBag()}
+  ], {bas: `<div class="gm-yigin-8">${GM.metinBlok({etiket: 'Sahiplenme talebi', baslik: m.ad, h: 1})}<span class="gm-tek-satir">${GM.durumRozet({metin: 'İnceleniyor', ton: 'uyari', ikon: 'hourglass-half'})}<span class="gm-t-meta gm-ton-ikincil">Talep #${kayit.no}</span></span></div>`});
+  const sahSahipli = (m, kendisi) => GM.durumSahne({isaret: kendisi ? 'store' : 'user-shield',
+    baslik: kendisi ? 'Bu mekânın yöneticisi sensin' : 'Bu mekânın doğrulanmış bir yöneticisi var',
+    metin: kendisi ? `**${m.ad}** paneli bu hesapta açık; rezervasyon ve fotoğrafları oradan yönetirsin.` : `**${m.ad}** başka bir hesapla doğrulandı. Mekân senin işletmense ve bir yanlışlık olduğunu düşünüyorsan **bize bildir**.`,
+    ana: kendisi ? {metin: 'İşletme paneli', ikon: 'store', yerine: '#/isletme'} : {metin: 'Bir sorun mu var? Bize bildir', ikon: 'envelope', git: '#/iletisim'},
+    ikinciller: [{metin: 'Mekâna dön', ikon: 'arrow-left', yerine: `#/mekan/${m.slug}`}]});
+  const sahMod = ctx => {
+    const m = GM.mekan(ctx.param.slug);
+    if (!m) return {mod: 'yok'};
+    if (!GM.uye()) return {mod: 'kapi', m};
+    const kendisi = sahip(ctx) && m.slug === X().mekan.slug;
+    if (ctx.sorgu.sahipli || kendisi) return {mod: 'sahipli', m, kendisi};
+    const kayit = sahTalepler()[m.slug] || (ctx.sorgu.durum === 'inceleniyor' || ctx.sorgu.hal === 'gonderildi' ? {no: `S-${2400 + (m.slug.length * 37) % 600}`, tarih: BUGUN(), durum: 'inceleniyor'} : null);
+    if (ctx.sorgu.hal === 'gonderildi' && kayit) return {mod: 'tamam', m, kayit};
+    if (kayit) return {mod: 'inceleniyor', m, kayit};
+    return {mod: 'form', m};
+  };
+  const sahFormHazirla = ctx => (ctx.sf ||= (() => { const t = sahTaslak(); if (ctx.sorgu.hal === 'form-hata') { t.eposta = 'ad@isletmen'; return {t, h: sahDogrula(t)}; } return {t, h: {}}; })());
+
+  GM.ekran('sahiplen', {
+    tur: 'alt',
+    baslik: 'Mekânı sahiplen',
+    ust: '#/mekanlar',
+    iskelet: 'liste',
+    ciz: ctx => {
+      const d = sahMod(ctx);
+      if (d.mod === 'yok') return GM.hataEkran({tur: 'bulunamadi', baslik: 'Mekân bulunamadı', metin: 'Adres değişmiş olabilir. Mekânlar listesinden **mekânını bulup** "Bu işletme senin mi?" bağlantısına dokun.', eylem: {metin: 'Mekânlar', ikon: 'mekan', yerine: '#/mekanlar'}});
+      if (d.mod === 'kapi') return GM.girisDuvari({ikon: 'store', baslik: 'Sahiplenme için giriş yap', metin: `**${d.m.ad}** için talebin **hesabına bağlanır**; onaylanınca İşletme panelin bu mekânla açılır.`, uyeOl: 'Mekânını sahiplenmek için üye ol',
+        sunar: [['file-signature', 'Kısa form', 'Ad, görev, iletişim ve isteğe bağlı belge.'], ['bell', 'Sonuç bildirimi', 'İnceleme bitince e-posta ve bildirim gelir.'], ['store', 'İşletme paneli', 'Rezervasyon, değerlendirme ve fotoğrafları yönetirsin.']]});
+      if (d.mod === 'sahipli') return sahSahipli(d.m, d.kendisi);
+      if (d.mod === 'tamam') return sahGonderildi(d.m, d.kayit);
+      if (d.mod === 'inceleniyor') return sahInceleniyor(d.m, d.kayit);
+      const f = sahFormHazirla(ctx);
+      return sahFormCiz(d.m, f.t, f.h);
+    },
+    altBar: ctx => (sahMod(ctx).mod === 'form' ? GM.altEylem({dugmeler: [{metin: 'Talebi gönder', ikon: 'gonder', tam: true, veri: {eylem: 'sahiplen-gonder'}}]}) : ''),
+    sonra: (kok, ctx) => {
+      const d = sahMod(ctx);
+      if (d.mod !== 'form') return undefined;
+      const f = sahFormHazirla(ctx);
+      const hataKaldir = el => { const a = el?.closest('.gm-alan.is-hata'); if (a) { a.classList.remove('is-hata'); a.querySelector(':scope > .gm-hata')?.remove(); a.querySelectorAll('[aria-invalid]').forEach(x => x.removeAttribute('aria-invalid')); } };
+      const girdi = ev => hataKaldir(ev.target);
+      kok.addEventListener('input', girdi); kok.addEventListener('change', girdi);
+      const oku = () => {
+        const fm = kok.querySelector('[data-sahiplen-form]'), v = ad => fm.querySelector(`[name="${ad}"]`)?.value ?? '';
+        Object.assign(f.t, {ad: v('s-ad'), gorev: fm.querySelector('[data-ad="s-gorev"] [aria-pressed="true"]')?.dataset.cip || '', telefon: v('s-telefon'), eposta: v('s-eposta'), belgeTur: v('s-belge-tur') || f.t.belgeTur, belge: fm.querySelector('[name="s-belge"]')?.files?.[0]?.name || f.t.belge, onay: !!fm.querySelector('[name="s-onay"]')?.checked});
+      };
+      const c = [
+        () => { kok.removeEventListener('input', girdi); kok.removeEventListener('change', girdi); },
+        GM.on(kok, 's-gorev', (_v, _d, ev) => hataKaldir(ev.target)),
+        GM.eylem(kok, 'sahiplen-gonder', el => {
+          oku();
+          f.h = sahDogrula(f.t);
+          if (Object.keys(f.h).length) { GM.tazele(); requestAnimationFrame(() => kok.querySelector('.gm-kaydir')?.scrollTo({top: 0, behavior: GM.azHareket() ? 'auto' : 'smooth'})); GM.toast('**Eksik alanları** kontrol et', {tur: 'hata', yerine: true}); return; }
+          GM.mesgul(el, GM.azHareket() ? 0 : GM.TK.motion.reveal * 2).then(() => {
+            const no = `S-${Date.now().toString(36).slice(-5).toUpperCase()}`;
+            GM.durum.yaz('sahiplen-talepler', {...sahTalepler(), [d.m.slug]: {no, tarih: BUGUN(), durum: 'inceleniyor', gorev: f.t.gorev, eposta: f.t.eposta.trim(), belge: f.t.belge || null}});
+            ctx.sf = null;
+            GM.yerine(`#/sahiplen/${d.m.slug}?hal=gonderildi`);
+          });
+        })
+      ];
+      return () => c.forEach(x => x());
+    }
+  });
 })();
