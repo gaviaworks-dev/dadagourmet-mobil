@@ -218,7 +218,7 @@
       const s = L;
       // REVIZE 25 (Beyar 16 Kas): ortak hero (Mekân Bul kalıbı, GM.selamBas) + altında tam genişlik ana düğme ve sayı şeridi; arama/bölge/kategori araç bloğu yapışkan kalır.
       return GM.selamBas({gorsel: 'assets/gorsel/etkinlik/alba-beyaz-truf-fuari-2026.webp', ust: 'Lezzet Takvimi', baslikHtml: 'Yaklaşan <em>lezzet şölenleri</em>'})
-        + `<div class="gm-ic gm-yigin">${GM.btn({metin: 'Etkinlik öner', ikon: 'calendar-plus', tam: true, git: '#/etkinlik-oner'})}${GM.stat(heroStat(), {yalin: true})}</div>`
+        + `<div class="gm-ic gm-yigin">${GM.btn({metin: 'Etkinlik öner · +25 Dada Puan', ikon: 'calendar-plus', tam: true, git: '#/etkinlik-oner'})}${GM.stat(heroStat(), {yalin: true})}</div>`
         + GM.listeArac({yer: 'Etkinlik, şehir veya mekân ara', ad: 'q', deger: s.q, filtreSayi: secimSayi(s) - (s.kat ? 1 : 0), segment: bolgeSeg(s), serit: katSerit(s)})
         + GM.listeGovde(`<div class="gm-yigin" data-etk-icerik>${icerik(s)}</div>`);
     },
@@ -427,13 +427,14 @@
 
   // ================= Etkinlik öner (#/etkinlik-oner) =================
   // Panel EtkinlikOnerisiGonderIstegi: Etkinlik adı* · Etkinlik türü* · Şehir / yer* · Başlangıç tarihi (opsiyonel) · Neden öneriyorsun?* (en az 10 karakter).
-  // Yalnız üye gönderir (authorize: Hesap); misafire giriş kapısı. Gönderilen öneri 'katki-etkinlik'e (İnceleniyor) yazılır; Dada Puan verilmez (panel).
+  // Yalnız üye gönderir (authorize: Hesap); misafire giriş kapısı. Gönderilen öneri 'katki-etkinlik'e (İnceleniyor) yazılır; Beyar 16 Kas: yayına girince +25 Dada Puan (mekân önerisi +50 kalıbı).
   const F = {ad: '', tur: '', yer: '', tarih: '', neden: ''};
   const formHata = f => ({ad: f.ad.trim().length < 2 ? 'Etkinliğin adını yaz.' : '', tur: f.tur ? '' : 'Etkinlik türünü seç.', yer: f.yer.trim().length < 2 ? 'Şehir ya da yer yaz.' : '', neden: f.neden.trim().length < 10 ? 'Neden önerdiğini en az 10 karakterle anlat.' : ''});
   let form = {...F}, hatalar = null, gonderildi = null;
   const onerForm = () => {
     const h = hatalar || {};
     return `<div class="gm-ic gm-yigin-24">${GM.metinBlok({etiket: 'Topluluk katkısı', baslik: 'Etkinlik öner', metin: '**Editör onayıyla** takvime eklenir.', rol: 'page', h: 1})}
+      ${GM.ipucu({ikon: 'puanDada', baslik: '+25 Dada Puan', metin: 'Önerin **yayına girince** puan hesabına geçer. Kabul edilmeyen öneri puan kazandırmaz.'})}
       ${hatalar && Object.values(h).some(Boolean) ? GM.bant({ton: 'hata', baslik: 'Birkaç alan eksik', metin: 'İşaretli alanları **doldurup** yeniden gönder.'}) : ''}
       <form class="gm-yigin" data-oner-form novalidate>
         ${GM.input({ad: 'ad', etiket: 'Etkinlik adı', yer: 'Ör. Urla Bağ Bozumu Şenliği', deger: form.ad, zorunlu: true, hata: h.ad})}
@@ -442,15 +443,15 @@
         ${GM.takvimAlan({ad: 'tarih', etiket: 'Başlangıç tarihi', yer: 'Biliyorsan seç', deger: form.tarih, min: bugun(), yardim: 'İsteğe bağlı'})}
         ${GM.input({ad: 'neden', etiket: 'Neden öneriyorsun?', yer: 'Etkinliği öne çıkaran ne? Resmî duyuru varsa nereden gördün?', deger: form.neden, cokSatir: true, zorunlu: true, hata: h.neden, yardim: 'En az 10 karakter'})}
       </form>
-      ${GM.bilgi({etiket: 'Sonra ne olur?', ikon: 'bilgi', metin: 'Önerin **İnceleniyor** olarak Topluluk Katkılarım’a düşer. Editör tarih ve kaynağı doğruladığında takvimde yayınlanır.'})}</div>`;
+      ${GM.bilgi({etiket: 'Sonra ne olur?', ikon: 'bilgi', metin: 'Önerin **İnceleniyor** olarak Topluluk Katkılarım’a düşer. Editör tarih ve kaynağı doğruladığında takvimde yayınlanır, **+25 Dada Puan** hesabına geçer.'})}</div>`;
   };
   GM.ekran('etkinlik-oner', {
     tur: 'alt', baslik: 'Etkinlik öner', ust: '#/etkinlikler',
     ciz: ctx => {
-      if (!GM.uye()) return GM.girisDuvari({tam: true, ikon: 'calendar-plus', baslik: 'Etkinlik önermek için giriş yap', metin: 'Önerilerin **hesabına bağlı** olarak incelenir; durumunu Topluluk Katkılarım’dan izlersin.', uyeOl: 'Etkinlik önermek için üye ol', sunar: ['Bildiğin festival ve tadımları takvime öner', 'Önerinin durumunu Topluluk Katkılarım’da izle', 'Yayına giren önerilerle Hasat Habercisi rozetini kazan']});
+      if (!GM.uye()) return GM.girisDuvari({tam: true, ikon: 'calendar-plus', baslik: 'Etkinlik önermek için giriş yap', metin: 'Önerilerin **hesabına bağlı** olarak incelenir; durumunu Topluluk Katkılarım’dan izlersin.', uyeOl: 'Etkinlik önermek için üye ol', sunar: ['Bildiğin festival ve tadımları takvime öner', 'Önerinin durumunu Topluluk Katkılarım’da izle', 'Yayına giren her öneriyle +25 Dada Puan kazan']});
       if (ctx.sorgu.hal === 'gonderildi' || gonderildi) {
         const ad = gonderildi?.ad || 'Urla Bağ Bozumu Şenliği';
-        return GM.durumSahne({tema: 'basari', isaret: 'onay', baslik: 'Önerin editöre ulaştı', metin: `**${ad}** incelemeye alındı. Editör doğruladığında Lezzet Takvimi’nde yayınlanır; durumunu Topluluk Katkılarım’dan izleyebilirsin.`, ana: {metin: 'Katkılarım', ikon: 'ekle', yerine: '#/profil/katkilar'}, ikinciller: [{metin: 'Etkinliklere dön', ikon: 'etkinlik', yerine: '#/etkinlikler'}]});
+        return GM.durumSahne({tema: 'basari', isaret: 'onay', baslik: 'Önerin editöre ulaştı', metin: `**${ad}** incelemeye alındı. Yayına girince **+25 Dada Puan** hesabına geçer; durumunu Topluluk Katkılarım’dan izleyebilirsin.`, ana: {metin: 'Katkılarım', ikon: 'ekle', yerine: '#/profil/katkilar'}, ikinciller: [{metin: 'Etkinliklere dön', ikon: 'etkinlik', yerine: '#/etkinlikler'}]});
       }
       if (ctx.sorgu.hal === 'eksik' && !hatalar) hatalar = formHata(form);
       return onerForm();
@@ -466,7 +467,7 @@
         oku2(); hatalar = formHata(form);
         if (Object.values(hatalar).some(Boolean)) { GM.tazele(); GM.toast('Eksik alanları **tamamla**', {ikon: 'uyari'}); return; }
         GM.mesgul(el).then(() => {
-          GM.durum.yaz('katki-etkinlik', [{id: `k-${Date.now()}`, tur: 'etkinlik', ad: form.ad, kategori: form.tur, yer: form.yer, tarih: form.tarih || null, neden: form.neden, durum: 'inceleniyor', gonderim: bugun()}, ...(GM.durum.oku('katki-etkinlik', []) || [])]);
+          GM.durum.yaz('katki-etkinlik', [{id: `k-${Date.now()}`, tur: 'etkinlik', ad: form.ad, kategori: form.tur, yer: form.yer, tarih: form.tarih || null, neden: form.neden, durum: 'inceleniyor', puan: 25, gonderim: bugun()}, ...(GM.durum.oku('katki-etkinlik', []) || [])]);
           gonderildi = {ad: form.ad}; form = {...F}; hatalar = null; GM.titres(12); GM.tazele();
         });
       });

@@ -10,7 +10,7 @@
  *   Bu dosyanın anahtarları: 'rez-iptal' (iptal edilen rezervasyon id), 'degerlendirme-kaldirilan',
  *   'liste-degisim' {id: {ad, gorunurluk, kalem}}, 'liste-silinen'.
  * Dada Puan hareketleri kayıtlardan türer (tek kaynak): gerçekleşen rezervasyon +25 (mekân başına bir kez), değerlendirme puanlama +2 ve fotoğraflı +15
- *   (yayında kesin, incelemede bekleyen), mekân önerisi +50 (yayında kesin, incelemede bekleyen, reddedilince düşer); etkinlik önerisi ve Ziyaret Ettim puan kazandırmaz.
+ *   (yayında kesin, incelemede bekleyen), mekân önerisi +50 ve etkinlik önerisi +25 (Beyar 16 Kas; yayında kesin, incelemede bekleyen, reddedilince düşer); Ziyaret Ettim puan kazandırmaz.
  * Hâller: ortak ?hal=yukleniyor|bos|hata|cevrimdisi|giris router'dan; sekme ?sekme=<ad> (rezervasyonlar: onaylanan|bekleyen|gecmis; favoriler: mekan|lezzet|etkinlik|rota;
  *   degerlendirmeler: tumu|yayinda|inceleniyor; katkilar: inceleniyor|yayinda|reddedildi; listelerim: listeler|paylasilan|taslak; etkinliklerim: katilacagim|katildigim|ilgilendigim|biletler);
  *   puan ?sayfa=<n>. Uzun listeler (favoriler, ziyaretler) sonsuz kaydırır (sayfa 10), puan hareketleri sayfalıdır. Misafirde Profilim kendi kapısını çizer; diğerleri GM.UYE_KILIT. */
@@ -132,7 +132,7 @@
     const l = [], rezGor = new Set();
     rezler().filter(r => r.hal === 'gerceklesti').sort((a, b) => a.tarih.localeCompare(b.tarih)).forEach(r => { if (rezGor.has(r.slug)) return; rezGor.add(r.slug); l.push({ad: `${r.m.ad} rezervasyonu`, ikon: 'rezervasyon', tutar: 25, durum: 'kesin', tarih: r.tarih, git: `#/profil/rezervasyon/${r.id}`}); });
     degerler().forEach(d => { const t = degerPuan(d); if (t) l.push({ad: `${M(d.slug).ad} değerlendirmesi`, ikon: d.foto ? 'kamera' : 'yildiz', tutar: t, durum: d.durum === 'yayinda' ? 'kesin' : 'bekliyor', tarih: d.tarih, git: '#/profil/degerlendirmeler'}); });
-    katkilar().filter(k => k.tur !== 'etkinlik').forEach(k => l.push({ad: `${katkiAd(k)} önerisi`, ikon: 'pin', tutar: 50, durum: k.durum === 'yayinda' ? 'kesin' : k.durum === 'reddedildi' ? 'dustu' : 'bekliyor', tarih: k.onay || k.tarih, git: '#/profil/katkilar'}));
+    katkilar().forEach(k => l.push({ad: `${katkiAd(k)} önerisi`, ikon: k.tur === 'etkinlik' ? 'etkinlik' : 'pin', tutar: k.tur === 'etkinlik' ? 25 : 50, durum: k.durum === 'yayinda' ? 'kesin' : k.durum === 'reddedildi' ? 'dustu' : 'bekliyor', tarih: k.onay || k.tarih, git: '#/profil/katkilar'}));
     return l.sort((a, b) => b.tarih.localeCompare(a.tarih));
   };
   const puanOzet = () => {
@@ -200,7 +200,7 @@
     return hero(p.ad ? `Merhaba <em>${GM.esc(p.ad)}</em>` : 'Hoş <em>geldin</em>') + heroAlti(GM.btn({metin: 'Profili düzenle', ikon: 'duzenle', tur: 'secondary', tam: true, git: '#/profil/duzenle'})) + kimlikBlok(p, pz) + GM.gruplar([
       cagri && {html: cagriBant(cagri)},
       {baslik: 'Dada Puan', eylem: {git: '#/profil/puan'}, html: puanBolum(pz)},
-      sira && {baslik: 'Sıradaki rezervasyonun', eylem: {git: '#/profil/rezervasyonlar'}, satirlar: [rezSatir(sira)]},
+      sira && {baslik: 'Sıradaki rezervasyonun', eylem: {git: '#/profil/rezervasyonlar'}, html: `<div class="gm-vurgu-blok">${GM.satirlar([rezSatir(sira)])}</div>`},
       {baslik: 'Gurme Panelim', satirlar: [
         {ikon: 'rezervasyon', baslik: 'Rezervasyonlarım', alt: r.length ? `${say('onaylanan')} onaylı · ${say('bekleyen')} bekleyen` : 'Henüz rezervasyonun yok', git: '#/profil/rezervasyonlar'},
         {ikon: 'favori', baslik: 'Gurme Favorilerim', alt: `${sayiEk(favMekan().length, 'mekân')} · ${sayiEk(favLezzet().length, 'lezzet')} · ${sayiEk(favEtkinlik().length, 'etkinlik')}`, git: '#/profil/favoriler'},
@@ -498,13 +498,13 @@
   // =====================================================================
   const KATKI_SEKME = [['inceleniyor', 'İnceleniyor'], ['yayinda', 'Yayında'], ['reddedildi', 'Reddedildi']];
   const katkiSatir = k => {
-    const mekan = k.tur !== 'etkinlik', rozet = k.durum === 'yayinda' ? {metin: mekan ? 'Yayında · +50 kesinleşti' : 'Yayında', ton: 'basari', ikon: 'circle-check'} : k.durum === 'reddedildi' ? {metin: 'Yayınlanmadı', ton: 'hata', ikon: 'xmark'} : {metin: mekan ? 'İnceleniyor · +50 bekleyen' : 'İnceleniyor', ton: 'uyari', ikon: 'saat'};
+    const mekan = k.tur !== 'etkinlik', t = mekan ? 50 : 25, rozet = k.durum === 'yayinda' ? {metin: `Yayında · +${t} kesinleşti`, ton: 'basari', ikon: 'circle-check'} : k.durum === 'reddedildi' ? {metin: 'Yayınlanmadı', ton: 'hata', ikon: 'xmark'} : {metin: `İnceleniyor · +${t} bekleyen`, ton: 'uyari', ikon: 'saat'};
     const alt = k.durum === 'reddedildi' && k.neden ? k.neden : [mekan ? 'Mekân önerisi' : 'Etkinlik önerisi', katkiYer(k), tarihK(k.tarih)].filter(Boolean).join(' · ');
     return GM.satir({ikon: mekan ? 'pin' : 'etkinlik', baslik: katkiAd(k), alt, ozet: k.durum === 'reddedildi', ek: GM.durumRozet(rozet), git: katkiGit(k)});
   };
   GM.ekran('katkilar', {
     tur: 'alt', baslik: 'Topluluk Katkılarım', ust: '#/profil', iskelet: 'liste', yenile: true, yukle: bekle, cekYenile: bekle,
-    bos: {ikon: 'ekle', baslik: 'Henüz önerin yok', metin: 'Rehberde olmayan bir mekânı öner; kabul edilirse **+50 Dada Puan** kazanırsın.', eylem: {metin: 'Mekân öner', ikon: 'ekle', git: '#/mekan-oner'}},
+    bos: {ikon: 'ekle', baslik: 'Henüz önerin yok', metin: 'Rehberde olmayan bir mekânı ya da etkinliği öner; kabul edilirse **+50** ya da **+25 Dada Puan** kazanırsın.', eylem: {metin: 'Mekân öner', ikon: 'ekle', git: '#/mekan-oner'}},
     ciz: ctx => {
       const l = katkilar();
       if (!l.length) return GM.bos({tam: true, ...GM.ekranTanim('katkilar').bos, ikincil: {metin: 'Etkinlik öner', git: '#/etkinlik-oner'}});
@@ -513,7 +513,7 @@
       return GM.gruplar([
         {html: segment('kt-sekme', s, KATKI_SEKME.map(([k, a]) => [k, a, l.filter(x => x.durum === k).length]))},
         g.length ? {satirlar: g.map(katkiSatir)} : {html: bosKucuk({ikon: BOS[0], baslik: BOS[1], metin: BOS[2]})},
-        {html: `<div class="gm-yigin-12">${GM.btnIkili({metin: 'Etkinlik öner', ikon: 'etkinlik', git: '#/etkinlik-oner'}, {metin: 'Mekân öner', ikon: 'ekle', git: '#/mekan-oner'})}${GM.p('Kabul edilen mekân önerisi **+50 Dada Puan** kazandırır; etkinlik önerisi puan kazandırmaz.', {ton: 'ikincil', meta: true})}</div>`}
+        {html: `<div class="gm-yigin-12">${GM.btnIkili({metin: 'Etkinlik öner', ikon: 'etkinlik', git: '#/etkinlik-oner'}, {metin: 'Mekân öner', ikon: 'ekle', git: '#/mekan-oner'})}${GM.p('Kabul edilen mekân önerisi **+50**, etkinlik önerisi **+25 Dada Puan** kazandırır.', {ton: 'ikincil', meta: true})}</div>`}
       ]);
     },
     sonra: (kok, ctx) => GM.on(kok, 'kt-sekme', v => { ctx.sekme = v; GM.tazele(); })

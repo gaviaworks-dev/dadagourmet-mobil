@@ -37,16 +37,16 @@
       {id: 'gunluk', label: 'Seyahat Günlüğü', icon: 'book-open', git: '#/rota/gunluk'}]},
     {id: 'icerik-grup', label: 'Lezzet ve Etkinlik', icon: 'bowl-food', children: [
       {id: 'lezzet', label: 'Gurme Lezzetler', icon: 'bowl-food', git: '#/lezzetler'},
-      {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/etkinlikler'},
-      {id: 'etkinlik-oner', label: 'Etkinlik Öner', icon: 'calendar-plus', git: '#/etkinlik-oner'}]}
+      {id: 'etkinlik', label: 'Etkinlikler', icon: 'calendar-days', git: '#/etkinlikler'}]}
   ], [
     ...(GM.uye() ? [hesapGrubu] : []),
     {id: 'pro', label: 'Dada Gourmet Pro', icon: 'bolt', git: '#/pro'},
-    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'}
+    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'},
+    {id: 'intro', label: 'Intro’yu tekrar göster', icon: 'circle-play', git: '#/karsilama?intro=1'}
   ]];
   // 14/14 (Beyar 16 Kas düzeltmesi): Mekân Öner ve İşletmeni Ekle menünün geri kalanıyla AYNI blok + satır yapısında, hafifçe öne çıkan:
   // açık mor blok zemini, mor ikon kutusu, adın altında kısa açıklama, sağda ok. (Önceki kesikli kartlar menüden kopuk duruyordu.)
-  const eylemler = () => `<div class="gm-menu-blok gm-menu-eylem">${[['#/mekan-oner', 'circle-plus', 'Mekân Öner', '+50 Dada Puan kazan'], ['#/isletme', 'store', 'İşletmeni Ekle', 'Ücretsiz başvuru']].map(([g, i, b, a]) => `<div class="gm-menu-item"><a class="gm-menu-row" href="${esc(g)}" data-menu-git="${esc(g)}"><span class="gm-menu-ic">${ik(i)}</span><span class="gm-menu-label">${esc(b)}<small>${esc(a)}</small></span><span class="gm-menu-chev">${ik('chevron-right')}</span></a></div>`).join('')}</div>`;
+  const eylemler = () => `<div class="gm-menu-blok gm-menu-eylem">${[['#/mekan-oner', 'circle-plus', 'Mekân Öner', '+50 Dada Puan kazan'], ['#/etkinlik-oner', 'calendar-plus', 'Etkinlik Öner', '+25 Dada Puan kazan'], ['#/isletme', 'store', 'İşletmeni Ekle', 'Ücretsiz başvuru']].map(([g, i, b, a]) => `<div class="gm-menu-item"><a class="gm-menu-row" href="${esc(g)}" data-menu-git="${esc(g)}"><span class="gm-menu-ic">${ik(i)}</span><span class="gm-menu-label">${esc(b)}<small>${esc(a)}</small></span><span class="gm-menu-chev">${ik('chevron-right')}</span></a></div>`).join('')}</div>`;
   const kisayollar = () => [['#/rota/rotalarim', 'route', 'Rotalarım'], ['#/profil/rezervasyonlar', 'calendar-check', 'Rezervasyonlarım'], ['#/profil/favoriler', 'heart', 'Favorilerim'], ['#/profil/puan', 'medal', 'Dada Puan']];
   // Dil: Ayarlar > Dil ile aynı iki dil ve aynı kayıt (hesap-ayar.dil.dil). Tasarım öğesi: uygulama TR çalışır, diller Flutter aşamasında gelir.
   const DILLER = [['tr', 'Türkçe'], ['en', 'English']];

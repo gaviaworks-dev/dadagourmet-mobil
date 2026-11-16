@@ -69,7 +69,7 @@ GMX.hesap = {
     {id: 'dg-levan', slug: 'levan-urla', puan: 5, foto: 1, durum: 'yayinda', tarih: '2026-09-21'},
     {id: 'dg-kassandra', slug: 'kassandra-fethiye', puan: 4, foto: 0, durum: 'yayinda', tarih: '2026-09-15'}
   ],
-  // Topluluk Katkılarım: inceleniyor | yayinda | reddedildi. Puan yalnız kabul edilen mekân önerisinde +50 (panel kuralı).
+  // Topluluk Katkılarım: inceleniyor | yayinda | reddedildi. Kabul edilen mekân önerisi +50, etkinlik önerisi +25 Dada Puan (Beyar 16 Kas).
   katkilar: [
     {id: 'k-ciya', tur: 'mekan', ad: 'Çiya Sofrası', yer: 'Kadıköy, İstanbul', durum: 'inceleniyor', tarih: '2026-11-12'},
     {id: 'k-levan', tur: 'mekan', slug: 'levan-urla', durum: 'yayinda', tarih: '2026-09-02', onay: '2026-11-05'},
@@ -81,7 +81,8 @@ GMX.hesap = {
     {k: 'puanlama', ikon: 'yildiz', ad: 'Puanlama', tutar: 2, onay: 'Moderasyon onayında kesinleşir'},
     {k: 'foto', ikon: 'kamera', ad: 'Fotoğraflı değerlendirme', tutar: 15, onay: 'Moderasyon onayında kesinleşir'},
     {k: 'rezervasyon', ikon: 'rezervasyon', ad: 'Gerçekleşen rezervasyon', tutar: 25, onay: 'Mekân başına bir kez, ziyaretten sonra'},
-    {k: 'oneri', ikon: 'pin', ad: 'Kabul edilen mekân önerisi', tutar: 50, onay: 'Editör onayında kesinleşir'}
+    {k: 'oneri', ikon: 'pin', ad: 'Kabul edilen mekân önerisi', tutar: 50, onay: 'Editör onayında kesinleşir'},
+    {k: 'oneriEtkinlik', ikon: 'etkinlik', ad: 'Kabul edilen etkinlik önerisi', tutar: 25, onay: 'Editör onayında kesinleşir'}
   ],
   gunlukSinir: 100,
   // Rütbe merdiveni ve rozetler: web rozet-veri.js (Beyar onaylı set)

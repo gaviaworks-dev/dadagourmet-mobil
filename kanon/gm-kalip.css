@@ -155,3 +155,21 @@ body.gm .gm-liste-scope .gm-seg.has-gosterge::before{top:0;bottom:0}
 .gm-ekran-kucuk{position:relative;display:grid;place-items:center;flex:0 0 var(--gm-s-48);width:var(--gm-s-48);aspect-ratio:390/844;overflow:hidden;border:var(--gm-size-border) solid var(--gm-line);border-radius:var(--gm-r-chip-sm);background:var(--gm-bg);color:var(--gm-muted);font-size:var(--gm-size-icon-md)}
 .gm-ekran-kucuk>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
 .gm-ekran-kucuk>img[hidden]{display:none}
+/* Karşılama vitrini (Gastro .ac-k3 Vitrin): modül ikonu, kanıt satırı, ikon seçici (nokta göstergesi yerine), giriş satırı */
+.gm-ac-metin .gm-ac-bas{display:flex;align-items:center;gap:var(--gm-s-12)}
+.gm-ac-mikon{display:inline-grid;place-items:center;width:var(--gm-size-action-icon);height:var(--gm-size-action-icon);flex-shrink:0;border-radius:var(--gm-r-control);background:var(--gm-primary);color:var(--gm-paper)}
+.gm-ac-mikon .icon{font-size:var(--gm-size-icon-md)}
+.gm-ac-kanit{display:flex;align-items:center;gap:var(--gm-icon-text);min-width:0;font-family:var(--gm-font-bold);font-size:var(--gm-t-photo-meta-size);font-weight:var(--gm-t-photo-meta-weight);line-height:var(--gm-t-photo-meta-line);color:var(--gm-paper);text-shadow:var(--gm-photo-shadow)}
+.gm-ac-kanit .icon{font-size:var(--gm-size-icon-sm);flex-shrink:0}
+.gm-ac-kanit span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.gm-ac-gir{animation:gm-ac-belir var(--gm-m-reveal) var(--gm-ease) both}
+.gm-ac-secici{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:var(--gm-s-4)}
+.gm-ac-secici button{position:relative;display:grid;place-items:center;min-height:var(--gm-size-touch);padding:var(--gm-s-8) 0 0;border:0;border-radius:var(--gm-r-control);background:transparent;color:var(--gm-ink)}
+.gm-ac-secici button::before{content:'';position:absolute;top:0;left:50%;width:var(--gm-size-nav-indicator-w);height:var(--gm-size-nav-indicator-h);margin-left:calc(var(--gm-size-nav-indicator-w) / -2);border-radius:var(--gm-r-dot);background:var(--gm-primary);opacity:0;transition:opacity var(--gm-m-base) var(--gm-ease)}
+.gm-ac-secici .gm-ac-mikon{background:var(--gm-primary-tint);color:var(--gm-primary-deep);transition:background-color var(--gm-m-base) var(--gm-ease),color var(--gm-m-base) var(--gm-ease)}
+.gm-ac-secici button[aria-pressed=true]::before{opacity:1}
+.gm-ac-secici button[aria-pressed=true] .gm-ac-mikon{background:var(--gm-primary);color:var(--gm-paper)}
+.gm-ac-secici button:focus-visible{outline:calc(var(--gm-size-border) * 2) solid var(--gm-primary);outline-offset:var(--gm-size-border)}
+.gm-ac-giris{text-align:center;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
+.gm-ac-giris a{display:inline-flex;align-items:center;min-height:var(--gm-size-touch);color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);text-decoration:underline;text-underline-offset:var(--gm-s-4)}
+.gm-ac-kapak .gm-gkapak{touch-action:pan-y} /* yatay kaydırma modül değiştirir, dikey sayfada kalır */

@@ -6,6 +6,7 @@
  *   sifre: ?adim=gonderildi|yeni, ?hal=sure-doldu (?adim=yeni&hal=sure-doldu), hata, cevrimdisi
  *   iki-adim: hatali, kilitli (?mod=kurtarma kurtarma kodu), hata, cevrimdisi
  *   onboarding: red (bulunulan izin adımında reddedildi hâli)
+ *   karsilama: açılış intro'su (Gastro vitrini; ?modul=1–4, ?kal=1 döngüsüz, ?intro=1 baştan — ilk açılışta bir kez, durum 'intro')
  *   kilit: basarisiz, kilitlendi, iptal, kullanilamaz (?dene=1 Ayarlar'dan deneme, ?platform=ios|ios-touch|android, ?sonuc=basarisiz|kilitlendi)
  * Hesap verisi GMX.hesap (ekranlar/profil-veri.js): giris {eposta, sifre, denemeHakki, kilitDk, kodUzunluk, ikiAdimKod, yenidenGonderSn, baglantiDk, kurtarmaKodlari, sifreKurali, sifreKurallari},
  *   kullanici, bildirimTurleri, tercihGruplari, rutbeler, puanKurallari. Gourmet'te sağlık verisi yok, açık rıza adımı yok.
@@ -105,14 +106,26 @@
     gizlendi = 0; GM.yerine(kilitAdres(a, true));
   });
 
+  // ---------- Açılış intro'su (Gastro birebir: Açılış kolajı → Karşılama vitrini → tercihler) ----------
+  // İlk açılışta bir kez: splash 'intro' bayrağı yoksa karşılamaya, varsa Keşfet'e geçer. Bayrak Atla, Başla ya da Giriş yap ile yazılır (GM.durum, localStorage try/catch).
+  // ?intro=1 (adres ya da sayfa sorgusu; menüdeki "Intro'yu tekrar göster") bayrağı siler ve karşılamayı baştan açar.
+  const INTRO = 'intro';
+  const introBitir = () => GM.durum.yaz(INTRO, 'tamam');
+  try {
+    if (/[?&]intro=1\b/.test(`${location.search}${location.hash}`)) {
+      GM.durum.sil(INTRO);
+      if (!/^#\/karsilama(?=[?]|$)/.test(location.hash)) history.replaceState(null, '', `${location.pathname}#/karsilama`);
+    }
+  } catch { /* yok */ }
+
   // ---------- Splash ----------
-  // Mor zeminde logo ve mekân kolajı (kanon GM.acilis). Dokununca hemen geçer. İlk açılış karşılama; üye Keşfet (kilit açıksa önce kilit);
-  // onboarding'i yarıda bırakan kaldığı adıma, bitiren misafir Keşfet'e döner.
+  // Mekân kolajı, mor perde ve logo (kanon GM.acilis = Gastro Açılış · Kolaj). Dokununca hemen geçer.
+  // Üye Keşfet (kilit açıksa önce kilit); onboarding'i yarıda bırakan kaldığı adıma; intro'yu görmeyen karşılamaya; gören Keşfet'e.
   const splashHedef = () => {
     if (GM.uye()) return kilitli() ? kilitAdres('#/kesfet', true) : '#/kesfet';
     const o = GM.durum.oku('onboarding', {}) || {};
-    if (o.bitti) return '#/kesfet';
-    return o.adim ? `#/onboarding?adim=${o.adim}` : '#/karsilama';
+    if (o.adim && !o.bitti) return `#/onboarding?adim=${o.adim}`;
+    return GM.durum.oku(INTRO) === 'tamam' || o.bitti ? '#/kesfet' : '#/karsilama';
   };
   GM.ekran('splash', {
     haller: false,
@@ -125,12 +138,7 @@
     }
   });
 
-  // ---------- Karşılama ----------
-  // Gastro .ac-k3 kabuğu: gülücük kapak + beyaz alanda tanıtım şeridi (mekân, hazır rota, etkinlik sayıları GMV'den) ve giriş yolları.
-  // Apple / Google yeni hesap açar (Dada Puan bakiyesi açılır) → onboarding; e-posta Üye ol (#/kayit); "Zaten hesabım var" Giriş; misafir onboarding'e (bitirdiyse Keşfet'e).
-  const YASAL_BAG = [['Kullanım Koşulları', '#/yasal/kullanim-kosullari'], ['Aydınlatma Metni', '#/yasal/kvkk']];
   const bagla = (metin, bag) => bag.reduce((p, [ad, git]) => p.replace(GM.esc(ad), `<a href="${git}" data-git="${git}">${GM.esc(ad)}</a>`), metin);
-  const yasalNot = () => GM.makale(bagla(GM.p('Devam ederek Kullanım Koşulları’nı kabul etmiş ve Aydınlatma Metni’ni okumuş olursun.', {orta: true, meta: true, ton: 'ikincil'}), YASAL_BAG));
   const ssoGiris = (el, ctx, yeni) => {
     if (navigator.onLine === false || (ctx && baglantiYok(ctx))) { baglantiToast(); return; }
     const b = SSO.find(x => x.yol === el.dataset.id);
@@ -144,30 +152,77 @@
       girisTamam(b.yol);
     });
   };
+
+  // ---------- Karşılama · Vitrin (açılış intro'su) ----------
+  // Gastro karşılama vitrini birebir: gülücük kapakta modülün gerçek görseli, logo üstte; modül ikonu, adı, kısa açıklaması ve kanıt satırı (GMV sayıları) altta.
+  // Altta modül ikon seçici (nokta göstergesi; seçilinin üstünde çizgi) ve "Hesabın var mı? Giriş yap · Üye ol"; çubukta Atla (→ Keşfet) · Başla (→ onboarding).
+  // Modüller kendiliğinden döner (heroAutoplay); dokunma, seçici ya da kapakta yatay kaydırma döngüyü durdurur. ?modul=1–4 başlangıç modülü, ?kal=1 döngüsüz.
+  // Görseller ana sayfa hero'su (Narımor, Levan, Townhouse, sokak), giriş (Levan) ve kilit (Lacivert) kapaklarıyla çakışmaz.
+  const vitrin = () => {
+    const V = window.GMV || {}, M = V.mekanlar || [], R = V.rotalar || [], E = V.etkinlikler || [], L = V.lezzetler || [];
+    const sehir = new Set(M.map(m => m.il).filter(Boolean)).size;   // etkinlik görselleri 400 px: tam ekran kapakta bulanık kalır, 800 px mekân kapağı kullanılır
+    return [
+      {ad: 'Mekânlar', ikon: 'mekan', gorsel: mekanGorsel('360-istanbul'), kisa: 'Mutfağa, şehre ve fiyata göre bul.', kanit: ['pin', `${GM.sayi(M.length)} mekân · ${sehir} şehir`]},
+      {ad: 'Dada Route', ikon: 'rota', gorsel: mekanGorsel('karnas-vineyards-bodrum'), kisa: 'Yol üstündeki lezzet duraklarını bul.', kanit: ['rota', `${R.length} hazır rota${R[0] ? ` · ${R[0].ad}` : ''}`]},
+      {ad: 'Etkinlik ve Lezzet', ikon: 'etkinlik', gorsel: mekanGorsel('herise-istanbul', 'giritli-restoran'), kisa: 'Festivaller, tadımlar ve gurme yazılar.', kanit: ['etkinlik', `${GM.sayi(E.length)} etkinlik · ${GM.sayi(L.length)} lezzet yazısı`]},
+      {ad: 'Profilim', ikon: 'favori', gorsel: mekanGorsel('aida-vino-e-cucina'), kisa: 'Kaydet, listeni kur, puan topla.', kanit: ['puanDada', 'Dada Puan ve rozetler']}
+    ];
+  };
+  const modMetin = m => `<div class="gm-ac-metin gm-ac-gir" aria-live="polite"><div class="gm-ac-bas"><span class="gm-ac-mikon">${GM.ik(m.ikon)}</span></div><h1 class="gm-t-display">${GM.esc(m.ad)}</h1><p class="gm-t-body">${GM.esc(m.kisa)}</p><p class="gm-ac-kanit">${GM.ik(m.kanit[0])}<span>${GM.esc(m.kanit[1])}</span></p></div>`;
+  const KAYDIR = 40;   // px: yatay kaydırma eşiği
   GM.ekran('karsilama', {
     haller: false,
     tur: 'tam',
-    ciz: () => {
-      const V = window.GMV || {};
-      const serit = GM.ozetSerit([
-        {ikon: 'mekan', etiket: 'Mekân', deger: GM.sayi(V.mekanlar?.length || 0)},
-        {ikon: 'rota', etiket: 'Hazır rota', deger: GM.sayi(V.rotalar?.length || 0)},
-        {ikon: 'etkinlik', etiket: 'Etkinlik', deger: GM.sayi(V.etkinlikler?.length || 0)}
-      ]);
-      const dugmeler = `<div class="gm-yigin-8">${ssoIkili('sso')}${GM.btn({metin: 'E-posta ile üye ol', ikon: 'envelope', tam: true, git: '#/kayit'})}${GM.btn({metin: 'Zaten hesabım var', tur: 'text', tam: true, git: '#/giris'})}${GM.btn({metin: 'Üye olmadan devam et', tur: 'text', tam: true, veri: {eylem: 'misafir'}})}</div>`;
-      return GM.karsilamaKabuk({
-        gorsel: 'assets/gorsel/hero/sokak-dikey.webp',
-        baslik: 'Gideceğin yer sana göre seçilsin',
-        metin: 'Mekân, rota ve etkinlik **tek yerde**.',
-        html: `<div class="gm-yigin-12">${serit}${dugmeler}${yasalNot()}</div>`
-      });
+    ciz: ctx => {
+      if (ctx.sorgu.intro === '1') GM.durum.sil(INTRO);
+      const MOD = vitrin(), i = Math.max(0, Math.min(MOD.length - 1, (Number(ctx.sorgu.modul) || 1) - 1));
+      ctx.mod = ctx.mod ?? i;
+      const m = MOD[ctx.mod];
+      const kapak = GM.gulucuk({gorsel: m.gorsel, sinif: 'gm-ac-kapak', icerik: `<img class="gm-ac-logo" src="assets/marka/dadagourmet-beyaz.svg" alt="Dada Gourmet"><div data-metin data-gm-veil-from>${modMetin(m)}</div>`});
+      const secici = `<div class="gm-ac-secici" role="group" aria-label="Dada Gourmet'i tanı" style="--n:${MOD.length}">${MOD.map((x, k) => `<button type="button" data-mod="${k}" aria-pressed="${k === ctx.mod}" aria-label="${GM.esc(x.ad)}"><span class="gm-ac-mikon">${GM.ik(x.ikon)}</span></button>`).join('')}</div>`;
+      const giris = `<p class="gm-ac-giris">Hesabın var mı? <a href="#/giris" data-git="#/giris" data-intro-bitti>Giriş yap</a> · <a href="#/kayit" data-git="#/kayit" data-intro-bitti>Üye ol</a></p>`;
+      return `<div class="gm-ac-k3">${kapak}<div class="gm-ac-alt">${secici}${giris}</div></div>`;
     },
+    altBar: () => GM.altEylem({dugmeler: [{metin: 'Atla', tur: 'secondary', veri: {eylem: 'atla'}}, {metin: 'Başla', ikon: 'tumu', veri: {eylem: 'basla'}}]}),
     sonra: (kok, ctx) => {
+      const MOD = vitrin();
+      MOD.forEach(x => { if (x.gorsel) new Image().src = x.gorsel; });
+      const sahne = kok.querySelector('.gm-gkapak'), metin = kok.querySelector('[data-metin]'), dugme = [...kok.querySelectorAll('[data-mod]')];
+      let zaman = 0, dur = GM.azHareket() || ctx.sorgu.kal === '1';
+      const perde = () => { if (!window.GMCard) return; delete sahne.dataset.perde; GMCard.veils(kok); };
+      const sira = () => { clearTimeout(zaman); if (!dur) zaman = setTimeout(() => { if (!kok.isConnected) return; if (kok.closest('.is-gizli') || document.hidden) { sira(); return; } goster(ctx.mod + 1); }, GM.TK.motion.heroAutoplay); };
+      const goster = k => {
+        ctx.mod = (k + MOD.length) % MOD.length;
+        const m = MOD[ctx.mod];
+        sahne.style.backgroundImage = `url('${m.gorsel}')`;
+        dugme.forEach((b, j) => b.setAttribute('aria-pressed', String(j === ctx.mod)));
+        metin.innerHTML = modMetin(m); perde();
+        sira();
+      };
+      const durdur = () => { dur = true; clearTimeout(zaman); };
+      const tik = ev => {
+        const b = ev.target.closest('[data-mod]');
+        if (b) { durdur(); goster(Number(b.dataset.mod)); return; }
+        if (ev.target.closest('[data-intro-bitti]')) introBitir();
+      };
+      // Kapakta yatay kaydırma: sola sonraki, sağa önceki modül (dikey kaydırma sayfada kalır).
+      let x0 = null, y0 = 0;
+      const bas = ev => { x0 = ev.clientX; y0 = ev.clientY; };
+      const birak = ev => {
+        if (x0 == null) return;
+        const dx = ev.clientX - x0, dy = ev.clientY - y0; x0 = null;
+        if (Math.abs(dx) < KAYDIR || Math.abs(dx) < Math.abs(dy)) return;
+        durdur(); goster(ctx.mod + (dx < 0 ? 1 : -1));
+      };
+      kok.addEventListener('click', tik);
+      sahne.addEventListener('pointerdown', bas); sahne.addEventListener('pointerup', birak); sahne.addEventListener('pointercancel', () => { x0 = null; });
       const c = [
-        GM.eylem(kok, 'sso', el => ssoGiris(el, ctx, true)),
-        GM.eylem(kok, 'misafir', () => GM.yerine(sonrakiAcilis()))
+        GM.eylem(kok, 'atla', () => { introBitir(); GM.yerine('#/kesfet'); }),
+        GM.eylem(kok, 'basla', () => { introBitir(); GM.yerine(sonrakiAcilis()); })
       ];
-      return () => c.forEach(f => f());
+      document.fonts?.ready.then(perde);
+      sira();
+      return () => { clearTimeout(zaman); kok.removeEventListener('click', tik); sahne.removeEventListener('pointerdown', bas); sahne.removeEventListener('pointerup', birak); c.forEach(f => f()); };
     }
   });
 

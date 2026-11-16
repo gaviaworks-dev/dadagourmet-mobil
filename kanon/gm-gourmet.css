@@ -605,3 +605,7 @@ body .gm-metin p{text-align:justify!important;text-align-last:start!important}
 .gm-liste-grid > .gm-ek .gm-card__title{height:auto;min-height:0}
 /* Beyar 16 Kas: ortak hero (GM.selamBas, görselli) çok kısaydı — fotoğraf daha çok görünsün; başlık alta yaslı. Mekân Bul, Route, Etkinlikler, Lezzetler, Rehberler, Profil, Pro, İşletme hepsi aynı boy. */
 .gm-selam.has-gorsel{min-height:clamp(260px,34svh,320px);align-content:end}
+/* Beyar 16 Kas: öne çıkan tek kayıt bloğu (Profil "Sıradaki rezervasyonun") — menüdeki vurgulu eylem bloğuyla (.gm-menu-eylem) aynı dil: açık mor zemin, yuvarlak yüzey, mor ok. */
+.gm-vurgu-blok{background:var(--gm-primary-tint);border-radius:var(--gm-r-surface);padding:var(--gm-s-4) var(--gm-s-16)}
+.gm-vurgu-blok .gm-satir,.gm-vurgu-blok .gm-satirlar{background:transparent;border:0}
+.gm-vurgu-blok .gm-satir-ok,.gm-vurgu-blok [class*=chev]{color:var(--gm-primary)}
