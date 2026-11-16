@@ -371,17 +371,17 @@
 
   GM.ekran('pro', {
     tur: 'banner', baslik: 'Dada Gourmet Pro', ust: '#/paketlerim', iskelet: 'detay', yenile: true,
-    ciz: ctx => GM.kubbe({gorsel: 'assets/gorsel/hero/tabak.webp', etiket: 'Pro', baslik: 'Dada Gourmet Pro', alt: 'Pro, keşfinin tamamını açar', html: `<div class="gm-ic gm-yigin-24">
+    // Ortak hero (Görev 14/25, Mekân Bul kalıbı): GM.selamBas + ana düğme hero'nun altında tam genişlik (satın alma kapalı: pasif "Yakında").
+    ciz: ctx => `${GM.selamBas({gorsel: GM.mekan('herise-istanbul')?.kapakB || 'assets/gorsel/mekan/1006-800.webp', ust: 'Dada Gourmet Pro', baslikHtml: 'Keşfinin <em>tamamı</em> açılsın'})}<div class="gm-ic">${GM.btn({metin: 'Pro’ya geç · Yakında', ikon: 'bolt', tam: true, pasif: true})}</div><div class="gm-ic gm-yigin-24">
       ${GM.p('Pro’da **reklamlar kalkar**, kendi rotanı oluşturur, durak ziyaretlerini işaretler ve rotanı bağlantıyla paylaşırsın. Aylık aboneliktir; istediğin an yükseltir ya da bırakırsın.')}
       ${GM.maddeler([['ban', 'Reklamsız deneyim', 'Tüm Pro planlarda reklam yok.'], ['rota', 'Kendi rotan', 'Pro’da 5 rota, Pro Max’ta sınırsız; durak işaretleme ve paylaşım.'], ['list', 'Liste ve keşif sınırları', '25 liste, Mekân Bul’da günde 25 tur, son 12 ay ziyaret defteri.']])}
       ${proBant()}
+      ${GM.uye() ? GM.satirlar([haberToggle()]) : GM.btn({metin: 'Ücretsiz üye ol', tur: 'secondary', tam: true, git: '#/kayit'})}
       <div class="gm-yigin-12">${GM.bas('Planlar')}${GM.satirlar(K().map(k => kademeSatir(k, {mevcut: GM.uye() ? 'ucretsiz' : null})))}</div>
       <div class="gm-yigin-12">${GM.bas('Planları karşılaştır')}${karsilastir(ctx)}</div>
-      ${GM.uye() ? GM.satirlar([haberToggle()]) : ''}
-    </div>`}),
-    altBar: () => GM.altEylem({dugmeler: [GM.uye() ? {metin: 'Haber ver', ikon: 'bell', tur: 'secondary', veri: {eylem: 'haber'}} : {metin: 'Ücretsiz üye ol', tur: 'secondary', git: '#/karsilama'}, {metin: 'Pro · Yakında', ikon: 'bolt', pasif: true}]}),
+    </div>`,
     sonra: (kok, ctx) => {
-      const c = [GM.on(kok, 'kademe', v => { ctx.kademe = v; GM.tazele(); }), GM.eylem(kok, 'haber', () => { GM.durum.yaz('pro-haber', true); GM.tazele(); GM.toast('Pro açılınca **haber vereceğiz**', {ikon: 'bell', tur: 'basari', yerine: true}); })];
+      const c = [GM.on(kok, 'kademe', v => { ctx.kademe = v; GM.tazele(); })];
       if (GM.uye()) c.push(haberBagla(kok));
       return () => c.forEach(f => f());
     }

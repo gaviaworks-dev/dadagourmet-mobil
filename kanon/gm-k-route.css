@@ -405,12 +405,7 @@
 .gm-ra-bar-oge:active{background:var(--gm-bg)}
 .gm-ra-bar .gm-bar-ic > .gm-ra-bar-ana{flex:1 1 auto;margin-left:var(--gm-s-4)}
 
-/* Araç tipi seçimi (GM.aracSecim, Görev 14/16): seçili primary dolgu + beyaz yazı + onay; seçili olmayan sönük. */
-.gm-seg.gm-ra-arac{background:var(--gm-bg);box-shadow:inset 0 0 0 var(--gm-size-border) var(--gm-line)}
-.gm-seg.gm-ra-arac button{color:var(--gm-muted);font-family:var(--gm-font)}
-.gm-seg.gm-ra-arac button[aria-selected=true]{background:var(--gm-primary);color:var(--gm-paper);font-family:var(--gm-font-bold);box-shadow:var(--gm-sh-sm)}
-.gm-seg.gm-ra-arac button[aria-selected=true]::after{content:"\f00c";margin-left:var(--gm-s-2);font:var(--gm-fa-solid-weight) var(--gm-size-icon-check)/1 "Font Awesome 6 Free"}
-body.gm .gm-seg.gm-ra-arac.has-gosterge::before{background:var(--gm-primary);box-shadow:var(--gm-sh-sm)}
+/* Araç tipi seçimi (GM.aracSecim): Beyar 16 Kas — alttaki sapma sekmeleriyle AYNI segment görünümü (tek bütün; ayrı dolgu/onay stili kaldırıldı). */
 
 /* Görev 14/18: aktif harita çekmecesinde zebra bölümler tam genişlik (çekmece gövdesinin yan dolgusu geri alınır); bölüm dolgusu kanondaki 32 (Diet ile aynı). */
 .gm-ra .gm-kl-cekmece-govde > .gm-icerikler{margin:0 calc(-1 * var(--gm-gutter))}

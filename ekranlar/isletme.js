@@ -99,14 +99,17 @@ GMX.isletme = {"mekan":{"ad":"Mikla","kod":"mikla","kategori":"fine-dining-resto
   const tanitimCiz = ctx => {
     const zorla = ORNEK_HAL[ctx.sorgu.hal], b = zorla ? {...X().basvurular[0], durum: zorla} : GM.uye() ? kendiBasvurular()[0] : null;
     const isSss = GMX.destek?.sss?.find(k => /İşletme/.test(k.kategori));
-    return GM.kubbe({gorsel: 'assets/gorsel/hero/tabak.webp', etiket: 'Dada Gourmet İşletme', baslik: 'İşletmeni ekle', alt: 'Mekânını editör süzgecine gönder.',
-      html: GM.gruplar([
-        b && {baslik: 'Başvurun', html: `<div class="gm-yigin-12">${basvuruKart(b)}${b.durum === 'onaylandi' ? GM.btn({metin: 'İşletme paneline geç', ikon: 'store', tam: true, veri: {eylem: 'panele-gec'}}) : ''}</div>`},
+    // Ortak hero (Beyar 16 Kas, Mekân Bul kalıbı mekan-bul.js:150); görsel akşam ışıklı salon (mekan 1062, koyu: başlık ve üst yazı okunur), Mekân Bul'un tabak.webp'si tekrar edilmez: GM.selamBas + altında tam genişlik ana düğme.
+    const yeni = GM.uye() && kendiBasvurular().length;
+    const ust = GM.selamBas({gorsel: 'assets/gorsel/mekan/1062-800.webp', ust: 'İşletmeni ekle', baslikHtml: 'Mekânını <em>listele</em>'});
+    const dugme = `<div class="gm-ic">${GM.btn({metin: yeni ? 'Yeni başvuruya başla' : 'Başvuruya başla', ikon: 'store', tam: true, git: yeni ? '#/isletme/basvuru?yeni=1' : '#/isletme/basvuru'})}</div>`;
+    return ust + dugme + GM.gruplar([
+        b && {baslik: 'Başvurun', html: `<div class="gm-yigin-12">${basvuruKart(b)}${b.durum === 'onaylandi' ? GM.btn({metin: 'İşletme paneline geç', ikon: 'store', tur: 'tonal', tam: true, veri: {eylem: 'panele-gec'}}) : ''}</div>`},
         {baslik: 'Nasıl işler?', satirlar: ADIMLAR.map((a, i) => ({ikon: a.ikon, baslik: `${i + 1}. ${a.baslik}`, alt: a.metin, ozet: true}))},
         {baslik: 'Onaylanınca', html: GM.maddeler(KAZANC)},
         isSss && {baslik: 'İşletme sahiplerinin soruları', eylem: {metin: 'Tümü', git: '#/sss'}, html: GM.akordiyon(isSss.sorular.map(s => ({ikon: s.ikon, baslik: s.soru, icerik: GM.p(s.yanit)})), {acik: -1})},
         {baslik: 'İşletmeler için metinler', satirlar: ['isletme-listeleme', 'isletme-dogrulama', 'isletme-itiraz', 'isletme-sozlesmesi'].filter(s => GMX.yasal?.metinler?.[s]).map(s => ({ikon: GMX.yasal.metinler[s].ikon, baslik: GMX.yasal.metinler[s].baslik, git: `#/yasal/${s}`}))}
-      ])});
+      ]);
   };
 
   // ---------- Panel özeti (sahip) ----------
@@ -189,7 +192,6 @@ GMX.isletme = {"mekan":{"ad":"Mikla","kod":"mikla","kategori":"fine-dining-resto
       if (ctx.sorgu.rol === 'isletme' && GM.uye()) GM.durum.yaz('isletme-rol', 'sahip');
       return sahip(ctx) && !ORNEK_HAL[ctx.sorgu.hal] && ctx.sorgu.hal !== 'tanitim' ? panelCiz() : tanitimCiz(ctx);
     },
-    altBar: ctx => (sahip(ctx) && !ORNEK_HAL[ctx.sorgu.hal] && ctx.sorgu.hal !== 'tanitim' ? '' : GM.altEylem({dugmeler: [{metin: kendiBasvurular().length && GM.uye() ? 'Yeni başvuru' : 'Başvuru yap', ikon: 'store', tam: true, git: kendiBasvurular().length && GM.uye() ? '#/isletme/basvuru?yeni=1' : '#/isletme/basvuru'}]})),
     sonra: kok => { const a = GM.eylem(kok, 'panele-gec', () => { GM.durum.yaz('isletme-rol', 'sahip'); GM.yerine('#/isletme'); }), b = GM.eylem(kok, 'mekan-sec', () => mekanSecSheet());
       // Panel özetindeki rezervasyon satırları (bekleyen işler, bugünün masaları): ilgili sekmede o rezervasyonun onay/ret sheet'i açılır.
       const c = GM.eylem(kok, 'rez', el => { const r = rezler().find(x => x.id === el.dataset.id); if (!r) return; GM.git(`#/isletme/rezervasyonlar?sekme=${r.durum === 'talep' ? 'bekleyen' : r.tarih === BUGUN() && r.durum === 'onaylandi' ? 'bugun' : 'tumu'}&rez=${r.id}`); });

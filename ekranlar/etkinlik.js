@@ -216,12 +216,11 @@
     ciz: ctx => {
       if (!L || L.hash !== ctx.hash) L = {...oku(ctx.sorgu), hash: ctx.hash};
       const s = L;
-      return GM.kubbe({
-        gorsel: 'assets/gorsel/etkinlik/alba-beyaz-truf-fuari-2026.webp', etiket: 'Lezzet Takvimi', baslik: 'Etkinlikler',
-        stat: heroStat(),
-        arac: GM.listeArac({yer: 'Etkinlik, şehir veya mekân ara', ad: 'q', deger: s.q, filtreSayi: secimSayi(s) - (s.kat ? 1 : 0), segment: bolgeSeg(s), serit: katSerit(s)}),
-        html: `<div class="gm-yigin">${GM.eylemKart({ikon: 'calendar-plus', baslik: 'Etkinlik öner', alt: 'Editör onayıyla takvime eklenir', git: '#/etkinlik-oner'})}<div class="gm-yigin" data-etk-icerik>${icerik(s)}</div></div>`
-      });
+      // REVIZE 25 (Beyar 16 Kas): ortak hero (Mekân Bul kalıbı, GM.selamBas) + altında tam genişlik ana düğme ve sayı şeridi; arama/bölge/kategori araç bloğu yapışkan kalır.
+      return GM.selamBas({gorsel: 'assets/gorsel/etkinlik/alba-beyaz-truf-fuari-2026.webp', ust: 'Lezzet Takvimi', baslikHtml: 'Yaklaşan <em>lezzet şölenleri</em>'})
+        + `<div class="gm-ic gm-yigin">${GM.btn({metin: 'Etkinlik öner', ikon: 'calendar-plus', tam: true, git: '#/etkinlik-oner'})}${GM.stat(heroStat(), {yalin: true})}</div>`
+        + GM.listeArac({yer: 'Etkinlik, şehir veya mekân ara', ad: 'q', deger: s.q, filtreSayi: secimSayi(s) - (s.kat ? 1 : 0), segment: bolgeSeg(s), serit: katSerit(s)})
+        + GM.listeGovde(`<div class="gm-yigin" data-etk-icerik>${icerik(s)}</div>`);
     },
     sonra: kok => {
       const s = L; if (!s) return null;

@@ -396,7 +396,8 @@ body.gm .gm-iskelet.is-hs-foto{height:calc(var(--gm-s-48) * 3);border-radius:var
 .gm-ekran[data-ekran="mekan-a"] .gm-pane:has(>.gm-icerikler){padding-top:0}
 .gm-ekran[data-ekran="mekan-a"] .gm-kuyruk:has(>.gm-icerikler){margin-top:0}
 .gm-ekran[data-ekran="mekan-a"] .gm-detay-icerik:has(>.gm-kuyruk>.gm-icerikler){padding-bottom:0}
-.gm-ekran[data-ekran="mekan-a"] .gm-icerikler>section>section{padding:0}
+/* Yalnız ekranın kendi bölüm sarmalayıcıları (sınıfsız, gm-yigin*, gm-ozellikler) dolgusuz; kanon kart bölümleri (gm-teaser vb.) kendi dolgusunu korur (Beyar bozuk bildirimi 16 Kas). */
+.gm-ekran[data-ekran="mekan-a"] .gm-icerikler>section>section:is(:not([class]),[class^="gm-yigin"],.gm-ozellikler){padding:0}
 /* Zebra sürekliliği: açık sekmenin bölüm sayısı tekse kuyruk beyazla başlar (yan yana iki gri bölüm olmasın). */
 .gm-ekran[data-ekran="mekan-a"] .gm-detay-panel:has(.gm-pane:not([hidden])>.gm-icerikler>section:last-child:nth-child(odd)) .gm-kuyruk>.gm-icerikler>section:nth-child(odd){background:var(--gm-paper);--gm-yuzey-cizgi:var(--gm-line)}
 .gm-ekran[data-ekran="mekan-a"] .gm-detay-panel:has(.gm-pane:not([hidden])>.gm-icerikler>section:last-child:nth-child(odd)) .gm-kuyruk>.gm-icerikler>section:nth-child(even){background:var(--gm-bg);--gm-yuzey-cizgi:transparent}

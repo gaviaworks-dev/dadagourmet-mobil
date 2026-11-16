@@ -1,5 +1,5 @@
 /* Profilim (#/profil) ve Gurme Panelim ekranları: web Hesabım (6 sekmeli Gurme Panelim + Listelerim, Etkinliklerim, Keşif Tercihlerim) eşi,
- *   Diet mobil profil.js kalıbında (GM.profilBas + "Profili düzenle" + GM.gruplar: başlıklı kartsız satır grupları, Çıkış ayrı Oturum grubunda).
+ *   Diet mobil profil.js kalıbında (ortak hero GM.selamBas + altında "Profili düzenle" ve kimlik/sayaç bloğu + GM.gruplar: başlıklı kartsız satır grupları, Çıkış ayrı Oturum grubunda).
  * Ekranlar (ad · rota): profil #/profil (alt menü sekmesi) · profil-duzenle #/profil/duzenle · rezervasyonlar #/profil/rezervasyonlar · rezervasyon #/profil/rezervasyon/:id
  *   · favoriler #/profil/favoriler · ziyaretler #/profil/ziyaretler · degerlendirmeler #/profil/degerlendirmeler · katkilar #/profil/katkilar · puan #/profil/puan
  *   · listelerim #/profil/listeler · liste #/profil/liste/:id · etkinliklerim #/profil/etkinlikler · tercihler #/profil/tercihler.
@@ -169,17 +169,17 @@
   // =====================================================================
   // Profilim (#/profil): alt menü sekmesi
   // =====================================================================
-  const profilBas = (p, pz) => GM.profilBas({
-    ad: adSoyad(p) || 'Adını ekle', alt: [p.kullaniciAdi && `@${p.kullaniciAdi}`, pz.rutbe.ad].filter(Boolean).join(' · '), kapak: KAPAK, ust: true,
-    eylem: GM.durumRozet({metin: p.paket || 'Ücretsiz', ton: 'notr', ikon: 'profil'}),
-    sayaclar: [{deger: GM.sayi(ziyaretler().length), etiket: 'Ziyaret'}, {deger: GM.sayi(degerler().length), etiket: 'Değerlendirme'}, {deger: GM.sayi(pz.kesin), etiket: 'Dada Puan'}]
-  });
+  // Ortak hero (Görev 14/25, Mekân Bul kalıbı ekranlar/mekan-bul.js): GM.selamBas kısa foto + mor perde + üst yazı + <em> vurgulu başlık;
+  // ana düğme hero'nun ALTINDA tam genişlik; avatar, rütbe ve sayaçlar düğmenin altındaki ilk blokta.
+  const hero = baslikHtml => GM.selamBas({gorsel: KAPAK, ust: 'Profilim', baslikHtml});
+  const heroAlti = html => `<div class="gm-ic">${html}</div>`;
+  const kimlikBlok = (p, pz) => `<div class="gm-ic gm-yigin-12">${GM.satirlar([GM.satir({avatar: {ad: adSoyad(p) || 'D', gorsel: p.foto, boyut: 56}, baslik: adSoyad(p) || 'Adını ekle', alt: [p.kullaniciAdi && `@${p.kullaniciAdi}`, pz.rutbe.ad].filter(Boolean).join(' · '), sag: GM.durumRozet({metin: p.paket || 'Ücretsiz', ton: 'notr', ikon: 'profil'}), duz: true})])}${GM.stat([{deger: GM.sayi(ziyaretler().length), etiket: 'Ziyaret'}, {deger: GM.sayi(degerler().length), etiket: 'Değerlendirme'}, {deger: GM.sayi(pz.kesin), etiket: 'Dada Puan'}])}</div>`;
   const puanBolum = pz => {
     const s = pz.sonraki, kaz = rozetler().filter(r => r.hal !== 'kilitli').slice(0, 3);
     return `<div class="gm-yigin-12">${GM.eylemKart({ikon: 'puanDada', baslik: `${GM.sayi(pz.kesin)} puan · ${pz.rutbe.ad}`, alt: s ? `${s.ad} rütbesine ${GM.sayi(s.esik - pz.kesin)} puan` : 'En yüksek rütbedesin', git: '#/profil/puan'})}${s ? GM.ilerleme({n: pz.kesin - pz.rutbe.esik, hedef: s.esik - pz.rutbe.esik, etiket: `${pz.rutbe.ad} → ${s.ad}`, deger: `${GM.sayi(pz.kesin)} / ${GM.sayi(s.esik)}`}) : ''}${pz.bekleyen ? GM.veriYok(`**${GM.sayi(pz.bekleyen)} puan** onay bekliyor`) : ''}${kaz.length ? GM.rozetIzgara({ogeler: kaz}) : ''}</div>`;
   };
-  const misafirProfil = () => GM.profilBas({ad: 'Misafir', alt: 'Dada Gourmet’e hoş geldin', kapak: KAPAK, ust: true}) + GM.gruplar([
-    {html: GM.girisDuvari({ikon: 'profil', baslik: 'Profilini oluştur', metin: 'Rezervasyonların, favorilerin ve **Dada Puan**’ın her cihazda seninle olsun.', sunar: [['medal', 'Dada Puan ve rütbe', 'Değerlendirme, öneri ve rezervasyonla puan kazan'], ['calendar-check', 'Rezervasyonların', 'Onay durumunu tek yerden izle'], ['heart', 'Favorilerin ve listelerin', 'Mekân, lezzet, etkinlik ve rota']]})},
+  const misafirProfil = () => hero('Lezzet yolculuğun <em>burada</em>') + heroAlti(GM.btnIkili({metin: 'Üye ol', git: '#/kayit'}, {metin: 'Giriş yap', ikon: 'right-to-bracket', git: '#/giris'})) + GM.gruplar([
+    {baslik: 'Giriş yapınca', html: GM.maddeler([['medal', 'Dada Puan ve rütbe', 'Değerlendirme, öneri ve rezervasyonla puan kazan'], ['calendar-check', 'Rezervasyonların', 'Onay durumunu tek yerden izle'], ['heart', 'Favorilerin ve listelerin', 'Mekân, lezzet, etkinlik ve rota; her cihazda seninle']])},
     {baslik: 'Keşif', satirlar: [
       {ikon: 'filtre', baslik: 'Keşif tercihlerim', alt: 'Mutfak, mekân türü, şehir', git: '#/profil/tercihler'},
       {ikon: 'rota', baslik: 'Rotalarım', alt: 'Bu cihazda kayıtlı rotaların', git: '#/rota/rotalarim'}
@@ -197,7 +197,7 @@
     const p = kisi(), pz = puanOzet(), r = rezler(), sira = r.filter(x => rezSekme(x) !== 'gecmis').sort((a, b) => `${a.tarih}${a.saat}`.localeCompare(`${b.tarih}${b.saat}`))[0];
     const say = s => r.filter(x => rezSekme(x) === s).length, d = degerler(), bil = GM.bildirimSayi(), t = tercih();
     const cagri = cagrilar()[0];
-    return profilBas(p, pz) + GM.gruplar([
+    return hero(p.ad ? `Merhaba <em>${GM.esc(p.ad)}</em>` : 'Hoş <em>geldin</em>') + heroAlti(GM.btn({metin: 'Profili düzenle', ikon: 'duzenle', tur: 'secondary', tam: true, git: '#/profil/duzenle'})) + kimlikBlok(p, pz) + GM.gruplar([
       cagri && {html: cagriBant(cagri)},
       {baslik: 'Dada Puan', eylem: {git: '#/profil/puan'}, html: puanBolum(pz)},
       sira && {baslik: 'Sıradaki rezervasyonun', eylem: {git: '#/profil/rezervasyonlar'}, satirlar: [rezSatir(sira)]},
@@ -227,7 +227,7 @@
         {ikon: 'circle-question', baslik: 'Sık sorulan sorular', git: '#/sss'}
       ]},
       {baslik: 'Oturum', satirlar: [{ikon: 'cikis', baslik: 'Çıkış yap', veri: {eylem: 'cikis'}, ok: false, yikici: true}]}
-    ], {bas: GM.btn({metin: 'Profili düzenle', ikon: 'duzenle', tur: 'secondary', boyut: 'sm', tam: true, git: '#/profil/duzenle'})});
+    ]);
   };
   GM.ekran('profil', {
     tur: 'banner', nav: 'profil', dock: true, ustBar: {geri: false}, baslik: 'Profilim', iskelet: 'profil', yenile: true,

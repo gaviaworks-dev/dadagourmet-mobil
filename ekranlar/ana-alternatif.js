@@ -31,7 +31,7 @@
 
   // ---------- A · Dada ailesi ----------
   GM.ekran('ana-a', {
-    tur: 'sekme', nav: 'kesfet', baslik: 'Keşfet', bos: {ikon: 'rota', baslik: 'Bugünün rotası hazırlanıyor', metin: 'Pilot rota yayına girince burada görünür. Şimdilik **mekânlara** göz atabilirsin.', eylem: {metin: 'Mekânları keşfet', ikon: 'mekan', git: '#/mekanlar'}},
+    tur: 'sekme', nav: 'kesfet', baslik: 'Keşfet', bos: {ikon: 'rota', baslik: 'Öneriler hazırlanıyor', metin: 'Yeni mekân ve rotalar yayına girince burada görünür. Şimdilik **mekânlara** göz atabilirsin.', eylem: {metin: 'Mekânları keşfet', ikon: 'mekan', git: '#/mekanlar'}},
     ustBar: () => ({saydam: true}),
     // Çekip yenile: etkinlik ve lezzet rayı veriden yeniden kurulur (sabit an GM.simdi).
     cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
@@ -52,10 +52,8 @@
           {ad: 'Mekân Ara', deger: 'mekan', yer: 'Mekân, mutfak ya da semt ara', git: '#/ara', ikon: 'ara_'},
           {ad: 'Etkinlik', deger: 'etkinlik', yer: 'Festival, tadım, atölye ara', git: '#/etkinlikler', ikon: 'etkinlik'}]})
           + GM.populer({ogeler: [['Bursa İskender', 'bursa'], ['Urla bağ yolu', 'urla'], ['Ege kahvaltısı', 'kahvalti'], ['Esnaf lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`}))})
-          + GM.stats([{deger: GM.sayi(M.length), etiket: 'mekân'}, {deger: GMV.rotalar.length, etiket: 'pilot rota'}, {deger: GMV.etkinlikler.length, etiket: 'etkinlik'}, {deger: GMV.lezzetler.length, etiket: 'lezzet yazısı'}])
       });
       return hero + GM.bolumler([
-        {baslik: 'Bugünün Rotası', eylem: 'Haritada', git: `#/rota/${R.id}`, html: GM.yigin([GM.rotaKart(GM.rotaKartVeri(R, {etiket: `Pilot rota · varış ${GM.varisSaati(R.dk)}`, gorsel: duraklar[0]?.mekan.kapak}), {tur: 'genis', kaydet: false, sinif: 'gm-ka-rk'}), GM.yatay(duraklar.map(d => GM.mekanKart(d.mekan, {sapma: {dk: d.sapma, km: d.km}})))])},
         // Reklam yuvaları (lider kararı 15 Kas): patron kararına dek ekranda yer kaplamaz; yalnız DOM'da gizli işaret (Flutter yeri).
         {...B.konsept, html: B.konsept.html + GM.reklamIsaret('AS-T1')}, B.mekan, {...B.modul, html: B.modul.html + GM.reklamIsaret('AS-M1')}, B.etkinlik, B.lezzet, B.rehber, B.teaser + GM.reklamIsaret('AS-B1')
       ]);

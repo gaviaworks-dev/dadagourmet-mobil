@@ -52,6 +52,9 @@
     {id: 'hizli', ikon: 'bolt', ad: 'En hızlı', dk: r.dk, km: Math.round(r.km), alt: `${GM.rotaSayi(r).yolUstu} yol üstü durak · otoyol`},
     {id: 'sakin', ikon: 'leaf', ad: 'Sakin yol', dk: r.dk + 48, km: Math.round(r.km + 31), alt: 'Ücretli yol yok · köy lokantaları'}];
   // Web paritesi (Görev 11): pilot güzergâhlar, ara durakta tahmini bekleme (15–90 dk), tolerans "Özel km" (2–30), ara durak sınırı 3, Yeni rota.
+  // Mola aralığı (Beyar 16 Kas: "mola öner custom olsun"): Mola öner açıkken 1 · 1,5 · 2 · 3 sa; varsayılan 2 sa (rota-planla.molaAralik, dk).
+  const MOLA_ARALIK = [[60, '1 sa'], [90, '1,5 sa'], [120, '2 sa'], [180, '3 sa']];
+  const molaMetin = dk => (MOLA_ARALIK.find(x => x[0] === +dk) || MOLA_ARALIK[2])[1].replace(' sa', ' saatte');
   const SIRA = [['oneri', 'Önerilen'], ['sapma', 'En kısa sapma'], ['km', 'Km sırası'], ['acik', 'Açık olanlar önce']];
   const PILOT = ['istanbul-izmir', 'istanbul-ankara', 'ankara-antalya', 'istanbul-bursa', 'izmir-cesme'];
   const pd = () => ({bekle: 45, tol: '10', km: 12, nereden: GM.KONUMUM, nereye: null, ara: [], ...(GM.durum.oku('rota-planla', null) || {})});
@@ -67,14 +70,14 @@
         const r = GM.rotaEslestir(d.nereden, d.nereye), bas = `${d.nereden.ad} → ${d.nereye?.ad || '…'}${d.ara.length ? ` · ${d.ara.length} ara durak` : ''}`;
         if (!r) return GM.bolumler([{html: GM.yigin([`<div class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">${GM.esc(bas)}</p><h2 class="gm-t-section">Bu güzergâh henüz yok</h2></div>`, GM.p(`Dada Route şimdilik **pilot rotalarda** çalışıyor. **${d.nereden.il || d.nereden.ad}** çıkışlı bir güzergâh seç ya da varışı değiştir.`)], 16)},
           {baslik: 'Pilot güzergâhlar', html: pilotCip(false)}]);
-        return `<div class="gm-ic gm-yigin-24"><div class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">${GM.esc(bas)}</p><h2 class="gm-t-section">3 rota bulundu</h2></div>${GM.harita({ad: 'planla-sonuc', yukseklik: '220px', etkilesim: false, kontroller: false, rota: {cizgi: r.cizgi, alternatif: r.id === 'istanbul-izmir' ? GM.rotaBul('istanbul-bursa')?.cizgi : undefined}, pinler: [{lng: r.cizgi[0][0], lat: r.cizgi[0][1], tur: 'baslangic', ikon: 'baslangic'}, {lng: r.cizgi.at(-1)[0], lat: r.cizgi.at(-1)[1], tur: 'varis', ikon: 'varis'}]})}${GM.rotaSecenekler(SECENEK(r), {secili: 'lezzet', rozet: 'Önerilen'})}${GM.bilgi({ikon: 'bilgi', metin: 'Süreler trafiksiz tahmindir; mola süreleri ayrıca eklenir.'})}</div>`;
+        return `<div class="gm-ic gm-yigin-24"><div class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">${GM.esc(bas)}</p><h2 class="gm-t-section">3 rota bulundu</h2></div>${GM.harita({ad: 'planla-sonuc', yukseklik: '220px', etkilesim: false, kontroller: false, rota: {cizgi: r.cizgi, alternatif: r.id === 'istanbul-izmir' ? GM.rotaBul('istanbul-bursa')?.cizgi : undefined}, pinler: [{lng: r.cizgi[0][0], lat: r.cizgi[0][1], tur: 'baslangic', ikon: 'baslangic'}, {lng: r.cizgi.at(-1)[0], lat: r.cizgi.at(-1)[1], tur: 'varis', ikon: 'varis'}]})}${GM.rotaSecenekler(SECENEK(r), {secili: 'lezzet', rozet: 'Önerilen'})}${GM.bilgi({ikon: 'bilgi', metin: `Süreler trafiksiz tahmindir; mola süreleri ayrıca eklenir.${d.mola !== false ? ` Her **${molaMetin(d.molaAralik || 120)}** bir mola önerilir.` : ''}`})}</div>`;
       }
       const satirlar = [{tur: 'bas', ad: d.nereden.ad, alt: d.nereden.alt, id: 'a'}, ...d.ara.map((x, i) => ({tur: 'ara', ad: x.ad, alt: `Tahmini bekleme ${x.bekle || d.bekle} dk`, id: `d${i}`})), {tur: 'son', ad: d.nereye?.ad, yer: 'Nereye gidiyorsun?', alt: d.nereye?.alt, id: 'b'}];
       return `<div class="gm-ic gm-yigin-24">${GM.durakDuzen(satirlar, {ekleMetin: 'Ara durak ekle (en çok 3)'})}
         ${GM.alan({etiket: 'Pilot güzergâhlar', html: pilotCip()})}
         ${GM.alan({etiket: 'Araç', html: GM.aracSecim({ad: 'arac', secili: GM.durum.oku('rota-arac', 'yakit') || 'yakit'})})}
         ${GM.alan({etiket: 'Duraklar rotadan en çok ne kadar saptırsın?', html: GM.segment({ad: 'tolerans', secili: d.tol, ogeler: [{ad: 'Yol üstü', deger: '0'}, {ad: '5 dk', deger: '5'}, {ad: '10 dk', deger: '10'}, {ad: '20 dk', deger: '20'}, {ad: d.tol === 'ozel' ? `${d.km} km` : 'Özel', deger: 'ozel'}]})})}
-        <section class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">İhtiyaçlar</p>${GM.toggle({ad: 'mola', ikon: 'dinlenme', etiket: 'Her 2 saatte bir mola öner', alt: 'Dinlenme alanı ya da konaklamalı yeme-içme', secili: true})}${GM.toggle({ad: 'ibadet', ikon: 'cami', etiket: 'Yol üstündeki ibadethaneleri göster', alt: 'Yol ayrım mesafesiyle'})}${GM.toggle({ad: 'alinir', ikon: 'neAlinir', etiket: 'Ne Alınır? duraklarını ekle', alt: 'Yöresel ürün ve kooperatifler', secili: true})}</section></div>`;
+        <section class="gm-yigin-8"><p class="gm-t-label gm-ton-ikincil">İhtiyaçlar</p>${GM.toggle({ad: 'mola', ikon: 'dinlenme', etiket: 'Mola öner', alt: 'Dinlenme alanı ya da konaklamalı yeme-içme', secili: d.mola !== false})}${d.mola !== false ? GM.segment({ad: 'mola-aralik', etiket: 'Mola aralığı', secili: String(d.molaAralik || 120), ogeler: MOLA_ARALIK.map(([dk, ad]) => ({ad, deger: String(dk)}))}) : ''}${GM.toggle({ad: 'ibadet', ikon: 'cami', etiket: 'Yol üstündeki ibadethaneleri göster', alt: 'Yol ayrım mesafesiyle'})}${GM.toggle({ad: 'alinir', ikon: 'neAlinir', etiket: 'Ne Alınır? duraklarını ekle', alt: 'Yöresel ürün ve kooperatifler', secili: true})}</section></div>`;
     },
     altBar: ctx => { if (ctx.sorgu.adim !== 'sonuc') return GM.altEylem({dugmeler: [{metin: 'Rotayı çiz', ikon: 'rota', veri: {eylem: 'plan-ciz'}, tam: true}]}); const d = pd(), r = GM.rotaEslestir(d.nereden, d.nereye);
       return r ? GM.altEylem({dugmeler: [{metin: 'Rotayı aç', ikon: 'harita', git: `#/rota/${r.id}`, tam: true}]}) : GM.altEylem({dugmeler: [{metin: 'Varışı değiştir', ikon: 'pin', veri: {eylem: 'plan-nereye'}, tam: true}]}); },
@@ -99,6 +102,9 @@
         GM.eylem(kap, 'plan-nereye', () => ucSec('nereye')),
         // Araç seçimi aktif haritayla ortak (rota-arac): Elektrikli'de şarj ve uzun mola durakları öne gelir.
         GM.on(kok, 'arac', v => GM.durum.yaz('rota-arac', v)),
+        // Mola öner: açıkken aralık segmenti görünür; seçim plan durumunda kalır.
+        GM.on(kok, 'mola', v => { pdYaz({mola: !!v}); GM.tazele(); }),
+        GM.on(kok, 'mola-aralik', v => { pdYaz({molaAralik: +v}); GM.toast(`Her **${molaMetin(v)}** bir mola önerilir`, {ikon: 'dinlenme'}); }),
         GM.on(kok, 'tolerans', v => (v === 'ozel' ? ozelKm() : pdYaz({tol: v}))),
         // Sırala (web durak sırası, J:261-303): ara durak sıralama ölçütü sheet'i; seçim kalıcı (rota-planla.sira), sheet'te işaretli.
         GM.eylem(kok, 'durak-sirala', () => GM.sheet({baslik: 'Ara durakları sırala', html: GM.yigin([GM.satirlar(SIRA.map(([deger, ad]) => ({ikon: 'sirala', baslik: ad, sag: (pd().sira || 'oneri') === deger ? GM.ik('onay') : '', veri: {eylem: 'plan-sira-sec', id: deger}}))), GM.p('Ara duraklar kalkış ile varış arasında bu ölçüte göre dizilir; rotada geri dönüş olmaz.', {ton: 'ikincil'})], 12),

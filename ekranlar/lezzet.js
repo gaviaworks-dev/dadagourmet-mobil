@@ -26,6 +26,10 @@
   const govdeOf = slug => GMV.lezzetGovde?.[slug] || null;
   const yaziGit = l => `#/lezzet/${l.slug}`;
 
+  // Liste sayfası başı (Görev 14, Beyar: ortak hero = Mekân Bul): GM.selamBas (kısa foto + mor perde + üst yazı + <em> vurgulu başlık + kavis);
+  // sayı şeridi hero'nun altında (GM.stat yalın, etkinlikler ile aynı); altında yapışkan araç (arama, segment, çipler) ve liste. Kalıp: mekan-bul.js, rota.js.
+  const listeUst = o => `${GM.selamBas({gorsel: o.gorsel, ust: o.ust, baslikHtml: o.baslikHtml})}<div class="gm-ic">${GM.stat(o.stat, {yalin: true})}</div>${o.arac}<div class="gm-liste-icerik">${o.html}</div>`;
+
   // ================= Liste (#/lezzetler) =================
   const SURE = [{deger: '3', ad: '3 dk', min: 0, max: 3}, {deger: '4-5', ad: '4-5 dk', min: 4, max: 5}, {deger: '6-8', ad: '6-8 dk', min: 6, max: 8}, {deger: '9', ad: '9 dk ve üstü', min: 9, max: 99}];
   const SIRALAR = [['yeni', 'En yeni', 'clock'], ['populer', 'En çok okunan', 'fire'], ['kisa', 'En kısa okuma', 'hourglass-start'], ['ad', 'A’dan Z’ye', 'arrow-down-a-z']];
@@ -83,7 +87,8 @@
 
   let A = null, hataListe = false;
   GM.ekran('lezzetler', {
-    tur: 'banner', baslik: 'Gurme Lezzetler', ust: '#/kesfet', iskelet: 'kart',
+    tur: 'alt', baslik: 'Gurme Lezzetler', ust: '#/kesfet', iskelet: 'kart',
+    ustBar: () => ({saydam: true}),   // hero (GM.selamBas) üstünde saydam, kayınca solid (etkinlikler, Mekân Bul kalıbı)
     bos: {ikon: 'book-open', baslik: 'Henüz yayınlanmış yazı yok', metin: 'Editörlerimiz yeni lezzet hikâyeleri **hazırlıyor**. Bu arada mekânlara göz at.', eylem: {metin: 'Mekânlar', ikon: 'mekan', yerine: '#/mekanlar'}},
     yukle: ctx => {
       if (ctx.sorgu.hal === 'hata' && !hataListe) { hataListe = true; return Promise.reject(new Error('baglanti')); }
@@ -94,8 +99,9 @@
       if (!L().length) return GM.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', ikon: 'yenile', yerine: '#/lezzetler'}});
       if (!A || A.hash !== ctx.hash) A = durumKur(ctx);
       const s = A, kapak = sirala(L().filter(l => l.gorsel), 'populer')[0];
-      return GM.kubbe({
-        gorsel: kapak?.gorsel, etiket: 'Dada Gourmet · Editoryal', baslik: 'Gurme Lezzetler',
+      return listeUst({
+        gorsel: kapak?.gorsel, ust: 'Gurme Lezzetler',   // hero görseli tekrar etmez (lider): en çok okunan kapaklı yazının kapağı
+        baslikHtml: 'Sofranın <em>hikâyesi</em>',
         stat: [{deger: GM.sayi(L().length), etiket: 'yazı'}, {deger: kategoriler().length, etiket: 'kategori'}, {deger: katBul('sefler-gastronomi-insanlari')?.sayi ?? 0, etiket: 'söyleşi'}],
         arac: GM.listeArac({yer: 'Yazı, lezzet ya da etiket ara', ad: 'q', deger: s.q, filtreSayi: secimSayi(s), segment: segment(s), serit: serit(s)}),
         html: `${s.q || secimSayi(s) ? '' : ustKartlar()}${GM.sonucYuva(icerik(s, sirala(suz(s), s.sira)))}`
@@ -109,7 +115,7 @@
       const seritCiz = () => { const r = arac.querySelector('.gm-liste-rail'); if (!r) return; const x = r.firstElementChild?.scrollLeft || 0; r.innerHTML = serit(s); if (r.firstElementChild) r.firstElementChild.scrollLeft = x; };
       const segCiz = () => { const r = arac.querySelector('.gm-liste-scope'); if (r) r.innerHTML = segment(s); };
       // Yapışık araçta süzgeç değişince liste başı aracın hemen altına gelir (Diet ipuclari hizala).
-      const ust = () => { if (!arac.closest('.is-yapisik')) return; const fark = yuva.getBoundingClientRect().top - arac.getBoundingClientRect().bottom; if (fark < 0) kok.querySelector('.gm-kaydir').scrollTop += fark; };
+      const ust = () => { const fark = yuva.getBoundingClientRect().top - arac.getBoundingClientRect().bottom; if (fark < 0) kok.querySelector('.gm-kaydir').scrollTop += fark; };
       // Süzgeç değişince: araç güncellenir, sonuç yuvası önce iskelet, sonra sonuç (mekanlar-a kalıbı).
       const ciz = (iskelet = true) => {
         const l = sirala(suz(s), s.sira);
@@ -268,15 +274,17 @@
 
   let RD = null;
   GM.ekran('rehberler', {
-    tur: 'banner', baslik: 'Şehir Rehberleri', ust: '#/kesfet', iskelet: 'kart',
+    tur: 'alt', baslik: 'Şehir Rehberleri', ust: '#/kesfet', iskelet: 'kart',
+    ustBar: () => ({saydam: true}),   // hero (GM.selamBas) üstünde saydam, kayınca solid (etkinlikler, Mekân Bul kalıbı)
     bos: {ikon: 'sehir', baslik: 'Henüz yayınlanmış şehir rehberi yok', metin: 'Rehberler **yayına girdikçe** burada listelenir. Bu arada mekânlara göz at.', eylem: {metin: 'Mekânlar', ikon: 'mekan', yerine: '#/mekanlar'}},
     yukle: () => new Promise(r => setTimeout(r, BEKLE())),
     cekYenile: () => new Promise(r => setTimeout(r, GM.TK.motion.reveal * 2)),
     ciz: ctx => {
       if (!RD || RD.hash !== ctx.hash) RD = rDurum(ctx);
-      const d = RD, S = sehirler(), tescil = S.reduce((n, s) => n + s.tescil.length, 0), ed = S.find(x => x.editor);
-      return GM.kubbe({
-        gorsel: ed?.gorsel, etiket: 'Keşfet ve Planla', baslik: 'Şehir Rehberleri',
+      const d = RD, S = sehirler(), tescil = S.reduce((n, s) => n + s.tescil.length, 0);
+      return listeUst({
+        gorsel: GM.mekan('lacivert-restaurant')?.kapakB || sehirler()[0]?.gorsel, ust: 'Şehir Rehberleri',   // İstanbul (Boğaz) mekân kapağı; editör kartından ve öteki hero'lardan farklı (sokak-panorama Profil'de)
+        baslikHtml: 'Şehrin <em>lezzet</em> haritası',
         stat: [{deger: S.length, etiket: 'şehir rehberi'}, {deger: GM.sayi((GMV.mekanlar || []).length), etiket: 'mekân'}, {deger: GM.sayi(tescil), etiket: 'coğrafi işaret'}],
         arac: GM.listeArac({yer: 'Şehir ya da yöresel ürün ara', ad: 'q', deger: d.q, filtreSayi: d.kapsam.length, serit: rSerit(d)}),
         html: `${d.q || d.bolge || d.kapsam.length ? '' : editorKapak()}${GM.sonucYuva(rIcerik(d))}${yontem()}${kopruBolum()}`
