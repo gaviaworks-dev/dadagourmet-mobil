@@ -123,7 +123,8 @@
     const top = kumul.at(-1), i = Math.max(1, kumul.findIndex(k => k >= konumKm / R.km * top)), konum = R.cizgi[i];
     const simdi = GM.simdi().getHours() * 60 + GM.simdi().getMinutes(), eta = km => GM.saatNokta(simdi + Math.round((km - konumKm) * hiz));
     return {R, K, d, E, P, oneri, gec, si, hedef, konumKm, konum, gecilen: R.cizgi.slice(0, i + 1), hiz, eta, kalanKm: Math.round(R.km - konumKm), kalanDk: Math.round((R.km - konumKm) * hiz),
-      uyari: hedef ? {baslik: hedef.km - konumKm < 2 ? `Şimdi: ${hedef.ad}` : `3 km sonra: ${hedef.ad}`, metin: hedef.uzak <= 1 ? 'Yol üstünde, süre eklemez. Durmak ister misin?' : `Rotadan +${hedef.sapma} dk. Durmak ister misin?`} : {baslik: `3 km sonra varış: ${R.varis}`, metin: 'Rotadaki bütün durakları geçtin.'}};
+      // Yaklaşım bandı (≤ 3 km): durak adı ve sapma kartta yazılı; bant yalnız anı ve soruyu söyler (tekrar yok).
+      uyari: hedef ? {baslik: hedef.km - konumKm < 2 ? 'Durağa geldin' : 'Durağa yaklaşıyorsun', metin: '· durmak ister misin?'} : {baslik: 'Varışa yaklaşıyorsun', metin: '· bütün durakları geçtin'}};
   };
   const kmY = km => (km < 1 ? 'kalkışta' : `${GM.sayi(Math.round(km))}. km`);
   GM.ekran('rota-surus', {
@@ -143,7 +144,7 @@
         {saat: v.eta(R.km), tur: 'uc', ikon: 'varis', etiket: 'Varış', baslik: R.varis, alt: `${GM.sayi(v.kalanKm)} km kaldı`, simdi: si < 0}];
       const bas = GM.yigin([GM.rotaMetrik([{etiket: 'Varış', deger: v.eta(R.km)}, {etiket: 'Kalan süre', deger: GM.sure(v.kalanDk)}, {etiket: 'Kalan yol', deger: GM.sayi(v.kalanKm), birim: 'km'}]), GM.yolTakipEylem({gec: !!hedef, bitir: !hedef})], 12);
       return GM.haritaEkran({sinif: 'gm-yt',
-        harita: GM.harita({ad: 'yt-h', tam: true, kontroller: false, rota: {cizgi: R.cizgi, gecilen: v.gecilen}, konum, yon: 200, sinir, dolgu: {top: 250, bottom: 230, left: 56, right: 56}, pinler, etiket: `${R.ad} yol takibi haritası`}),
+        harita: GM.harita({ad: 'yt-h', tam: true, kontroller: false, rota: {cizgi: R.cizgi, gecilen: v.gecilen}, konum, yon: 200, sinir, dolgu: {top: 250, bottom: 230, left: 84, right: 84}, pinler, etiket: `${R.ad} yol takibi haritası`}),
         ust,
         cekmece: GM.cekmece({ad: 'yt-cekmece', durak: ['yarim', 'tam'].includes(ctx.sorgu.cekmece) ? ctx.sorgu.cekmece : 'kapali', bas, etiket: 'Yol takibi: duraklar', html: GM.krListe([GM.zamanAkis(satir)], {ikon: 'durak', baslik: `Duraklar · ${P.length}`, alt: v.oneri ? 'Henüz durak eklemedin; Dada’nın önerdiği duraklar' : 'Saatler trafiksiz tahmindir'})})
       });

@@ -412,9 +412,8 @@
 .gm-seg.gm-ra-arac button[aria-selected=true]::after{content:"\f00c";margin-left:var(--gm-s-2);font:var(--gm-fa-solid-weight) var(--gm-size-icon-check)/1 "Font Awesome 6 Free"}
 body.gm .gm-seg.gm-ra-arac.has-gosterge::before{background:var(--gm-primary);box-shadow:var(--gm-sh-sm)}
 
-/* Görev 14/18: aktif harita çekmecesinde zebra bölümler tam genişlik (çekmece gövdesinin yan dolgusu geri alınır), bölüm dolgusu 24. */
+/* Görev 14/18: aktif harita çekmecesinde zebra bölümler tam genişlik (çekmece gövdesinin yan dolgusu geri alınır); bölüm dolgusu kanondaki 32 (Diet ile aynı). */
 .gm-ra .gm-kl-cekmece-govde > .gm-icerikler{margin:0 calc(-1 * var(--gm-gutter))}
-.gm-ra .gm-kl-cekmece-govde > .gm-icerikler > section{padding-block:var(--gm-s-24)}
 
 /* Kendi rota kartı (GM.kendiRotaKart, Görev 14/17): şerit kartı; siluet kâğıt ızgarada, üstünde durum rozeti; altta ad + tek meta. */
 .gm-ra-kr{flex:0 0 var(--gm-size-rail-card);display:grid;gap:var(--gm-s-4);min-width:0;color:var(--gm-ink);text-decoration:none;scroll-snap-align:start}

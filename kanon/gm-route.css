@@ -272,7 +272,15 @@
 .gm-yt-bar-metin small{font:var(--gm-t-nav-weight) var(--gm-t-nav-size)/1.2 var(--gm-font);color:var(--gm-slate)}
 .gm-yt-sira{display:grid;gap:var(--gm-s-8);padding:var(--gm-s-12) var(--gm-s-16);border-radius:var(--gm-r-surface);background:var(--gm-paper);box-shadow:var(--gm-sh-md)}
 .gm-yt-sira [data-yt-uyari]:empty{display:none}
-.gm-yt-sira .gm-yaklas{margin:0}
+/* Yaklaşım (≤ 3 km): ayrı kart değil, sıradaki durak kartının üst bandı; tek satır, durak adı kartta bir kez. */
+.gm-yt-sira:has([data-yt-uyari] > *){padding-top:0;overflow:hidden}
+.gm-yt-sira [data-yt-uyari]{margin:0 calc(-1 * var(--gm-s-16))}
+.gm-yt-sira .gm-yaklas{margin:0;padding:var(--gm-s-8) var(--gm-s-16);border-radius:0;gap:var(--gm-s-8);align-items:center}
+.gm-yt-sira .gm-yaklas .gm-yaklas-ikon{width:var(--gm-size-badge);height:var(--gm-size-badge);font-size:var(--gm-size-icon-check)}
+.gm-yt-sira .gm-yaklas .gm-satir-metin{display:flex;align-items:baseline;gap:var(--gm-s-4);min-width:0;white-space:nowrap;overflow:hidden}
+.gm-yt-sira .gm-yaklas .gm-satir-metin > *{overflow:hidden;text-overflow:ellipsis}
+.gm-yt-sira .gm-yaklas b{font-size:var(--gm-t-meta-size)}
+.gm-yt-sira .gm-yaklas span{font-size:var(--gm-t-meta-size)}
 .gm-yt-sira-ust{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--gm-s-12)}
 .gm-yt-sira-mesafe{display:grid;justify-items:center;min-width:var(--gm-size-box-xl);padding-right:var(--gm-s-12);border-right:var(--gm-size-border) solid var(--gm-line)}
 .gm-yt-sira-mesafe b{font:var(--gm-t-numeral-md-weight) var(--gm-t-numeral-md-size)/1 var(--gm-font-bold);letter-spacing:var(--gm-t-numeral-md-track);color:var(--gm-primary);white-space:nowrap}

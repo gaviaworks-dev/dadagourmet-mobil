@@ -44,8 +44,9 @@
     {id: 'pro', label: 'Dada Gourmet Pro', icon: 'bolt', git: '#/pro'},
     {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', git: '#/gorus-bildir'}
   ]];
-  // 14/14: öne çıkan eylem kartları (Diet "Diyetisyen Ol" kalıbı .gm-uzman-ol: kesikli çerçeve, ikon, kalın başlık, kısa alt satır), yan yana iki kart.
-  const eylemler = () => `<div class="gm-menu-eylemler">${[['#/mekan-oner', 'circle-plus', 'Mekân Öner', '+50 Dada Puan'], ['#/isletme', 'store', 'İşletmeni Ekle', 'Ücretsiz başvuru']].map(([g, i, b, a]) => `<a class="gm-uzman-ol" href="${esc(g)}" data-menu-git="${esc(g)}">${ik(i)}<b>${esc(b)}</b><span>${esc(a)}</span></a>`).join('')}</div>`;
+  // 14/14 (Beyar 16 Kas düzeltmesi): Mekân Öner ve İşletmeni Ekle menünün geri kalanıyla AYNI blok + satır yapısında, hafifçe öne çıkan:
+  // açık mor blok zemini, mor ikon kutusu, adın altında kısa açıklama, sağda ok. (Önceki kesikli kartlar menüden kopuk duruyordu.)
+  const eylemler = () => `<div class="gm-menu-blok gm-menu-eylem">${[['#/mekan-oner', 'circle-plus', 'Mekân Öner', '+50 Dada Puan kazan'], ['#/isletme', 'store', 'İşletmeni Ekle', 'Ücretsiz başvuru']].map(([g, i, b, a]) => `<div class="gm-menu-item"><a class="gm-menu-row" href="${esc(g)}" data-menu-git="${esc(g)}"><span class="gm-menu-ic">${ik(i)}</span><span class="gm-menu-label">${esc(b)}<small>${esc(a)}</small></span><span class="gm-menu-chev">${ik('chevron-right')}</span></a></div>`).join('')}</div>`;
   const kisayollar = () => [['#/rota/rotalarim', 'route', 'Rotalarım'], ['#/profil/rezervasyonlar', 'calendar-check', 'Rezervasyonlarım'], ['#/profil/favoriler', 'heart', 'Favorilerim'], ['#/profil/puan', 'medal', 'Dada Puan']];
   // Dil: Ayarlar > Dil ile aynı iki dil ve aynı kayıt (hesap-ayar.dil.dil). Tasarım öğesi: uygulama TR çalışır, diller Flutter aşamasında gelir.
   const DILLER = [['tr', 'Türkçe'], ['en', 'English']];

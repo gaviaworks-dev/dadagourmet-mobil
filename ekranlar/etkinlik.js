@@ -59,9 +59,20 @@
 
   // ---------- Kartlar ----------
   const meta = e => `${aralik(e)} · ${e.yer}`;
-  const satirKart = e => GM.etkinlikKart({...e, il: e.il === e.yer ? null : e.il, tur: gecmis(e) ? `${e.tur} · Sona erdi` : e.tur}, {tur: 'satir'});
-  const izgaraKart = e => GM.icerikKart({gorsel: e.gorsel, ikon: 'etkinlik', kategori: gecmis(e) ? 'Sona erdi' : e.tur, baslik: e.ad, meta: meta(e), metaIkon: 'takvim', git: `#/etkinlik/${e.slug}`});
-  const satirlar = l => `<div class="gm-satirlar gm-ka-satirlar">${l.map(satirKart).join('')}</div>`;
+  // Satır kartı (REVIZE 22, Beyar 16 Kas): Liste-A mekân satır kartının birebir aynısı (GM.mekanKart 'yatay'); etkinlik verisi
+  // mekân kartı alanlarına uyarlanır: kategori = tür (küçük mor üst yazı / foto rozeti), ad = kalın tek satır kısa ad, tek meta = şehir · tarih (.gm-tek-satir),
+  // kaydet = kart kalbi (etkinlik-kayit; misafirde üye duvarı, ekranın 'kaydet' eylemi). Puan, fiyat, açık durumu etkinlikte yok → basılmaz.
+  const kartVeri = e => ({slug: e.slug, ad: kisaAd(e), kapak: e.gorsel, kategori: gecmis(e) ? `${e.tur} · Sona erdi` : e.tur, ilce: e.yer, puan: null, fiyat: 0});
+  const kartSec = (e, tur) => ({tur, git: `#/etkinlik/${e.slug}`, kayitli: kayit().includes(e.slug), etiket: aralik(e)});
+  const kartKaydet = el => {
+    if (!GM.uye()) { GM.uyeDuvar({baslik: 'Kaydetmek için giriş yap', metin: 'Etkinlikleri **kaydetmek** ve sonra dönmek için üye ol.'}); return; }
+    const on = cevir('etkinlik-kayit', kayit(), el.dataset.id); el.setAttribute('aria-pressed', on); GM.titres(10);
+    GM.toast(on ? '**İlgilendiğim** etkinliklere eklendi' : 'Kayıt kaldırıldı', {ikon: 'kaydet'});
+  };
+  const satirKart = e => GM.mekanKart(kartVeri(e), kartSec(e, 'yatay'));
+  // Izgara (REVIZE 23, lead 16 Kas): kanon etkinlik kartı — küçük büyük harfsiz kategori, kalın en çok 2 satır başlık, konum; foto üstünde tarih rozeti + kaydet.
+  const izgaraKart = e => GM.etkinlikKart({...e, ad: kisaAd(e), il: e.il === e.yer ? null : e.il, tur: gecmis(e) ? 'Sona erdi' : e.tur}, {kayitli: kayit().includes(e.slug)});
+  const satirlar = l => GM.listeSonuc(l.map(satirKart), {gorunum: 'liste'});
 
   // ================= Liste (#/etkinlikler) =================
   const SAYFA = 12, ANAHTAR = 'etkinlik-liste';
@@ -165,7 +176,7 @@
     const durum = GM.listeDurum({sayi: l.length, birim: 'etkinlik', gorunum: s.duzen, siraliAktif: s.sira !== 'onerilen'});
     if (!l.length) return `${durum}${bosSonuc(s)}`;
     const ic = dilim(l, 0, s.gosterilen, s);
-    return `${durum}${s.duzen === 'izgara' ? GM.listeSonuc([ic], {gorunum: 'izgara'}) : GM.listeSonucKap(`<div class="gm-liste-rows"><div class="gm-satirlar gm-ka-satirlar">${ic}</div></div>`)}${l.length <= s.gosterilen ? sonNot(l.length) : ''}`;
+    return `${durum}${s.duzen === 'izgara' ? GM.listeSonuc([ic], {gorunum: 'izgara'}) : GM.listeSonuc([ic], {gorunum: 'liste'})}${l.length <= s.gosterilen ? sonNot(l.length) : ''}`;
   };
   // Takvim: ayın etkinlik günleri noktalı (en çok 3), seçili günün etkinlikleri altta.
   const noktalar = l => { const n = {}; l.forEach(e => { for (let g = e.tarih, i = 0; g <= e.bit && i < 400; g = gunEkle(g, 1), i++) n[g] = (n[g] || 0) + 1; }); return Object.fromEntries(Object.entries(n).map(([g, k]) => [g, Array(Math.min(3, k)).fill('etkinlik')])); };
@@ -221,7 +232,7 @@
         if (s.gorunum !== 'liste') return;
         const l = sirala(suz(s), s.sira);
         if (l.length <= s.gosterilen) return;
-        const kap = yer.querySelector('.gm-liste-grid, .gm-liste-rows > .gm-satirlar'); if (!kap) return;
+        const kap = yer.querySelector('.gm-liste-grid, .gm-liste-rows'); if (!kap) return;
         io = GM.sonsuz(kap, () => {
           const bas = s.gosterilen, son = Math.min(l.length, bas + SAYFA); if (bas >= son) return '';
           s.gosterilen = son;
@@ -269,6 +280,7 @@
         })),
         GM.eylem(kok, 'sirala', () => GM.siralaSheet({baslik: 'Sırala', secenekler: SIRALAR, secili: s.sira, sec: v => { s.sira = v; guncelle(); kok.querySelector('.gm-liste-sort-button')?.classList.toggle('is-active', v !== 'onerilen'); }})),
         GM.eylem(kok, 'kaldir', el => { const [g, v] = el.dataset.id.split('|'); if (g === 'kat') s.kat = ''; else s.f[g] = s.f[g].filter(x => x !== v); guncelle(); }),
+        GM.eylem(kok, 'kaydet', kartKaydet),
         GM.eylem(kok, 'temizle', () => { s.f = bosF(); s.kat = ''; s.q = ''; girdi.value = ''; girdi.closest('.gm-girdi')?.classList.remove('has-text'); guncelle(); })
       );
       return () => { clearTimeout(bekle); clearTimeout(icCiz.z); io?.disconnect(); girdi.removeEventListener('input', ara); girdi.removeEventListener('keydown', enter); c.forEach(f => f()); };
@@ -404,6 +416,7 @@
         }),
         GM.eylem(kok, 'etk-hatirlat', () => { if (kapi('Hatırlatma için üye ol', 'Etkinlik başlamadan önce **bildirim** almak için üye ol.')) return; hatirlatmaSheet(e, kok); }),
         GM.eylem(kok, 'etk-ics', () => icsIndir(e)),
+        GM.eylem(kok, 'kaydet', kartKaydet),
         GM.eylem(kok, 'etk-bilet', () => x.b && disAc(x.b, 'Bilet ve rezervasyon organizatörün sitesinde,')),
         GM.eylem(kok, 'etk-kaynak', () => d?.kd?.u && disAc(d.kd.u, 'Organizatörün resmî duyurusu')),
         GM.eylem(kok, 'etk-kunye', () => d?.ks && kunyeSheet(e, d)),

@@ -585,7 +585,21 @@ body.gm .gm-puf-foto.is-yok{background-color:var(--gm-puf-ton,var(--gm-primary-t
 /* Hero'dan sonraki ilk bölüm: üst boşluk yarıya (alt menünün beyaz geçişi başlığı örtmesin; telefonda "Bugünün Rotası" görünür). */
 .gm-hero + .gm-icerikler > section:first-child{padding-top:var(--gm-s-16)}
 
-/* Görev 14/14: menüde öne çıkan eylem kartları (Mekân Öner · İşletmeni Ekle), Diet "Diyetisyen Ol" kalıbı .gm-uzman-ol, yan yana iki kart. */
-.gm-menu-eylemler{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gm-s-8);margin-inline:var(--gm-s-8)}
-.gm-menu-eylemler .gm-uzman-ol{text-decoration:none;color:var(--gm-ink);text-align:center}
-.gm-menu-eylemler .gm-uzman-ol span{font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate)}
+/* Görev 14/14 (Beyar 16 Kas): Mekân Öner · İşletmeni Ekle — menü bloğu ve satırıyla aynı yapı, hafif vurgu (açık mor zemin, mor ikon kutusu, alt açıklama). */
+.gm-menu-blok.gm-menu-eylem{background:var(--gm-primary-tint)}
+.gm-menu-eylem .gm-menu-row{min-height:calc(var(--gm-s-48) + var(--gm-s-8))}
+.gm-menu-eylem .gm-menu-ic{width:var(--gm-s-32);height:var(--gm-s-32);border-radius:var(--gm-r-control);background:var(--gm-paper);color:var(--gm-primary)}
+.gm-menu-eylem .gm-menu-label{display:grid;gap:2px;font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);color:var(--gm-ink)}
+.gm-menu-eylem .gm-menu-label small{font-family:var(--gm-font);font-weight:var(--gm-t-meta-weight);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line);color:var(--gm-slate);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-menu-eylem .gm-menu-chev{color:var(--gm-primary)}
+
+/* Beyar (16 Kas): uzun okuma metinleri (GM.makale → .gm-metin: etkinlik hakkında, lezzet yazısı, hakkımızda, yasal) iki yana yaslı.
+   11 Kas kararının 2. maddesi (başa yaslı) bu metinler için kaldırıldı; 1. madde (heceleme yok, gm-metin.css) geçerli → dar sütunda bazı satırlarda sözcük arası açılabilir.
+   Son satır başa yaslı. Kart ve kısa metinler başa yaslı kalır. */
+body .gm-metin p{text-align:justify!important;text-align-last:start!important}
+
+/* Beyar (16 Kas): etkinlik kartı ızgarada — küçük, büyük harfsiz kategori (.gm-card__category) + KALIN başlık (mekân kartı başlığının eşi). */
+.gm-liste-grid > .gm-ek{width:auto;min-width:0}
+.gm-ek .gm-card__title{font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold)}
+/* Izgarada tek satırlık başlık altında boş satır kalmasın (başlık en çok 2 satır, yüksekliği içeriğe göre). */
+.gm-liste-grid > .gm-ek .gm-card__title{height:auto;min-height:0}
