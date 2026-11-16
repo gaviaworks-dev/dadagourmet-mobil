@@ -51,7 +51,6 @@
           {ad: 'Rota Planla', deger: 'rota', yer: 'Nereye gidiyorsun? (ör. Bodrum)', git: '#/rota/planla', ikon: 'rota'},
           {ad: 'Mekân Ara', deger: 'mekan', yer: 'Mekân, mutfak ya da semt ara', git: '#/ara', ikon: 'ara_'},
           {ad: 'Etkinlik', deger: 'etkinlik', yer: 'Festival, tadım, atölye ara', git: '#/etkinlikler', ikon: 'etkinlik'}]})
-          + GM.populer({ogeler: [['Bursa İskender', 'bursa'], ['Urla bağ yolu', 'urla'], ['Ege kahvaltısı', 'kahvalti'], ['Esnaf lokantası', 'esnaf']].map(([m, k]) => ({metin: m, git: `#/mekanlar?ara=${k}`}))})
       });
       return hero + GM.bolumler([
         // Reklam yuvaları (lider kararı 15 Kas): patron kararına dek ekranda yer kaplamaz; yalnız DOM'da gizli işaret (Flutter yeri).
