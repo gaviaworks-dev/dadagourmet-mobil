@@ -81,11 +81,12 @@
   // Eğik üç sütun kolaj; dokunuş data-eylem="gec". Az görsel verilirse sütunları dolduracak kadar yinelenir.
   GM.acilis = (o = {}) => {
     const G = o.gorseller || [], K = G.length ? Array.from({length: 15}, (_, i) => G[i % G.length]) : [];
-    const sutun = k => `<div class="gm-ac-sutun">${K.map((g, i) => (i % 3 === k ? `<div class="gm-ac-karo"${bg(g)} data-i="${i % 5}"></div>` : '')).join('')}</div>`;
+    const sutun = k => `<div class="gm-ac-sutun">${K.map((g, i) => (i % 3 === k ? `<div class="gm-ac-karo"${bg(g)} data-i="${Math.floor(i / 3) % 5}"></div>` : '')).join('')}</div>`; // Gastro --i: karonun kendi sütunundaki sırası (yukarıdan aşağı 0..4)
     return `<div class="gm-ac" data-c="kalip" data-kalip="acilis"><div class="gm-ac-kolaj" aria-hidden="true">${sutun(0)}${sutun(1)}${sutun(2)}</div><div class="gm-ac-perde"></div><div class="gm-ac-isik" aria-hidden="true"></div><div class="gm-ac-orta"><img class="gm-ac-logo" src="${esc(o.logo || LOGO)}" alt="Dada Gourmet"></div><span class="gm-ac-hilal" aria-hidden="true"></span><button class="gm-ac-dokun" type="button" data-eylem="gec" aria-label="Geç"></button></div>`;
   };
   // Çıkış: kolaj düzleşip dağılır, sonra fn. Bir kez çalışır; dokunuş ve zamanlayıcı birlikte çağırabilir.
-  GM.acilisCik = (kok, fn) => { const e = kok.querySelector('.gm-ac'); if (!e || e.dataset.cikti) return; e.dataset.cikti = 1; if (GM.azHareket()) { fn?.(); return; } e.classList.add('is-cikis'); setTimeout(() => fn?.(), M.base); };
+  // Çıkışta ilk boyama koyu zemini (index.html gm-ac-koyu) de kalkar.
+  GM.acilisCik = (kok, fn) => { const e = kok.querySelector('.gm-ac'); if (!e || e.dataset.cikti) return; e.dataset.cikti = 1; const bit = () => { document.documentElement.classList.remove('gm-ac-koyu'); fn?.(); }; if (GM.azHareket()) { bit(); return; } e.classList.add('is-cikis'); setTimeout(bit, M.base); };
   // Gülücük kapak kalan yüksekliği doldurur: logo üstte, başlık ve metin altta, html beyaz alanda. Alt düğmeler altBar'dadır.
   GM.karsilamaKabuk = (o = {}) => `<div class="gm-ac-k3">${GM.gulucuk({gorsel: o.gorsel, sinif: 'gm-ac-kapak', icerik: `<img class="gm-ac-logo" src="${esc(o.logo || LOGO)}" alt="Dada Gourmet"><div class="gm-ac-metin" data-gm-veil-from><h1 class="gm-t-display">${esc(o.baslik)}</h1>${o.metin ? `<p class="gm-t-body">${vurgu(o.metin)}</p>` : ''}</div>`})}${o.html ? `<div class="gm-ac-alt">${o.html}</div>` : ''}</div>`;
 

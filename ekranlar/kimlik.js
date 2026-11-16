@@ -108,13 +108,13 @@
 
   // ---------- Açılış intro'su (Gastro birebir: Açılış kolajı → Karşılama vitrini → tercihler) ----------
   // İlk açılışta bir kez: splash 'intro' bayrağı yoksa karşılamaya, varsa Keşfet'e geçer. Bayrak Atla, Başla ya da Giriş yap ile yazılır (GM.durum, localStorage try/catch).
-  // ?intro=1 (adres ya da sayfa sorgusu; menüdeki "Intro'yu tekrar göster") bayrağı siler ve karşılamayı baştan açar.
+  // ?intro=1 (adres ya da sayfa sorgusu; menüdeki "Intro'yu tekrar göster") bayrağı siler ve ilk açılış sırasını baştan oynatır: kolaj (splash) → karşılama.
   const INTRO = 'intro';
   const introBitir = () => GM.durum.yaz(INTRO, 'tamam');
   try {
     if (/[?&]intro=1\b/.test(`${location.search}${location.hash}`)) {
       GM.durum.sil(INTRO);
-      if (!/^#\/karsilama(?=[?]|$)/.test(location.hash)) history.replaceState(null, '', `${location.pathname}#/karsilama`);
+      if (!/^#\/(splash|karsilama)(?=[?]|$)/.test(location.hash)) history.replaceState(null, '', `${location.pathname}#/splash`);
     }
   } catch { /* yok */ }
 
@@ -130,10 +130,12 @@
   GM.ekran('splash', {
     haller: false,
     tur: 'tam',
-    ciz: () => GM.acilis({gorseller: (window.GMV?.mekanlar || []).filter(m => m.kapak).slice(0, 15).map(m => m.kapak)}),
+    // Koyu kök (kanon html.gm-ac-koyu): ilk yüklemede index.html koyar; menüden (#/splash?intro=1) gelişte burada eklenir, GM.acilisCik kaldırır.
+    ciz: ctx => { if (ctx.sorgu.intro === '1') GM.durum.sil(INTRO); document.documentElement.classList.add('gm-ac-koyu'); return GM.acilis({gorseller: (window.GMV?.mekanlar || []).filter(m => m.kapak).slice(0, 15).map(m => m.kapak)}); },
     sonra: kok => {
+      // Süre Gastro Açılış · Kolaj ile aynı: reveal × 5 (azaltılmış harekette reveal); çıkış GM.acilisCik (düzleşme + 1.08 + solma, base sonra geçiş).
       const gec = () => GM.acilisCik(kok, () => GM.yerine(splashHedef()));
-      const zaman = setTimeout(gec, GM.TK.motion.reveal * 5), bag = GM.eylem(kok, 'gec', gec);
+      const zaman = setTimeout(gec, GM.azHareket() ? GM.TK.motion.reveal : GM.TK.motion.reveal * 5), bag = GM.eylem(kok, 'gec', gec);
       return () => { clearTimeout(zaman); bag(); };
     }
   });

@@ -45,6 +45,7 @@
 <body class="gm gm-uygulama">
 <script>/* Cihaz çerçevesi (karar sayfası iframe'i) içinde: iPhone 15/16 Pro durum çubuğu alanı (Dinamik Ada) için üst güvenli alan. */ try { if (window.self !== window.top) document.documentElement.style.setProperty('--gm-guvenli-ust', '50px'); } catch (e) { document.documentElement.style.setProperty('--gm-guvenli-ust', '50px'); }</script>
 <div class="gm-kok" id="gm-sahne"></div>
+<script>/* Açılış kolajı (Gastro body.ac-koyu-govde): #/ ve #/splash ilk boyamadan koyu zemin; kolajdan çıkınca kalkar. */ (function () { var R = /^(#\/?)?$|^#\/splash(\?|$)/, h = document.documentElement; if (!R.test(location.hash)) return; h.classList.add('gm-ac-koyu'); addEventListener('hashchange', function k() { if (!R.test(location.hash)) { h.classList.remove('gm-ac-koyu'); removeEventListener('hashchange', k); } }); })();</script>
 <script src="veri/mekanlar.js"></script>
 <script src="veri/rotalar.js"></script>
 <script src="veri/rota-geometri.js"></script>

@@ -173,3 +173,5 @@ body.gm .gm-liste-scope .gm-seg.has-gosterge::before{top:0;bottom:0}
 .gm-ac-giris{text-align:center;color:var(--gm-slate);font-size:var(--gm-t-meta-size);line-height:var(--gm-t-meta-line)}
 .gm-ac-giris a{display:inline-flex;align-items:center;min-height:var(--gm-size-touch);color:var(--gm-primary-deep);font-family:var(--gm-font-bold);font-weight:var(--gm-weight-bold);text-decoration:underline;text-underline-offset:var(--gm-s-4)}
 .gm-ac-kapak .gm-gkapak{touch-action:pan-y} /* yatay kaydırma modül değiştirir, dikey sayfada kalır */
+/* Açılış kolajı ilk boyama: Gastro body.ac-koyu-govde karşılığı (index.html satır içi betik #/ ve #/splash adresinde ekler). */
+html.gm-ac-koyu,html.gm-ac-koyu body,html.gm-ac-koyu .gm-kok,html.gm-ac-koyu .gm-ekran{background:var(--gm-overlay)}
